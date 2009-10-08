@@ -3841,13 +3841,24 @@
                         carouselEl.appendChild(el);
                     }
                 } else {
-                    if (!JS.isUndefined(itemsTable.items[obj.pos + 1])) {
-                        sibling = Dom.get(itemsTable.items[obj.pos + 1].id);
+                    if (!JS.isUndefined(itemsTable.loading[pos])) {
+                        oel = itemsTable.loading[pos];
+                        // if oel is null, it is a problem ...
                     }
-                    if (sibling) {
-                        carouselEl.insertBefore(el, sibling);
+                    if (oel) {
+                        // replace the node
+                        carouselEl.replaceChild(el, oel);
+                        // ... and remove the item from the data structure
+                        delete itemsTable.loading[pos];
                     } else {
-                        YAHOO.log("Unable to find sibling","error",WidgetName);
+                      if (!JS.isUndefined(itemsTable.items[obj.pos + 1])) {
+                          sibling = Dom.get(itemsTable.items[obj.pos + 1].id);
+                      }
+                      if (sibling) {
+                          carouselEl.insertBefore(el, sibling);
+                      } else {
+                          YAHOO.log("Unable to find sibling","error",WidgetName);
+                      }
                     }
                 }
             } else {
