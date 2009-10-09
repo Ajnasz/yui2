@@ -3808,71 +3808,40 @@
                 carousel   = this,
                 carouselEl = carousel._carouselEl,
                 el,
-                item,
                 itemsTable = carousel._itemsTable,
                 oel,
-                pos,
                 sibling,
-                styles;
+                styles,
+                pos        = JS.isUndefined(obj.pos) ?
+                                obj.newPos || itemsTable.numItems - 1 : obj.pos,
+                item       = itemsTable.items[pos] || {};
 
-            pos  = JS.isUndefined(obj.pos) ?
-                   obj.newPos || itemsTable.numItems - 1 : obj.pos;
-
-            if (!oel) {
-                item = itemsTable.items[pos] || {};
-                el = carousel._createCarouselItem({
-                        className : item.className,
-                        styles    : item.styles,
-                        content   : item.item,
-                        id        : item.id,
-                        pos       : pos
-                });
-                if (JS.isUndefined(obj.pos)) {
-                    if (!JS.isUndefined(itemsTable.loading[pos])) {
-                        oel = itemsTable.loading[pos];
-                        // if oel is null, it is a problem ...
-                    }
-                    if (oel) {
-                        // replace the node
-                        carouselEl.replaceChild(el, oel);
-                        // ... and remove the item from the data structure
-                        delete itemsTable.loading[pos];
-                    } else {
-                        carouselEl.appendChild(el);
-                    }
-                } else {
-                    if (!JS.isUndefined(itemsTable.loading[pos])) {
-                        oel = itemsTable.loading[pos];
-                        // if oel is null, it is a problem ...
-                    }
-                    if (oel) {
-                        // replace the node
-                        carouselEl.replaceChild(el, oel);
-                        // ... and remove the item from the data structure
-                        delete itemsTable.loading[pos];
-                    } else {
-                      if (!JS.isUndefined(itemsTable.items[obj.pos + 1])) {
-                          sibling = Dom.get(itemsTable.items[obj.pos + 1].id);
-                      }
-                      if (sibling) {
-                          carouselEl.insertBefore(el, sibling);
-                      } else {
-                          YAHOO.log("Unable to find sibling","error",WidgetName);
-                      }
-                    }
-                }
+            el = carousel._createCarouselItem({
+                    className : item.className,
+                    styles    : item.styles,
+                    content   : item.item,
+                    id        : item.id,
+                    pos       : pos
+            });
+            if (!JS.isUndefined(itemsTable.loading[pos])) {
+                oel = itemsTable.loading[pos];
+                // if oel is null, it is a problem ...
+            }
+            if (oel) {
+                // replace the node
+                carouselEl.replaceChild(el, oel);
+                // ... and remove the item from the data structure
+                delete itemsTable.loading[pos];
+            } else if(JS.isUndefined(obj.pos)){
+                carouselEl.appendChild(el);
             } else {
-                if (JS.isUndefined(obj.pos)) {
-                    if (!Dom.isAncestor(carousel._carouselEl, oel)) {
-                        carouselEl.appendChild(oel);
-                    }
+                if (!JS.isUndefined(itemsTable.items[obj.pos + 1])) {
+                    sibling = Dom.get(itemsTable.items[obj.pos + 1].id);
+                }
+                if (sibling) {
+                    carouselEl.insertBefore(el, sibling);
                 } else {
-                    if (!Dom.isAncestor(carouselEl, oel)) {
-                        if (!JS.isUndefined(itemsTable.items[obj.pos + 1])) {
-                            carouselEl.insertBefore(oel,
-                                    Dom.get(itemsTable.items[obj.pos + 1].id));
-                        }
-                    }
+                    YAHOO.log("Unable to find sibling","error",WidgetName);
                 }
             }
 
