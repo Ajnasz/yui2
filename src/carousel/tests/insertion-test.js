@@ -13,27 +13,25 @@ YAHOO.util.Event.onDOMReady(function(){
     'http://farm1.static.flickr.com/93/258613376_ff23d40bbf_s.jpg',
     'http://farm1.static.flickr.com/95/259394895_8944fe68bc_s.jpg'
   ],
+  numVisible = 3,
+  firstVisible = 3,
+  addItem = function(index) {
+      // make sure, the image index is exists
+      // we also use this checking to avoid to add an image to the carousel twice
+      if(images[index]) {
+        carousel.addItem('<img src="' + images[index] + '">', index);
+        YAHOO.log('imags[index]: ' + index + ': ' + images[index], 'info', TestName);
+        images[index] = undefined; // set to undefined, so we won't add an image into the carousel twice
+      }
+  },
   addItems = function(start) {
-    if(images[start]) {
-      carousel.addItem('<img src="' + images[start] + '">', start);
-      images[start] = undefined;
-      YAHOO.log('imags[start]: ' + start + ': ' + images[start], 'info', TestName);
-    }
-    if(images[start+1]) {
-      carousel.addItem('<img src="' + images[start+1] + '">', start+1);
-      images[start+1] = undefined;
-      YAHOO.log('imags[start+1]: ' + (start+1) + ': ' + images[start+1], 'info', TestName);
-    }
-    if(images[start+2]) {
-      carousel.addItem('<img src="' + images[start+2] + '">', start+2);
-      images[start+2] = undefined;
-      YAHOO.log('imags[start+2]: ' + (start+2) + ': ' + images[start+2], 'info', TestName);
+    for (var i = 0; i < numVisible; i++) {
+      addItem([start+i]);
     }
   },
-  firstVisible = 3,
   carousel = new YAHOO.widget.Carousel('container', {
     isCircular: false,
-    numVisible: 3,
+    numVisible: numVisible,
     scrollIncrement: 3,
     animation: {speed: 0},
     numItems: images.length,
