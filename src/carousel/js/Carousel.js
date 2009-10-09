@@ -3804,14 +3804,12 @@
          * @protected
          */
         _syncUiForItemAdd: function (obj) {
-            var attr,
-                carousel   = this,
+            var carousel   = this,
                 carouselEl = carousel._carouselEl,
                 el,
                 itemsTable = carousel._itemsTable,
                 oel,
                 sibling,
-                styles,
                 pos        = JS.isUndefined(obj.pos) ?
                                 obj.newPos || itemsTable.numItems - 1 : obj.pos,
                 item       = itemsTable.items[pos] || {};
