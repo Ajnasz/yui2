@@ -1,0 +1,9 @@
+.yui-inline-editor-editable .yui-inline-editor-save,
+.yui-inline-editor-editable .yui-inline-editor-cancel,
+.yui-inline-editor-editing .yui-inline-editor-edit {
+    display:none;
+}
+.yui-inline-editor-editing .yui-inline-editor-save,
+.yui-inline-editor-editing .yui-inline-editor-cancel {
+    display: inline;
+}
