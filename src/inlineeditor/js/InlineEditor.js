@@ -46,7 +46,7 @@
          * and editor field
          * @type YAHOO.util.CustomEvent
          */
-        saveEvent           = 'editStartedEvent',
+        editStartedEvent           = 'editStartedEvent',
         /**
          * @event cancelClickEvent
          * @description Fires when a user clicks on the cancel button
