@@ -1,0 +1,31 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <link type="text/css" rel="stylesheet" href="../../../build/logger/assets/logger.css">
+    <link type="text/css" rel="stylesheet" href="../../../build/yuitest/assets/testlogger.css">
+    <link type="text/css" rel="stylesheet" href="../../../build/base/base.css"> 
+    <title>Inlineeditor</title>
+    <script type="text/javascript" src="../../../build/yahoo/yahoo-min.js"></script>
+    <script type="text/javascript" src="../../../build/dom/dom-min.js"></script>
+    <script type="text/javascript" src="../../../build/event/event-min.js"></script>
+    <script type="text/javascript" src="../../../build/logger/logger-min.js"></script>
+    <script type="text/javascript" src="../../../build/element/element-min.js"></script>
+    <script type="text/javascript" src="../../../build/yuitest/yuitest-min.js"></script>
+    <script type="text/javascript" src="../js/InlineEditor.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        var init = function() {
+                YAHOO.widget.Logger.enableBrowserConsole();
+                var logger = new YAHOO.tool.TestLogger();
+                YAHOO.ED = new YAHOO.widget.InlineEditor('element');
+                YAHOO.log('inline editor initialized', 'info')
+            };
+        YAHOO.util.Event.onDOMReady(init);
+    </script>
+</head>
+<body class="yui-skin-sam">
+     <h1 id="element">Hello</h1>
+     <p id="paragraph">This is a paragraph</p>
+</body>
+</html>
