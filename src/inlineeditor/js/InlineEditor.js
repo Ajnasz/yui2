@@ -25,8 +25,10 @@
         CLASSES             = {
             CANCEL_BUTTON: 'yui-inline-editor-cancel',
             SAVE_BUTTON: 'yui-inline-editor-save',
-            EDIT_BUTTON: 'yui-inline-editor-save',
-            CONTROLS_CONTAINER: 'yui-inline-editor-controls-container'
+            EDIT_BUTTON: 'yui-inline-editor-edit',
+            CONTROLS_CONTAINER: 'yui-inline-editor-controls-container',
+            ELEM_EDITABLE: 'yui-inline-editor-editable',
+            EDITING_ACTIVE: 'yui-inline-editor-editing',
         },
         /**
          * @event cancelEvent
