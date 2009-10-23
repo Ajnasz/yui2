@@ -25,13 +25,25 @@
                 ed.subscribe('saveEvent', function(values){
                             YAHOO.log('new field value is: ' + values.field, 'info');
                         });
-                var ed2 = new YAHOO.widget.InlineEditor('paragraph', {type: 'textarea'});
+                var ed2 = new YAHOO.widget.InlineEditor('paragraph', {
+                                type: 'textarea',
+                                preprocess: function(value) {
+                                    return 'processed! ' + value;
+                                },
+                                validator: function(value) {
+                                    return /this is valid/.test(value);
+                                }
+                            });
+                ed2.subscribe('valueNotValidEvent', function() {
+                            YAHOO.log('value not valid', 'error');
+                        })
                 ed2.subscribe('saveEvent', function(){
                             YAHOO.log('new field value is: ' + this.get('value'), 'info');
                         });
                 var ed3 = new YAHOO.widget.InlineEditor('paragraph-allow-empty', {type: 'textarea', allowEmpty: true});
                 ed.subscribe('saveEvent', function(values){
                             YAHOO.log('new field value is: ' + values.field, 'info');
+                            return false;
                         });
 
                 YAHOO.log('inline editor initialized', 'info');
