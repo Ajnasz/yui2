@@ -3,6 +3,7 @@
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <link type="text/css" rel="stylesheet" href="../../../build/reset-fonts-grids/reset-fonts-grids.css"> 
     <link type="text/css" rel="stylesheet" href="../../../build/logger/assets/logger.css">
     <link type="text/css" rel="stylesheet" href="../../../build/yuitest/assets/testlogger.css">
     <link type="text/css" rel="stylesheet" href="../../../build/base/base.css"> 
@@ -17,16 +18,32 @@
     <script type="text/javascript" src="../js/InlineEditor.js"></script>
     <script type="text/javascript" charset="utf-8">
         var init = function() {
-                YAHOO.widget.Logger.enableBrowserConsole();
-                var logger = new YAHOO.tool.TestLogger();
-                YAHOO.ED = new YAHOO.widget.InlineEditor('element');
-                YAHOO.log('inline editor initialized', 'info')
+                // YAHOO.widget.Logger.enableBrowserConsole();
+                var logger = new YAHOO.widget.LogReader();
+                YAHOO.util.Event.throwErrors = true;
+                var ed = new YAHOO.widget.InlineEditor('element');
+                ed.subscribe('saveEvent', function(values){
+                            YAHOO.log('new field value is: ' + values.field, 'info');
+                        });
+                var ed2 = new YAHOO.widget.InlineEditor('paragraph', {type: 'textarea'});
+                ed2.subscribe('saveEvent', function(){
+                            YAHOO.log('new field value is: ' + this.get('value'), 'info');
+                        });
+                var ed3 = new YAHOO.widget.InlineEditor('paragraph-allow-empty', {type: 'textarea', allowEmpty: true});
+                ed.subscribe('saveEvent', function(values){
+                            YAHOO.log('new field value is: ' + values.field, 'info');
+                        });
+
+                YAHOO.log('inline editor initialized', 'info');
             };
         YAHOO.util.Event.onDOMReady(init);
     </script>
 </head>
-<body class="yui-skin-sam">
+<body>
+  <div id="doc">
      <h1 id="element">Hello</h1>
      <p id="paragraph">This is a paragraph</p>
+     <p id="paragraph-allow-empty">You can save this paragraph even if it's empty</p>
+ </div>
 </body>
 </html>
