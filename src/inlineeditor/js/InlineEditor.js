@@ -73,7 +73,13 @@
          * @type YAHOO.util.CustomEvent
          */
         emptyValueEvent     = 'emptyValueEvent',
-
+        /**
+         * @event valueNotValidEvent
+         * @description Fires when a user tries to save a value which
+         * seems not valid by the validator method
+         * @type YAHOO.util.CustomEvent
+         */
+        valueNotValidEvent  = 'valueNotValidEvent',
 
         /**
          * Constant representing the valid inline editor types
@@ -108,6 +114,12 @@
                         break;
                 }
                 return field;
+            },
+            PREPROCESS_METHOD: function(value) {
+                return value;
+            },
+            VALIDATION_METHOD: function(value) {
+                return true;
             }
         },
         /**
@@ -119,6 +131,7 @@
          * @type Boolean
          */
         validateType = function(type) {
+            alert('validate')
             var valid = false;
             if(YL.isString(type)) {
                 for (var i = 0, vl = VALID_TYPES.length; i < vl; i++) {
@@ -127,6 +140,10 @@
                         break;
                     }
                 }
+            }
+            Y.log('valid ' + valid, 'error');
+            if(!valid) {
+                throw new Error('field type is not valid');
             }
             return valid;
         },
@@ -254,17 +271,26 @@
          */
         save: function() {
             var values = getFormValues(this._editor),
-                value = YL.trim(values[this.get('fieldName')]);
+                value = YL.trim(values[this.get('fieldName')]),
+                preprocess = this.get('preprocess'),
+                validator = this.get('validator'),
+                _ret = false;
 
+            value = preprocess.call(this, value);
             if(value == '' && !this.get('allowEmpty')) {
                 Y.log("the field value is empty and it's not allowed");
                 this.fireEvent(emptyValueEvent);
-                return false;
+            } else {
+                if(validator.call(this, value)) {
+                    this.set('value', value);
+                    this._stopEdit();
+                    this.fireEvent(saveEvent, values);
+                    _ret = true;
+                } else {
+                    this.fireEvent(valueNotValidEvent);
+                }
             }
-            this.set('value', value);
-            this._stopEdit();
-            this.fireEvent(saveEvent, values);
-            return true;
+            return _ret;
         },
         /**
          * Drops all of the changes in the field, and restores the
@@ -521,10 +547,32 @@
             });
             /**
              * @attribute allowEmpty
+             * @type Boolean
              * Set to true if you want to allow to save an empty editor
              */
             this.setAttributeConfig('allowEmpty', {
                 value: YL.isBoolean(cfg.allowEmpty) ? cfg.allowEmpty : DEFAULT_CONFIG.ALLOW_EMPTY
+            });
+
+            /**
+             * @attribute preprocess
+             * @type Function
+             * If you need to mainpulate the value before saving, you can use this config option.
+             * The value of the config should be a function which returns the processed value
+             */
+            this.setAttributeConfig('preprocess', {
+                validator: YL.isFunction,
+                value: YL.isFunction(cfg.preprocess) ? cfg.preprocess : DEFAULT_CONFIG.PREPROCESS_METHOD
+            });
+            /**
+             * @attribute validator
+             * @type Function
+             * If you need to validate the value before saving, you can use this config option.
+             * @returns true if the value is valid
+             */
+            this.setAttributeConfig('validator', {
+                validator: YL.isFunction,
+                value: YL.isFunction(cfg.validator) ? cfg.validator : DEFAULT_CONFIG.VALIDATION_METHOD
             });
 
             this._addEditControl();
