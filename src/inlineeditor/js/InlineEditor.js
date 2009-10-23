@@ -135,17 +135,24 @@
             Dom.addClass(form, 'yui-inline-editor-form');
             return form;
         },
-        genTextField = function(name, value) {
-            var element = document.createElement('input');
+        _genField = function(type, name, value) {
+            if(!YL.isString(type)) {
+                return false;
+            }
+            var element = document.createElement(type);
             Dom.setAttribute(element, 'name', name);
-            Dom.setAttribute(element, 'value', value);
+            element.value = value;
             return element;
         },
+        genTextField = function(name, value) {
+            return _genField('input', name, value);
+        },
+
         genTextAreaField = function(name, value) {
-            var element = document.createElement('textarea');
-            Dom.setAttribute(element, 'name', name);
-            Dom.setAttribute(element, 'value', value);
-            return element;
+            var field = _genField('textarea', name, value);
+            Dom.setAttribute(field, 'rows', 10);
+            Dom.setAttribute(field, 'cols', 40);
+            return field;
         },
         getFormValues = function(form) {
             var values,
