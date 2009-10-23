@@ -29,6 +29,7 @@
             CONTROLS_CONTAINER: 'yui-inline-editor-controls',
             ELEM_EDITABLE: 'yui-inline-editor-editable',
             EDITING_ACTIVE: 'yui-inline-editor-editing',
+            RADIO_GROUP_CONTAINER: 'yui-inline-editor-radio-group',
         },
         /**
          * @event cancelEvent
@@ -88,7 +89,7 @@
          * @static
          * @final
          */
-        VALID_TYPES         = ['text', 'textarea', 'select'],
+        VALID_TYPES         = ['text', 'textarea', 'select', 'radio'],
         /**
          * Constant representing the default editor type
          * @property TYPE
@@ -114,13 +115,27 @@
                         break;
 
                     case 'select':
-                        var field = genSelectField(this.get('fieldName'), this.get('value'), this.get('selectableValues'));
+                        var field = genSelectField(this.get('fieldName'),
+                                    this.get('value'),
+                                    this.get('selectableValues'));
+
+                        _attachKeyListeners(field, this, {ctrl: true, keys:[13]}, {keys: [27]});
+                        break;
+
+                    case 'radio':
+                        var field = genRadioField(this.get('fieldName'),
+                            this.get('value'),
+                            this.get('selectableValues'));
+
                         _attachKeyListeners(field, this, {ctrl: true, keys:[13]}, {keys: [27]});
                         break;
                 }
                 return field;
             },
-            PREPROCESS_METHOD: function(value) {
+            PROCESS_BEFORE_SAVE_METHOD: function(value) {
+                return value;
+            },
+            PROCESS_BEFORE_READ_METHOD: function(value) {
                 return value;
             },
             VALIDATION_METHOD: function(value) {
@@ -176,7 +191,7 @@
          * @type HTMLElement
          */
         _genField = function(type, name, value) {
-            if(!YL.isString(type) || !YL.isString(name) || !YL.isString(value)) {
+            if(!YL.isString(type) || !YL.isString(name) || (!YL.isString(value) && !YL.isNumber(value))) {
                 return false;
             }
             var element = document.createElement(type);
@@ -186,6 +201,29 @@
         },
         _genOption = function(label, value, selected) {
             return new Option(label, value, selected);
+        },
+        _genInputField = function(name, value, type) {
+            var field = _genField('input', name, value);
+            Dom.setAttribute(field, 'type', 'text');
+            return field;
+        },
+        _genRadioField = function(name, label, value, checked) {
+            var radioContainer = document.createElement('span'),
+                labelElem = document.createElement('label'),
+                field = _genField('input', name, value),
+                fieldId = Dom.generateId();
+            
+            Dom.setAttribute(field, 'id', fieldId);
+            Dom.setAttribute(labelElem, 'for', fieldId);
+            labelElem.innerHTML = label;
+
+            Dom.setAttribute(field, 'type', 'radio');
+            if(checked) {
+                Dom.setAttribute(field, 'checked', 'checked');
+            }
+            radioContainer.appendChild(field);
+            radioContainer.appendChild(labelElem);
+            return radioContainer;
         },
         /**
          * Generates an input element for the editing
@@ -197,7 +235,7 @@
          * @type HTMLInputElement
          */
         genTextField = function(name, value) {
-            return _genField('input', name, value);
+            return _genInputField(name, value, 'text');
         },
 
         /**
@@ -222,6 +260,16 @@
             }
             return field;
         },
+        genRadioField = function(name, value, selectableValues) {
+            var field = document.createElement('span'),
+                radio;
+            Dom.addClass(field, CLASSES.RADIO_GROUP_CONTAINER);
+            for(var label in selectableValues) {
+                radio = _genRadioField(name, label, selectableValues[label], (label == value || selectableValues[label] == value))
+                field.appendChild(radio);
+            }
+            return field;
+        },
         /**
          * Collects the element values of a form
          * @method getFormValues
@@ -231,16 +279,26 @@
          * @type String
          */
         getFormValues = function(form) {
-            var values,
-                elements;
+            var elements,
+                values = {};
+
             if(form && form.nodeName == 'FORM') {
                 elements = form.elements;
-                values = {};
-                for (var i = 0, el = elements.length, elem, name, value; i < el; i++) {
+                for (var i = 0, el = elements.length, elem, name, value, type; i < el; i++) {
                     elem = elements[i];
                     name = Dom.getAttribute(elem, 'name');
+
                     if(name) {
-                        values[name] = elem.value;
+                        switch(elem.nodeName) {
+                            case 'INPUT':
+                                if(Dom.getAttribute(elem, 'type') == 'radio' && elem.checked) {
+                                    values[name] = elem.value;
+                                }
+                                break;
+                            default:
+                                values[name] = elem.value;
+                                
+                        }
                     }
                 }
             }
@@ -287,7 +345,7 @@
         save: function() {
             var values = getFormValues(this._editor),
                 value = YL.trim(values[this.get('fieldName')]),
-                preprocess = this.get('preprocess'),
+                preprocess = this.get('processBeforeSave'),
                 validator = this.get('validator'),
                 _ret = false;
 
@@ -384,18 +442,15 @@
                 selectableValues = this.get('selectableValues'),
                 html;
 
-            switch(type) {
-                case 'select':
-                    for (var label in selectableValues) {
-                        if(selectableValues[label] == value) {
-                            html = label;
-                            break;
-                        }
+            if(YL.isObject(selectableValues)) {
+                for (var label in selectableValues) {
+                    if(selectableValues[label] == value) {
+                        html = label;
+                        break;
                     }
-                    break;
-
-                default:
-                    html = value;
+                }
+            } else {
+                html = value;
             }
             element.innerHTML = html;
             this._addEditControl();
@@ -637,14 +692,24 @@
             });
 
             /**
-             * @attribute preprocess
+             * @attribute processBeforeSRead
              * @type Function
              * If you need to mainpulate the value before saving, you can use this config option.
              * The value of the config should be a function which returns the processed value
              */
-            this.setAttributeConfig('preprocess', {
+            this.setAttributeConfig('processBeforeRead', {
                 validator: YL.isFunction,
-                value: YL.isFunction(cfg.preprocess) ? cfg.preprocess : DEFAULT_CONFIG.PREPROCESS_METHOD
+                value: YL.isFunction(cfg.processBeforeRead) ? cfg.processBeforeRead : DEFAULT_CONFIG.PROCESS_BEFORE_READ_METHOD
+            });
+            /**
+             * @attribute processBeforeSave
+             * @type Function
+             * If you need to mainpulate the value before saving, you can use this config option.
+             * The value of the config should be a function which returns the processed value
+             */
+            this.setAttributeConfig('processBeforeSave', {
+                validator: YL.isFunction,
+                value: YL.isFunction(cfg.processBeforeSave) ? cfg.processBeforeSave : DEFAULT_CONFIG.PROCESS_BEFORE_SAVE_METHOD
             });
             /**
              * @attribute validator
