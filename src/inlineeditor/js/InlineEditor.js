@@ -93,6 +93,10 @@
                 switch(this.get('type')) {
                     case 'text':
                         field = genTextField(this.get('fieldName'), this.get('value'));
+                        break;
+                    case 'textarea':
+                        field = genTextAreaField(this.get('fieldName'), this.get('value'));
+                        break;
                 }
                 return field;
             }
@@ -120,13 +124,16 @@
             var form = document.createElement('form');
             Dom.setAttribute(form, 'id', 'yui-inline-editor-' + id);
             Dom.addClass(form, 'yui-inline-editor-form');
-            Event.on(form, 'submit', function(e) {
-                $E.stopEvent(e);
-            });
             return form;
         },
         genTextField = function(name, value) {
             var element = document.createElement('input');
+            Dom.setAttribute(element, 'name', name);
+            Dom.setAttribute(element, 'value', value);
+            return element;
+        },
+        genTextAreaField = function(name, value) {
+            var element = document.createElement('textarea');
             Dom.setAttribute(element, 'name', name);
             Dom.setAttribute(element, 'value', value);
             return element;
@@ -155,7 +162,7 @@
             var values = getFormValues(this._editor);
             this.set('value', values[this.get('fieldName')]);
             this._stopEdit();
-            this.fireEvent(saveEvent);
+            this.fireEvent(saveEvent, values);
         },
         cancel: function() {
             this._stopEdit();
@@ -188,8 +195,7 @@
             if(field.nodeType === 1) {
                 this._createControls();
                 form.appendChild(field);
-                form.appendChild(this.controls.cancel);
-                form.appendChild(this.controls.save);
+                form.appendChild(this.controls.container);
             }
             return form;
         },
@@ -206,8 +212,19 @@
             this._addEditControl();
             delete this._editor;
         },
+        /**
+         * TODO finish this
+         */
+        _attachKeyListeners: function() {
+        },
 
 
+        /**
+         * Removes buttons from the dom and
+         * deletes the references to them
+         * @method _destroyControls
+         * @private
+         */
         _destroyControls: function() {
             var controls = this.controls,
                 cancel,
@@ -243,14 +260,25 @@
                 Y.log('controls destroyed', 'info');
             }
         },
+        /**
+         * Creates the control buttons, like edit button,
+         * save button, and cancel button
+         * @method _createControls
+         * @param {String} type If the value is 'edit' then
+         * the edit button will be created, otherwise the
+         * save and cancel buttons
+         * @private
+         */
         _createControls: function(type) {
             var button = document.createElement('button'),
+                container = document.createElement('span'),
                 cancelButton,
                 saveButton,
                 editButton;
 
             Dom.setAttribute(button, 'type', 'button');
             this._destroyControls();
+            Dom.addClass(container, CLASSES.CONTROLS_CONTAINER);
 
             switch(type) {
                 case 'edit':
@@ -261,8 +289,10 @@
                         this.edit(event);
                         this.fireEvent(editClickEvent, event);
                     }, this, true);
+                    container.appendChild(editButton);
                     this.controls = {
-                        edit: editButton
+                        edit: editButton,
+                        container: container
                     };
                     break;
 
@@ -283,31 +313,23 @@
                         this.save(event);
                         this.fireEvent(saveClickEvent, event);
                     }, this, true);
+                    container.appendChild(cancelButton);
+                    container.appendChild(saveButton);
 
                     Y.log('set controls');
                     this.controls = {
                         cancel: cancelButton,
                         save: saveButton,
+                        container: container
                     };
                     break;
             }
         },
-        _addSavingControls: function() {
-            this._createControls();
-
-            var element = this.get('element'),
-                controlsContainer = document.createElement('span'),
-                controls = this.controls;
-
-            Dom.addClass(controlsContainer, CLASSES.CONTROLS_CONTAINER);
-
-            controlsContainer.appendChild(controls.cancel);
-            controlsContainer.appendChild(controls.save);
-            controlsContainer.appendChild(controls.edit);
-            element.appendChild(controlsContainer);
-
-            controls.container = controlsContainer;
-        },
+        /**
+         * Adds the edit button to editable element.
+         * @method _addEditControl
+         * @private
+         */
         _addEditControl: function() {
             this._createControls('edit');
 
@@ -315,12 +337,8 @@
                 controlsContainer = document.createElement('span'),
                 controls = this.controls;
 
-            Dom.addClass(controlsContainer, CLASSES.CONTROLS_CONTAINER);
+            element.appendChild(controls.container);
 
-            controlsContainer.appendChild(controls.edit);
-            element.appendChild(controlsContainer);
-
-            controls.container = controlsContainer;
         },
 
 
