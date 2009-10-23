@@ -355,10 +355,8 @@
                     saveButton = button.cloneNode(false);
                     Dom.addClass(cancelButton, CLASSES.CANCEL_BUTTON);
                     Dom.addClass(saveButton, CLASSES.SAVE_BUTTON);
-                    Y.log('set html');
                     cancelButton.innerHTML = 'cancel';
                     saveButton.innerHTML = 'save';
-                    Y.log('set events');
                     Event.on(cancelButton, 'click', function(event) {
                         this.cancel(event);
                         this.fireEvent(cancelClickEvent, event);
@@ -370,7 +368,6 @@
                     container.appendChild(cancelButton);
                     container.appendChild(saveButton);
 
-                    Y.log('set controls');
                     this.controls = {
                         cancel: cancelButton,
                         save: saveButton,
