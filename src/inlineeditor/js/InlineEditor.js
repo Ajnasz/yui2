@@ -239,18 +239,28 @@
             var form = createForm(this.get('id')),
                 type = this.get('type'),
                 generator = this.get('fieldGenerator'),
-                field = generator.call(this);
+                field = generator.call(this),
+                _ret = false;
 
             if(field.nodeType === 1) {
                 this._createControls();
                 form.appendChild(field);
                 form.appendChild(this.controls.container);
+                Event.on(form, 'submit', function(e) {
+                    Event.stopEvent(e);
+                });
+                _ret = form;
             }
-            return form;
+            return _ret
         },
         _replaceElement: function() {
             var element = this.get('element'),
                 editor = this._createEditor();
+
+            if(!editor) {
+                Y.log('editor is not an element', 'error');
+                return false;
+            }
             element.innerHTML = '';
             element.appendChild(editor);
             this._editor = editor;
