@@ -67,6 +67,12 @@
          * @type YAHOO.util.CustomEvent
          */
         editClickEvent      = 'editClickEvent',
+        /**
+         * @event emptyValueEvent
+         * @description Fires when a user tries to save empty value
+         * @type YAHOO.util.CustomEvent
+         */
+        emptyValueEvent     = 'emptyValueEvent',
 
 
         /**
@@ -87,6 +93,7 @@
             * @final
             */
             TYPE: 'text',
+            ALLOW_EMPTY: false,
             FIELD_NAME: 'field',
             FIELD_GENERATOR: function() {
                 var field;
@@ -159,10 +166,17 @@
 
     YAHOO.extend(InlineEditor, YAHOO.util.AttributeProvider, {
         save: function() {
-            var values = getFormValues(this._editor);
-            this.set('value', values[this.get('fieldName')]);
+            var values = getFormValues(this._editor),
+                value = YL.trim(values[this.get('fieldName')]);
+            if(value == '' && !this.get('allowEmpty')) {
+                Y.log("the field value is empty and it's not allowed");
+                this.fireEvent(emptyValueEvent);
+                return false;
+            }
+            this.set('value', value);
             this._stopEdit();
             this.fireEvent(saveEvent, values);
+            return true;
         },
         cancel: function() {
             this._stopEdit();
@@ -395,6 +409,13 @@
              */
             this.setAttributeConfig('value', {
                 value: cfg.value || this.get('displayValue')
+            });
+            /**
+             * @attribute allowEmpty
+             * Set to true if you want to allow to save an empty editor
+             */
+            this.setAttributeConfig('allowEmpty', {
+                value: YL.isBoolean(cfg.allowEmpty) ? cfg.allowEmpty : DEFAULT_CONFIG.ALLOW_EMPTY
             });
 
             this._addEditControl();
