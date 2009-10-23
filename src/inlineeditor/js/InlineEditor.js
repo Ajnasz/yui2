@@ -88,7 +88,7 @@
          * @static
          * @final
          */
-        VALID_TYPES         = ['text', 'textarea'],
+        VALID_TYPES         = ['text', 'textarea', 'select'],
         /**
          * Constant representing the default editor type
          * @property TYPE
@@ -112,6 +112,11 @@
                         field = genTextAreaField(this.get('fieldName'), this.get('value'));
                         _attachKeyListeners(field, this, {ctrl: true, keys:[13]}, {keys: [27]});
                         break;
+
+                    case 'select':
+                        var field = genSelectField(this.get('fieldName'), this.get('value'), this.get('selectableValues'));
+                        _attachKeyListeners(field, this, {ctrl: true, keys:[13]}, {keys: [27]});
+                        break;
                 }
                 return field;
             },
@@ -120,7 +125,8 @@
             },
             VALIDATION_METHOD: function(value) {
                 return true;
-            }
+            },
+            POSSIBLE_VALUES: null
         },
         /**
          * Validates the type of the editor
@@ -141,8 +147,8 @@
                     }
                 }
             }
-            Y.log('valid ' + valid, 'error');
             if(!valid) {
+                Y.log('field type is not valid:  ' + valid, 'error');
                 throw new Error('field type is not valid');
             }
             return valid;
@@ -178,6 +184,9 @@
             element.value = value;
             return element;
         },
+        _genOption = function(label, value, selected) {
+            return new Option(label, value, selected);
+        },
         /**
          * Generates an input element for the editing
          * @method genTextField
@@ -204,6 +213,13 @@
             var field = _genField('textarea', name, value);
             Dom.setAttribute(field, 'rows', 10);
             Dom.setAttribute(field, 'cols', 40);
+            return field;
+        },
+        genSelectField = function(name, value, selectableValues) {
+            var field = _genField('select', name, ''), option;
+            for(var label in selectableValues) {
+                field.appendChild(_genOption(label, selectableValues[label], (label == value || selectableValues[label] == value)));
+            }
             return field;
         },
         /**
@@ -252,7 +268,6 @@
                 new KeyListener(field, cancelKeys, {fn: scope.cancel, scope: scope, correctScope: true}).enable();
                 _ret = true;
             }
-            Y.log('Keylisteners attached: ' + _ret, 'info');
             return _ret;
         }
         ;
@@ -363,8 +378,26 @@
             this._editor = editor;
         },
         _restoreElement: function() {
-            var element = this.get('element');
-            element.innerHTML = this.get('value');
+            var element = this.get('element'),
+                value = this.get('value'),
+                type = this.get('type'),
+                selectableValues = this.get('selectableValues'),
+                html;
+
+            switch(type) {
+                case 'select':
+                    for (var label in selectableValues) {
+                        if(selectableValues[label] == value) {
+                            html = label;
+                            break;
+                        }
+                    }
+                    break;
+
+                default:
+                    html = value;
+            }
+            element.innerHTML = html;
             this._addEditControl();
             delete this._editor;
         },
@@ -408,7 +441,6 @@
                 }
 
                 delete this.controls;
-                Y.log('controls destroyed', 'info');
             }
         },
         /**
@@ -489,6 +521,39 @@
             element.appendChild(controls.container);
 
         },
+        _getValue: function() {
+            var htmlValue = this.get('htmlValue'),
+                selectableValues = this.get('selectableValues'),
+                _ret;
+
+            if(YL.isObject(selectableValues)) {
+                for(var key in selectableValues) {
+                    if(key == htmlValue) {
+                        _ret = selectableValues[key];
+                        break;
+                    }
+                }
+            } else {
+                _ret = htmlValue;
+            }
+            return _ret;
+        },
+        _setValue: function(value) {
+            var htmlValue = this.get('htmlValue'),
+                selectableValues = this.get('selectableValues');
+
+            if(YL.isObject(selectableValues)) {
+                for(var key in selectableValues) {
+                    if(selectableValues[key] == value) {
+                        this.set('htmlValue', key);
+                        break;
+                    }
+                }
+            } else {
+                this.set('htmlValue', value);
+            }
+            return value;
+        },
 
 
         init: function(el, cfg) {
@@ -502,15 +567,13 @@
                 value: Dom.generateId(),
                 readOnly: true
             });
-            /**
-             *
-             */
             this.setAttributeConfig('element', {
                 value: element,
                 readOnly: true
             });
             /**
              * @attribute type
+             * @type String
              * The type of the inline editor. If it's not specified
              * in the config then the default value is normally 'text'
              */
@@ -520,6 +583,8 @@
             });
             /**
              * @attribute fieldName
+             * @type String
+             * The name of the edit field. Default is 'field'
              */
             this.setAttributeConfig('fieldName', {
                 validator: YL.isString,
@@ -527,23 +592,40 @@
             });
             /**
              * @attribute fieldGenerator
+             * @type Function
+             * You can define a custom method what generates the edit field.
+             * With that option you can create custom edit fields
              */
             this.setAttributeConfig('fieldGenerator', {
                 validator: YL.isFunction,
                 value: cfg.fieldGenerator || DEFAULT_CONFIG.FIELD_GENERATOR
             });
-            /**
-             * @attribute displayValue
-             */
-            this.setAttributeConfig('displayValue', {
-                value: cfg.displayValue || element.innerHTML
-            });
+            this.setAttributeConfig('htmlValue', {
+                value: element.innerHTML
+            })
             /**
              * @attribute value
              * The current value of the field
              */
             this.setAttributeConfig('value', {
-                value: cfg.value || this.get('displayValue')
+                getter: this._getValue,
+                setter: this._setValue
+            });
+            /**
+             * @attribute selectableValues
+             * @type Object
+             * This option is used to set the possible selectable values for 'select' and 'radio'
+             * editor types
+             * It should be an object with key - value pairs:
+             *  the key will be displayed for the user.
+             *  For example, if you creates a editor which type is select do this:
+             *      select fields: {foo:1,bar:2}
+             *  the value of the options will be the numbers and the foo/bar will be used as the
+             *  inner HTML of the option
+             */
+            this.setAttributeConfig('selectableValues', {
+                validator: YL.isObject,
+                value: YL.isObject(cfg.selectableValues) ? cfg.selectableValues : DEFAULT_CONFIG.POSSIBLE_VALUES
             });
             /**
              * @attribute allowEmpty
