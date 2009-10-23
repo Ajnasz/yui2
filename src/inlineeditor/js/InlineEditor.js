@@ -83,15 +83,15 @@
          * @final
          */
         VALID_TYPES         = ['text', 'textarea'],
+        /**
+         * Constant representing the default editor type
+         * @property TYPE
+         * @namespace DEFAULT_CONFIG
+         * @private
+         * @static
+         * @final
+         */
         DEFAULT_CONFIG      = {
-            /**
-            * Constant representing the default editor type
-            * @property TYPE
-            * @namespace DEFAULT_CONFIG
-            * @private
-            * @static
-            * @final
-            */
             TYPE: 'text',
             ALLOW_EMPTY: false,
             FIELD_NAME: 'field',
@@ -113,6 +113,7 @@
         /**
          * Validates the type of the editor
          * @method validateType
+         * @private
          * @param {String} type The name of the editor type
          * @returns true if the given type is allowed
          * @type Boolean
@@ -129,14 +130,30 @@
             }
             return valid;
         },
+        /**
+         * Creates a form for the editor, where the edit field will be shown
+         * @method createForm
+         * @private
+         * @param {String} id The form (generally the editor's) id
+         */
         createForm = function(id) {
             var form = document.createElement('form');
             Dom.setAttribute(form, 'id', 'yui-inline-editor-' + id);
             Dom.addClass(form, 'yui-inline-editor-form');
             return form;
         },
+        /**
+         * Generates a specified HTML element for the form
+         * @method _genField
+         * @private
+         * @param {String} type The type of the edit field
+         * @param {String} name The name of the edit field
+         * @param {String} value The value of the edit field
+         * @returns The html input or textarea element which value and name is set
+         * @type HTMLElement
+         */
         _genField = function(type, name, value) {
-            if(!YL.isString(type)) {
+            if(!YL.isString(type) || !YL.isString(name) || !YL.isString(value)) {
                 return false;
             }
             var element = document.createElement(type);
@@ -144,16 +161,42 @@
             element.value = value;
             return element;
         },
+        /**
+         * Generates an input element for the editing
+         * @method genTextField
+         * @private
+         * @param {String} name The name of the text field
+         * @param {String} value The value of the text field
+         * @returns An input (text type) element
+         * @type HTMLInputElement
+         */
         genTextField = function(name, value) {
             return _genField('input', name, value);
         },
 
+        /**
+         * Generates a textarea element for the editing
+         * @method genTextAreaField
+         * @private
+         * @param {String} name The name of the textarea field
+         * @param {String} value The value of the textarea field
+         * @returns A textarea element
+         * @type HTMLTextareaElement
+         */
         genTextAreaField = function(name, value) {
             var field = _genField('textarea', name, value);
             Dom.setAttribute(field, 'rows', 10);
             Dom.setAttribute(field, 'cols', 40);
             return field;
         },
+        /**
+         * Collects the element values of a form
+         * @method getFormValues
+         * @param {HTMLFormElement} form The form element
+         * @returns an object, where the key is the name of the input field
+         *  and the value is the the value of the input field
+         * @type String
+         */
         getFormValues = function(form) {
             var values,
                 elements;
@@ -200,9 +243,19 @@
 
 
     YAHOO.extend(InlineEditor, YAHOO.util.AttributeProvider, {
+        /**
+         * Saves the value, triggers the saveEvent event
+         * The method runs when user clicks on the save button, or
+         * press enter (or cntrl enter in textarea) in the edit
+         * field
+         * @method save
+         * @returns true if the saving was succes
+         * @type Boolean
+         */
         save: function() {
             var values = getFormValues(this._editor),
                 value = YL.trim(values[this.get('fieldName')]);
+
             if(value == '' && !this.get('allowEmpty')) {
                 Y.log("the field value is empty and it's not allowed");
                 this.fireEvent(emptyValueEvent);
@@ -213,13 +266,31 @@
             this.fireEvent(saveEvent, values);
             return true;
         },
+        /**
+         * Drops all of the changes in the field, and restores the
+         * original state
+         * The method runs when user clicks on the cancel button, or
+         * press escape in the edit * field
+         * @method save
+         * @returns true if the cancelling was succes
+         * @type Boolean
+         */
         cancel: function() {
             this._stopEdit();
             this.fireEvent(cancelEvent);
+            return true;
         },
+        /**
+         * Starts the editing, replace the content of the editable
+         * element to a form what can be editable
+         * @method edit
+         * @returns true if the edit successfully started
+         * @type Boolean
+         */
         edit: function() {
             this._startEdit();
             this.fireEvent(editStartedEvent);
+            return true
         },
         _startEdit: function() {
             var element = this.get('element');
