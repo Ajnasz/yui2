@@ -100,9 +100,11 @@
                 switch(this.get('type')) {
                     case 'text':
                         field = genTextField(this.get('fieldName'), this.get('value'));
+                        _attachKeyListeners(field, this, {keys:[13]}, {keys: [27]});
                         break;
                     case 'textarea':
                         field = genTextAreaField(this.get('fieldName'), this.get('value'));
+                        _attachKeyListeners(field, this, {ctrl: true, keys:[13]}, {keys: [27]});
                         break;
                 }
                 return field;
@@ -160,7 +162,33 @@
                 }
             }
             return values;
-        };
+        },
+
+        /**
+         * Method allows to control the saving and cancelling with keyboard
+         * @method _attachKeyListeners
+         * @private
+         * @param {HTMLElement} field The form element where need to attach key listener events
+         * @param {YAHOO.widget.InlineEditor} scope An inline editor instance
+         * @param {Object} saveKeys The object literal representing the key(s) to detect.
+         * Possible attributes are shift(boolean), alt(boolean), ctrl(boolean) and keys(either
+         * an int oran array of ints representing keycodes).
+         * @param {Object} cancelKeys The object literal representing the key(s) to detect.
+         * Possible attributes are shift(boolean), alt(boolean), ctrl(boolean) and keys(either
+         * an int oran array of ints representing keycodes).
+         */
+        _attachKeyListeners = function(field, scope, saveKeys, cancelKeys) {
+            var _ret = false,
+                KeyListener = YU.KeyListener;
+            if(field) {
+                new KeyListener(field, saveKeys, {fn: scope.save, scope: scope, correctScope: true}).enable();
+                new KeyListener(field, cancelKeys, {fn: scope.cancel, scope: scope, correctScope: true}).enable();
+                _ret = true;
+            }
+            Y.log('Keylisteners attached: ' + _ret, 'info');
+            return _ret;
+        }
+        ;
 
 
 
@@ -225,11 +253,6 @@
             element.innerHTML = this.get('value');
             this._addEditControl();
             delete this._editor;
-        },
-        /**
-         * TODO finish this
-         */
-        _attachKeyListeners: function() {
         },
 
 
