@@ -27,11 +27,13 @@
                         });
                 var ed2 = new YAHOO.widget.InlineEditor('paragraph', {
                                 type: 'textarea',
-                                preprocess: function(value) {
-                                    return 'processed! ' + value;
+                                processBeforeSave: function(value) {
+                                    var output = value.replace(/\n/g, '<br>');
+                                    return output;
                                 },
-                                validator: function(value) {
-                                    return /this is valid/.test(value);
+                                processBeforeRead: function(value) {
+                                    var output = value.replace(/<br\s*\/?>/g, '\n');
+                                    return output;
                                 }
                             });
                 ed2.subscribe('valueNotValidEvent', function() {
@@ -45,6 +47,22 @@
                             YAHOO.log('new field value is: ' + values.field, 'info');
                             return false;
                         });
+                var ed4 = new YAHOO.widget.InlineEditor('span-for-select', {type: 'select', selectableValues: {
+                            ingyom: 1,
+                            bingyom: 2,
+                            malibe: 3,
+                            tuta: 4,
+                            libe: 5,
+                            talibe: 6
+                        }});
+                var ed5 = new YAHOO.widget.InlineEditor('span-for-radio', {type: 'radio', selectableValues: {
+                            ingyom: 1,
+                            bingyom: 2,
+                            malibe: 3,
+                            tuta: 4,
+                            libe: 5,
+                            talibe: 6
+                        }});
 
                 YAHOO.log('inline editor initialized', 'info');
             };
@@ -54,8 +72,10 @@
 <body>
   <div id="doc">
      <h1 id="element">Hello</h1>
-     <p id="paragraph">This is a paragraph</p>
+     <p id="paragraph">When you read/write this pragraph, it's content will be processed.<br>Basically the new line chars well be replaced to &lt;br&gt; and vica versa.</p>
      <p id="paragraph-allow-empty">You can save this paragraph even if it's empty</p>
+     <p><span id="span-for-select">bingyom</span></p>
+     <p><span id="span-for-radio">tuta</span></p>
  </div>
 </body>
 </html>
