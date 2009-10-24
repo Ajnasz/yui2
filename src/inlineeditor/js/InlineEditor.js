@@ -30,6 +30,7 @@
             ELEM_EDITABLE: 'yui-inline-editor-editable',
             EDITING_ACTIVE: 'yui-inline-editor-editing',
             RADIO_GROUP_CONTAINER: 'yui-inline-editor-radio-group',
+            RADIO_ITEM_CONTAINER: 'yui-inline-editor-radio-item'
         },
         /**
          * @event cancelEvent
@@ -213,6 +214,7 @@
                 field = _genField('input', name, value),
                 fieldId = Dom.generateId();
             
+            Dom.addClass(radioContainer, CLASSES.RADIO_ITEM_CONTAINER)
             Dom.setAttribute(field, 'id', fieldId);
             Dom.setAttribute(labelElem, 'for', fieldId);
             labelElem.innerHTML = label;
