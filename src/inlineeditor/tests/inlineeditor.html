@@ -64,6 +64,14 @@
                             talibe: 6
                         }});
 
+                var ed5 = new YAHOO.widget.InlineEditor('span-for-custom', {type: 'mytype', fieldGenerator: function(type, fieldName, value, selectableValues) {
+                            var field = document.createElement('input');
+                            field.type = 'text';
+                            field.name = fieldName;
+                            field.value = value;
+                            return field;
+                        }});
+
                 YAHOO.log('inline editor initialized', 'info');
             };
         YAHOO.util.Event.onDOMReady(init);
@@ -76,6 +84,7 @@
      <p id="paragraph-allow-empty">You can save this paragraph even if it's empty</p>
      <p><span id="span-for-select">bingyom</span></p>
      <p><span id="span-for-radio">tuta</span></p>
+     <p><span id="span-for-custom">custom</span></p>
  </div>
 </body>
 </html>
