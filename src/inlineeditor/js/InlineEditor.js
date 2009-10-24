@@ -132,7 +132,10 @@
             VALIDATION_METHOD: function(value) {
                 return true;
             },
-            POSSIBLE_VALUES: null
+            POSSIBLE_VALUES: null,
+            ANIM_TO_COLOR: '#D7EEFF',
+            ANIM_FROM_COLOR: '#FFFFFF',
+            ANIM_ON_MOUSEOVER: true
         },
         /**
          * Validates the type of the editor
@@ -402,6 +405,21 @@
                     this.edit();
                 }
             }, this, true);
+            if(this.get('animOnMouseover') && YL.isFunction(YU.ColorAnim)) {
+                Y.log('anim');
+                Event.on(element, 'mouseover', function() {
+                    if(!this._editStarted) {
+                        var fromColor = this.get('animFromColor'),
+                            toColor = this.get('animToColor'),
+                            anim = new YU.ColorAnim(element, {backgroundColor: {to: toColor, from: fromColor}}, 0.3);
+                        anim.onComplete.subscribe(function() {
+                            new YU.ColorAnim(element, {backgroundColor: {to: fromColor}}, 0.3).animate();
+                        })
+                        anim.animate();
+                    }
+
+                }, this, true);
+            }
         },
         _createEditor: function() {
             var form = createForm(this.get('id')),
@@ -766,17 +784,53 @@
                 validator: YL.isObject,
                 getter: this._getSaveKeys,
                 value: YL.isObject(cfg.saveKeys) ? cfg.saveKeys : null
+            });
 
             /**
              * @attribute cancelKeys
              * @type Object
              * The attribute is to override the default key listeners to cancel the editor
              * @see YAHOO.util.KeyListener
-             */           });
+             */
             this.setAttributeConfig('cancelKeys', {
                 validator: YL.isObject,
                 getter: this._getCancelKeys,
                 value: YL.isObject(cfg.cancelKeys) ? cfg.cancelKeys : null
+            });
+
+            /**
+             * @attribute animOnMouseover
+             * @type String
+             * @uses YAHOO.util.ColorAnim
+             * Change the bacgkground color of the editable element on mouse over.
+             * default is true
+             */
+            this.setAttributeConfig('animOnMouseover', {
+                validator: YL.isBoolean,
+                value: YL.isBoolean(cfg.animOnMouseover) ? cfg.animOnMouseover : DEFAULT_CONFIG.ANIM_ON_MOUSEOVER
+            });
+            /**
+             * @attribute animToColor
+             * @type String
+             * @uses YAHOO.util.ColorAnim
+             * Change the background color of the editable element to this color,
+             * default is #D7EEFF
+             */
+            this.setAttributeConfig('animToColor', {
+                validator: YL.isString,
+                value: YL.isString(cfg.animToColor) ? cfg.animToColor : DEFAULT_CONFIG.ANIM_TO_COLOR
+            });
+
+            /**
+             * @attribute animFromColor
+             * @type String
+             * @uses YAHOO.util.ColorAnim
+             * Change the background color of the editable element from this color,
+             * default is #FFFFFF
+             */
+            this.setAttributeConfig('animFromColor', {
+                validator: YL.isString,
+                value: YL.isString(cfg.animFromColor) ? cfg.animFromColor : DEFAULT_CONFIG.ANIM_FROM_COLOR
             });
 
             this._addEditControl();
