@@ -104,30 +104,33 @@
             ALLOW_EMPTY: false,
             FIELD_NAME: 'field',
             FIELD_GENERATOR: function() {
-                var field;
-                switch(this.get('type')) {
+                var field,
+                    fieldName = this.get('fieldName'),
+                    value = this.get('value'),
+                    selectableValues = this.get('selectableValues'),
+                    preprocess = this.get('processBeforeRead'),
+                    type = this.get('type');
+
+                if(YL.isFunction(preprocess)) {
+                    value = preprocess.call(this, value);
+                }
+                switch(type) {
                     case 'text':
-                        field = genTextField(this.get('fieldName'), this.get('value'));
+                        field = genTextField(fieldName, value);
                         _attachKeyListeners(field, this, {keys:[13]}, {keys: [27]});
                         break;
                     case 'textarea':
-                        field = genTextAreaField(this.get('fieldName'), this.get('value'));
+                        field = genTextAreaField(fieldName, value);
                         _attachKeyListeners(field, this, {ctrl: true, keys:[13]}, {keys: [27]});
                         break;
 
                     case 'select':
-                        var field = genSelectField(this.get('fieldName'),
-                                    this.get('value'),
-                                    this.get('selectableValues'));
-
+                        field = genSelectField(fieldName, value, selectableValues);
                         _attachKeyListeners(field, this, {ctrl: true, keys:[13]}, {keys: [27]});
                         break;
 
                     case 'radio':
-                        var field = genRadioField(this.get('fieldName'),
-                            this.get('value'),
-                            this.get('selectableValues'));
-
+                        field = genRadioField(fieldName, value, selectableValues);
                         _attachKeyListeners(field, this, {ctrl: true, keys:[13]}, {keys: [27]});
                         break;
                 }
@@ -694,7 +697,7 @@
             });
 
             /**
-             * @attribute processBeforeSRead
+             * @attribute processBeforeRead
              * @type Function
              * If you need to mainpulate the value before saving, you can use this config option.
              * The value of the config should be a function which returns the processed value
