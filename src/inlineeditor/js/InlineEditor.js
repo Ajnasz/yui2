@@ -103,35 +103,22 @@
             TYPE: 'text',
             ALLOW_EMPTY: false,
             FIELD_NAME: 'field',
-            FIELD_GENERATOR: function() {
-                var field,
-                    fieldName = this.get('fieldName'),
-                    value = this.get('value'),
-                    selectableValues = this.get('selectableValues'),
-                    preprocess = this.get('processBeforeRead'),
-                    type = this.get('type');
-
-                if(YL.isFunction(preprocess)) {
-                    value = preprocess.call(this, value);
-                }
+            FIELD_GENERATOR: function(type, fieldName, value, selectableValues) {
+                var field;
                 switch(type) {
                     case 'text':
                         field = genTextField(fieldName, value);
-                        _attachKeyListeners(field, this, {keys:[13]}, {keys: [27]});
                         break;
                     case 'textarea':
                         field = genTextAreaField(fieldName, value);
-                        _attachKeyListeners(field, this, {ctrl: true, keys:[13]}, {keys: [27]});
                         break;
 
                     case 'select':
                         field = genSelectField(fieldName, value, selectableValues);
-                        _attachKeyListeners(field, this, {ctrl: true, keys:[13]}, {keys: [27]});
                         break;
 
                     case 'radio':
                         field = genRadioField(fieldName, value, selectableValues);
-                        _attachKeyListeners(field, this, {ctrl: true, keys:[13]}, {keys: [27]});
                         break;
                 }
                 return field;
@@ -156,7 +143,6 @@
          * @type Boolean
          */
         validateType = function(type) {
-            alert('validate')
             var valid = false;
             if(YL.isString(type)) {
                 for (var i = 0, vl = VALID_TYPES.length; i < vl; i++) {
@@ -167,8 +153,8 @@
                 }
             }
             if(!valid) {
-                Y.log('field type is not valid:  ' + valid, 'error');
-                throw new Error('field type is not valid');
+                Y.log('field type is invalid:  ' + valid, 'error');
+                throw new Error('field type is invalid');
             }
             return valid;
         },
@@ -216,7 +202,7 @@
                 labelElem = document.createElement('label'),
                 field = _genField('input', name, value),
                 fieldId = Dom.generateId();
-            
+
             Dom.addClass(radioContainer, CLASSES.RADIO_ITEM_CONTAINER)
             Dom.setAttribute(field, 'id', fieldId);
             Dom.setAttribute(labelElem, 'for', fieldId);
@@ -289,20 +275,19 @@
 
             if(form && form.nodeName == 'FORM') {
                 elements = form.elements;
+
                 for (var i = 0, el = elements.length, elem, name, value, type; i < el; i++) {
                     elem = elements[i];
                     name = Dom.getAttribute(elem, 'name');
-
                     if(name) {
                         switch(elem.nodeName) {
                             case 'INPUT':
-                                if(Dom.getAttribute(elem, 'type') == 'radio' && elem.checked) {
+                                if(Dom.getAttribute(elem, 'type') != 'radio' || elem.checked) {
                                     values[name] = elem.value;
                                 }
                                 break;
                             default:
                                 values[name] = elem.value;
-                                
                         }
                     }
                 }
@@ -362,7 +347,7 @@
                 if(validator.call(this, value)) {
                     this.set('value', value);
                     this._stopEdit();
-                    this.fireEvent(saveEvent, values);
+                    this.fireEvent(saveEvent, value, values);
                     _ret = true;
                 } else {
                     this.fireEvent(valueNotValidEvent);
@@ -413,17 +398,26 @@
         _createEditor: function() {
             var form = createForm(this.get('id')),
                 type = this.get('type'),
+                value = this.get('value'),
+                preprocess = this.get('processBeforeRead'),
+                fieldName = this.get('fieldName'),
+                selectableValues = this.get('selectableValues'),
                 generator = this.get('fieldGenerator'),
-                field = generator.call(this),
+                field;
+
+                if(YL.isFunction(preprocess)) {
+                    value = preprocess.call(this, value);
+                }
+                field = generator.call(this, type, fieldName, value, selectableValues),
+                _attachKeyListeners(field, this, this.get('saveKeys'), this.get('cancelKeys'));
+
                 _ret = false;
 
             if(field.nodeType === 1) {
                 this._createControls();
                 form.appendChild(field);
                 form.appendChild(this.controls.container);
-                Event.on(form, 'submit', function(e) {
-                    Event.stopEvent(e);
-                });
+                Event.on(form, 'submit', Event.stopEvent);
                 _ret = form;
             }
             return _ret
@@ -438,6 +432,9 @@
             }
             element.innerHTML = '';
             element.appendChild(editor);
+            try {
+                editor.elements[0].focus();
+            } catch(e){}
             this._editor = editor;
         },
         _restoreElement: function() {
@@ -612,6 +609,26 @@
             } else {
                 this.set('htmlValue', value);
             }
+        },
+        _getSaveKeys: function(value) {
+            if(!YL.isObject(value)) {
+                switch(this.get('type')) {
+                    case 'textarea':
+                        value = {ctrl: true, keys:[13]};
+                        break;
+                    default:
+                        value = {keys:[13]};
+                        break;
+
+
+                }
+            }
+            return value;
+        },
+        _getCancelKeys: function(value) {
+            if(!YL.isObject(value)) {
+                value = {keys: [27]};
+            }
             return value;
         },
 
@@ -655,6 +672,10 @@
              * @type Function
              * You can define a custom method what generates the edit field.
              * With that option you can create custom edit fields
+             * @param {String} type
+             * @param {String} fieldName
+             * @param {String | Integer} value
+             * @param {Object} selectableValues
              */
             this.setAttributeConfig('fieldGenerator', {
                 validator: YL.isFunction,
@@ -669,7 +690,7 @@
              */
             this.setAttributeConfig('value', {
                 getter: this._getValue,
-                setter: this._setValue
+                method: this._setValue
             });
             /**
              * @attribute selectableValues
@@ -725,6 +746,29 @@
             this.setAttributeConfig('validator', {
                 validator: YL.isFunction,
                 value: YL.isFunction(cfg.validator) ? cfg.validator : DEFAULT_CONFIG.VALIDATION_METHOD
+            });
+
+            /**
+             * @attribute saveKeys
+             * @type Object
+             * The attribute is to override the default key listeners to save the editor's value
+             * @see YAHOO.util.KeyListener
+             */
+            this.setAttributeConfig('saveKeys', {
+                validator: YL.isObject,
+                getter: this._getSaveKeys,
+                value: YL.isObject(cfg.saveKeys) ? cfg.saveKeys : null
+
+            /**
+             * @attribute cancelKeys
+             * @type Object
+             * The attribute is to override the default key listeners to cancel the editor
+             * @see YAHOO.util.KeyListener
+             */           });
+            this.setAttributeConfig('cancelKeys', {
+                validator: YL.isObject,
+                getter: this._getCancelKeys,
+                value: YL.isObject(cfg.cancelKeys) ? cfg.cancelKeys : null
             });
 
             this._addEditControl();
