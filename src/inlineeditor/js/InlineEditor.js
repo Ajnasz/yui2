@@ -377,23 +377,31 @@
          * @type Boolean
          */
         edit: function() {
-            this._startEdit();
-            this.fireEvent(editStartedEvent);
-            return true
-        },
-        _startEdit: function() {
+            if(this._editStarted) return false;
             var element = this.get('element');
             Dom.addClass(element, CLASSES.EDITING_ACTIVE);
             this._replaceElement();
+            this._editStarted = true;
+            this.fireEvent(editStartedEvent);
+            return true
         },
         _stopEdit: function() {
+            if(!this._editStarted) return false;
             var element = this.get('element');
             Dom.removeClass(element, CLASSES.EDITING_ACTIVE);
             this._restoreElement();
+            this._editStarted = false;
+            return true;
         },
         _setEditable: function() {
             var element = this.get('element');
             Dom.addClass(element, CLASSES.ELEM_EDITABLE);
+            Event.on(element, 'click', function(e) {
+                var target = Event.getTarget(e);
+                if(target == element && !this._editStarted) {
+                    this.edit();
+                }
+            }, this, true);
         },
         _createEditor: function() {
             var form = createForm(this.get('id')),
