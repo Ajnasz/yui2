@@ -92,6 +92,142 @@
          */
         VALID_TYPES         = ['text', 'textarea', 'select', 'radio'],
         /**
+         * Generates a specified HTML element for the form
+         * @method _genField
+         * @private
+         * @param {String} type The type of the edit field
+         * @param {String} name The name of the edit field
+         * @param {String} value The value of the edit field
+         * @returns The html input or textarea element which value and name is set
+         * @type HTMLElement
+         */
+        _genField = function(type, name, value) {
+            if(!YL.isString(type) || !YL.isString(name) || (!YL.isString(value) && !YL.isNumber(value))) {
+                return false;
+            }
+            var element = document.createElement(type);
+            Dom.setAttribute(element, 'name', name);
+            element.value = value;
+            return element;
+        },
+        _genOption = function(label, value, selected) {
+            return new Option(label, value, selected);
+        },
+        _genInputField = function(name, value, type) {
+            var field = _genField('input', name, value);
+            Dom.setAttribute(field, 'type', 'text');
+            return field;
+        },
+        _genRadioField = function(name, label, value, checked) {
+            var radioContainer = document.createElement('span'),
+                labelElem = document.createElement('label'),
+                field = _genField('input', name, value),
+                fieldId = Dom.generateId();
+
+            Dom.addClass(radioContainer, CLASSES.RADIO_ITEM_CONTAINER);
+            Dom.setAttribute(field, 'id', fieldId);
+            Dom.setAttribute(labelElem, 'for', fieldId);
+            labelElem.innerHTML = label;
+
+            Dom.setAttribute(field, 'type', 'radio');
+            if(checked) {
+                Dom.setAttribute(field, 'checked', 'checked');
+            }
+            radioContainer.appendChild(field);
+            radioContainer.appendChild(labelElem);
+            return radioContainer;
+        },
+        /**
+         * Generates an input element for the editing
+         * @method genTextField
+         * @private
+         * @param {String} name The name of the text field
+         * @param {String} value The value of the text field
+         * @returns An input (text type) element
+         * @type HTMLInputElement
+         */
+        genTextField = function(name, value) {
+            return _genInputField(name, value, 'text');
+        },
+
+        /**
+         * Generates a textarea element for the editing
+         * @method genTextAreaField
+         * @private
+         * @param {String} name The name of the textarea field
+         * @param {String} value The value of the textarea field
+         * @returns A textarea element
+         * @type HTMLTextareaElement
+         */
+        genTextAreaField = function(name, value) {
+            var field = _genField('textarea', name, value);
+            Dom.setAttribute(field, 'rows', 10);
+            Dom.setAttribute(field, 'cols', 40);
+            return field;
+        },
+        genSelectField = function(name, value, selectableValues) {
+            var field = _genField('select', name, ''),
+                option,
+                label;
+            for(label in selectableValues) {
+                if(selectableValues.hasOwnProperty(label)) {
+                    field.appendChild(_genOption(label, selectableValues[label], (label == value || selectableValues[label] == value)));
+                }
+            }
+            return field;
+        },
+        genRadioField = function(name, value, selectableValues) {
+            var field = document.createElement('span'),
+                radio,
+                label;
+            Dom.addClass(field, CLASSES.RADIO_GROUP_CONTAINER);
+            for(label in selectableValues) {
+                if(selectableValues.hasOwnProperty(label)) {
+                    radio = _genRadioField(name, label, selectableValues[label], (label == value || selectableValues[label] == value));
+                    field.appendChild(radio);
+                }
+            }
+            return field;
+        },
+        /**
+         * Collects the element values of a form
+         * @method getFormValues
+         * @param {HTMLFormElement} form The form element
+         * @returns an object, where the key is the name of the input field
+         *  and the value is the the value of the input field
+         * @type String
+         */
+        getFormValues = function(form) {
+            var elements,
+                values = {},
+                i,
+                el,
+                elem,
+                name,
+                value,
+                type;
+
+            if(form && form.nodeName == 'FORM') {
+                elements = form.elements;
+                el = elements.length;
+                for (i=0; i < el; i++) {
+                    elem = elements[i];
+                    name = Dom.getAttribute(elem, 'name');
+                    if(name) {
+                        if(elem.nodeName == 'INPUT') {
+                            if(Dom.getAttribute(elem, 'type') != 'radio' || elem.checked) {
+                                values[name] = elem.value;
+                            }
+                        } else {
+                            values[name] = elem.value;
+                        }
+                    }
+                }
+            }
+            return values;
+        },
+
+        /**
          * Constant representing the default editor type
          * @property TYPE
          * @namespace DEFAULT_CONFIG
@@ -174,131 +310,6 @@
             return form;
         },
         /**
-         * Generates a specified HTML element for the form
-         * @method _genField
-         * @private
-         * @param {String} type The type of the edit field
-         * @param {String} name The name of the edit field
-         * @param {String} value The value of the edit field
-         * @returns The html input or textarea element which value and name is set
-         * @type HTMLElement
-         */
-        _genField = function(type, name, value) {
-            if(!YL.isString(type) || !YL.isString(name) || (!YL.isString(value) && !YL.isNumber(value))) {
-                return false;
-            }
-            var element = document.createElement(type);
-            Dom.setAttribute(element, 'name', name);
-            element.value = value;
-            return element;
-        },
-        _genOption = function(label, value, selected) {
-            return new Option(label, value, selected);
-        },
-        _genInputField = function(name, value, type) {
-            var field = _genField('input', name, value);
-            Dom.setAttribute(field, 'type', 'text');
-            return field;
-        },
-        _genRadioField = function(name, label, value, checked) {
-            var radioContainer = document.createElement('span'),
-                labelElem = document.createElement('label'),
-                field = _genField('input', name, value),
-                fieldId = Dom.generateId();
-
-            Dom.addClass(radioContainer, CLASSES.RADIO_ITEM_CONTAINER)
-            Dom.setAttribute(field, 'id', fieldId);
-            Dom.setAttribute(labelElem, 'for', fieldId);
-            labelElem.innerHTML = label;
-
-            Dom.setAttribute(field, 'type', 'radio');
-            if(checked) {
-                Dom.setAttribute(field, 'checked', 'checked');
-            }
-            radioContainer.appendChild(field);
-            radioContainer.appendChild(labelElem);
-            return radioContainer;
-        },
-        /**
-         * Generates an input element for the editing
-         * @method genTextField
-         * @private
-         * @param {String} name The name of the text field
-         * @param {String} value The value of the text field
-         * @returns An input (text type) element
-         * @type HTMLInputElement
-         */
-        genTextField = function(name, value) {
-            return _genInputField(name, value, 'text');
-        },
-
-        /**
-         * Generates a textarea element for the editing
-         * @method genTextAreaField
-         * @private
-         * @param {String} name The name of the textarea field
-         * @param {String} value The value of the textarea field
-         * @returns A textarea element
-         * @type HTMLTextareaElement
-         */
-        genTextAreaField = function(name, value) {
-            var field = _genField('textarea', name, value);
-            Dom.setAttribute(field, 'rows', 10);
-            Dom.setAttribute(field, 'cols', 40);
-            return field;
-        },
-        genSelectField = function(name, value, selectableValues) {
-            var field = _genField('select', name, ''), option;
-            for(var label in selectableValues) {
-                field.appendChild(_genOption(label, selectableValues[label], (label == value || selectableValues[label] == value)));
-            }
-            return field;
-        },
-        genRadioField = function(name, value, selectableValues) {
-            var field = document.createElement('span'),
-                radio;
-            Dom.addClass(field, CLASSES.RADIO_GROUP_CONTAINER);
-            for(var label in selectableValues) {
-                radio = _genRadioField(name, label, selectableValues[label], (label == value || selectableValues[label] == value))
-                field.appendChild(radio);
-            }
-            return field;
-        },
-        /**
-         * Collects the element values of a form
-         * @method getFormValues
-         * @param {HTMLFormElement} form The form element
-         * @returns an object, where the key is the name of the input field
-         *  and the value is the the value of the input field
-         * @type String
-         */
-        getFormValues = function(form) {
-            var elements,
-                values = {};
-
-            if(form && form.nodeName == 'FORM') {
-                elements = form.elements;
-
-                for (var i = 0, el = elements.length, elem, name, value, type; i < el; i++) {
-                    elem = elements[i];
-                    name = Dom.getAttribute(elem, 'name');
-                    if(name) {
-                        switch(elem.nodeName) {
-                            case 'INPUT':
-                                if(Dom.getAttribute(elem, 'type') != 'radio' || elem.checked) {
-                                    values[name] = elem.value;
-                                }
-                                break;
-                            default:
-                                values[name] = elem.value;
-                        }
-                    }
-                }
-            }
-            return values;
-        },
-
-        /**
          * Method allows to control the saving and cancelling with keyboard
          * @method _attachKeyListeners
          * @private
@@ -313,10 +324,13 @@
          */
         _attachKeyListeners = function(field, scope, saveKeys, cancelKeys) {
             var _ret = false,
-                KeyListener = YU.KeyListener;
+                KeyListener = YU.KeyListener,
+                listener;
             if(field) {
-                new KeyListener(field, saveKeys, {fn: scope.save, scope: scope, correctScope: true}).enable();
-                new KeyListener(field, cancelKeys, {fn: scope.cancel, scope: scope, correctScope: true}).enable();
+                listener = new KeyListener(field, saveKeys, {fn: scope.save, scope: scope, correctScope: true});
+                listener.enable();
+                listener = new KeyListener(field, cancelKeys, {fn: scope.cancel, scope: scope, correctScope: true});
+                listener.enable();
                 _ret = true;
             }
             return _ret;
@@ -343,7 +357,7 @@
                 _ret = false;
 
             value = preprocess.call(this, value);
-            if(value == '' && !this.get('allowEmpty')) {
+            if(value === '' && !this.get('allowEmpty')) {
                 Y.log("the field value is empty and it's not allowed");
                 this.fireEvent(emptyValueEvent);
             } else {
@@ -380,16 +394,16 @@
          * @type Boolean
          */
         edit: function() {
-            if(this._editStarted) return false;
+            if(this._editStarted) {return false;}
             var element = this.get('element');
             Dom.addClass(element, CLASSES.EDITING_ACTIVE);
             this._replaceElement();
             this._editStarted = true;
             this.fireEvent(editStartedEvent);
-            return true
+            return true;
         },
         _stopEdit: function() {
-            if(!this._editStarted) return false;
+            if(!this._editStarted) {return false;}
             var element = this.get('element');
             Dom.removeClass(element, CLASSES.EDITING_ACTIVE);
             this._restoreElement();
@@ -413,8 +427,8 @@
                             toColor = this.get('animToColor'),
                             anim = new YU.ColorAnim(element, {backgroundColor: {to: toColor, from: fromColor}}, 0.3);
                         anim.onComplete.subscribe(function() {
-                            new YU.ColorAnim(element, {backgroundColor: {to: fromColor}}, 0.3).animate();
-                        })
+                            var anim = new YU.ColorAnim(element, {backgroundColor: {to: fromColor}}, 0.3).animate();
+                        });
                         anim.animate();
                     }
 
@@ -429,15 +443,15 @@
                 fieldName = this.get('fieldName'),
                 selectableValues = this.get('selectableValues'),
                 generator = this.get('fieldGenerator'),
-                field;
+                field,
+                _ret = false;
 
                 if(YL.isFunction(preprocess)) {
                     value = preprocess.call(this, value);
                 }
-                field = generator.call(this, type, fieldName, value, selectableValues),
+                field = generator.call(this, type, fieldName, value, selectableValues);
                 _attachKeyListeners(field, this, this.get('saveKeys'), this.get('cancelKeys'));
 
-                _ret = false;
 
             if(field.nodeType === 1) {
                 this._createControls();
@@ -446,7 +460,7 @@
                 Event.on(form, 'submit', Event.stopEvent);
                 _ret = form;
             }
-            return _ret
+            return _ret;
         },
         _replaceElement: function() {
             var element = this.get('element'),
@@ -547,46 +561,42 @@
             this._destroyControls();
             Dom.addClass(container, CLASSES.CONTROLS_CONTAINER);
 
-            switch(type) {
-                case 'edit':
-                    editButton = button.cloneNode(false);
-                    Dom.addClass(editButton, CLASSES.EDIT_BUTTON);
-                    editButton.innerHTML = 'edit';
-                    Event.on(editButton, 'click', function(event) {
-                        this.edit(event);
-                        this.fireEvent(editClickEvent, event);
-                    }, this, true);
-                    container.appendChild(editButton);
-                    this.controls = {
-                        edit: editButton,
-                        container: container
-                    };
-                    break;
+            if(type === 'edit') {
+                editButton = button.cloneNode(false);
+                Dom.addClass(editButton, CLASSES.EDIT_BUTTON);
+                editButton.innerHTML = 'edit';
+                Event.on(editButton, 'click', function(event) {
+                    this.edit(event);
+                    this.fireEvent(editClickEvent, event);
+                }, this, true);
+                container.appendChild(editButton);
+                this.controls = {
+                    edit: editButton,
+                    container: container
+                };
+            } else {
+                cancelButton = button.cloneNode(false);
+                saveButton = button.cloneNode(false);
+                Dom.addClass(cancelButton, CLASSES.CANCEL_BUTTON);
+                Dom.addClass(saveButton, CLASSES.SAVE_BUTTON);
+                cancelButton.innerHTML = 'cancel';
+                saveButton.innerHTML = 'save';
+                Event.on(cancelButton, 'click', function(event) {
+                    this.cancel(event);
+                    this.fireEvent(cancelClickEvent, event);
+                }, this, true);
+                Event.on(saveButton, 'click', function(event) {
+                    this.save(event);
+                    this.fireEvent(saveClickEvent, event);
+                }, this, true);
+                container.appendChild(cancelButton);
+                container.appendChild(saveButton);
 
-                default:
-                    cancelButton = button.cloneNode(false);
-                    saveButton = button.cloneNode(false);
-                    Dom.addClass(cancelButton, CLASSES.CANCEL_BUTTON);
-                    Dom.addClass(saveButton, CLASSES.SAVE_BUTTON);
-                    cancelButton.innerHTML = 'cancel';
-                    saveButton.innerHTML = 'save';
-                    Event.on(cancelButton, 'click', function(event) {
-                        this.cancel(event);
-                        this.fireEvent(cancelClickEvent, event);
-                    }, this, true);
-                    Event.on(saveButton, 'click', function(event) {
-                        this.save(event);
-                        this.fireEvent(saveClickEvent, event);
-                    }, this, true);
-                    container.appendChild(cancelButton);
-                    container.appendChild(saveButton);
-
-                    this.controls = {
-                        cancel: cancelButton,
-                        save: saveButton,
-                        container: container
-                    };
-                    break;
+                this.controls = {
+                    cancel: cancelButton,
+                    save: saveButton,
+                    container: container
+                };
             }
         },
         /**
@@ -638,15 +648,10 @@
         },
         _getSaveKeys: function(value) {
             if(!YL.isObject(value)) {
-                switch(this.get('type')) {
-                    case 'textarea':
-                        value = {ctrl: true, keys:[13]};
-                        break;
-                    default:
-                        value = {keys:[13]};
-                        break;
-
-
+                if(this.get('type') === 'textarea') {
+                    value = {ctrl: true, keys:[13]};
+                } else {
+                    value = {keys:[13]};
                 }
             }
             return value;
@@ -709,7 +714,7 @@
             });
             this.setAttributeConfig('htmlValue', {
                 value: element.innerHTML
-            })
+            });
             /**
              * @attribute value
              * The current value of the field
