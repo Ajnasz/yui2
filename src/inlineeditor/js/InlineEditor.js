@@ -1,6 +1,11 @@
+/**
+ * Inline editor widget
+ * @module InlineEditor
+ */
 (function() {
 
     /**
+     * Inline editor widget
      * @namespace YAHOO.widget
      * @class InlineEditor
      * @extends YAHOO.util.AttributeProvider
@@ -98,8 +103,7 @@
          * @param {String} type The type of the edit field
          * @param {String} name The name of the edit field
          * @param {String} value The value of the edit field
-         * @returns The html input or textarea element which value and name is set
-         * @type HTMLElement
+         * @return {HTMLElement} The html input or textarea element which value and name is set
          */
         _genField = function(type, name, value) {
             if(!YL.isString(type) || !YL.isString(name) || (!YL.isString(value) && !YL.isNumber(value))) {
@@ -143,8 +147,7 @@
          * @private
          * @param {String} name The name of the text field
          * @param {String} value The value of the text field
-         * @returns An input (text type) element
-         * @type HTMLInputElement
+         * @return {HTMLInputElement} An input (text type) element
          */
         genTextField = function(name, value) {
             return _genInputField(name, value, 'text');
@@ -156,8 +159,7 @@
          * @private
          * @param {String} name The name of the textarea field
          * @param {String} value The value of the textarea field
-         * @returns A textarea element
-         * @type HTMLTextareaElement
+         * @return {HTMLTextareaElement} A textarea element
          */
         genTextAreaField = function(name, value) {
             var field = _genField('textarea', name, value);
@@ -192,9 +194,8 @@
          * Collects the element values of a form
          * @method getFormValues
          * @param {HTMLFormElement} form The form element
-         * @returns an object, where the key is the name of the input field
+         * @return {String} an object, where the key is the name of the input field
          *  and the value is the the value of the input field
-         * @type String
          */
         getFormValues = function(form) {
             var elements,
@@ -277,8 +278,7 @@
          * @method validateType
          * @private
          * @param {String} type The name of the editor type
-         * @returns true if the given type is allowed
-         * @type Boolean
+         * @return {Boolean} true if the given type is allowed
          */
         validateType = function(type) {
             var valid = false,
@@ -347,8 +347,7 @@
          * press enter (or cntrl enter in textarea) in the edit
          * field
          * @method save
-         * @returns true if the saving was succes
-         * @type Boolean
+         * @return {Boolean} true if the saving was succes
          */
         save: function() {
             var values = getFormValues(this._editor),
@@ -378,9 +377,8 @@
          * original state
          * The method runs when user clicks on the cancel button, or
          * press escape in the edit * field
-         * @method save
-         * @returns true if the cancelling was succes
-         * @type Boolean
+         * @method cancel
+         * @return {Boolean} true if the cancelling was succes
          */
         cancel: function() {
             this._stopEdit();
@@ -391,8 +389,7 @@
          * Starts the editing, replace the content of the editable
          * element to a form what can be editable
          * @method edit
-         * @returns true if the edit successfully started
-         * @type Boolean
+         * @return {Boolean} true if the edit successfully started
          */
         edit: function() {
             if(this._editStarted) {return false;}
@@ -403,6 +400,11 @@
             this.fireEvent(editStartedEvent);
             return true;
         },
+        /**
+         * Stops the editing
+         * @method _stopEdit
+         * @private
+         */
         _stopEdit: function() {
             if(!this._editStarted) {return false;}
             var element = this.get('element');
@@ -681,99 +683,111 @@
                 readOnly: true
             });
             /**
-             * @attribute type
-             * @type String
              * The type of the inline editor. If it's not specified
              * in the config then the default value is normally 'text'
+             * @attribute type
+             * @type String
              */
             this.setAttributeConfig('type', {
                 validator: validateType,
                 value: cfg.type || DEFAULT_CONFIG.TYPE
             });
             /**
+             * The name of the edit field. Default is 'field'
              * @attribute fieldName
              * @type String
-             * The name of the edit field. Default is 'field'
              */
             this.setAttributeConfig('fieldName', {
                 validator: YL.isString,
                 value: cfg.fieldName || DEFAULT_CONFIG.FIELD_NAME
             });
             /**
-             * @attribute fieldGenerator
-             * @type Function
              * You can define a custom method what generates the edit field.
              * With that option you can create custom edit fields
-             * @param {String} type
-             * @param {String} fieldName
-             * @param {String | Integer} value
-             * @param {Object} selectableValues
+             * params:
+             * <ul>
+             * <li><strong>type</strong> String</li>
+             * <li><strong>fieldName</strong> String </li>
+             * <li><strong>value</strong> String | Integer</li>
+             * <li<strong>selectableValues</strong> Object</li>
+             * </ul>
+             * @attribute fieldGenerator
+             * @type Function
              */
             this.setAttributeConfig('fieldGenerator', {
                 validator: YL.isFunction,
                 value: cfg.fieldGenerator || DEFAULT_CONFIG.FIELD_GENERATOR
             });
+            /**
+             * The current html value of the field.
+             * Mostly it's the same as the value property, but in some cases 
+             * (eg. with select field) it's different
+             * @attribute htmlValue
+             * @type String | Integer
+             */
             this.setAttributeConfig('htmlValue', {
                 value: element.innerHTML
             });
             /**
-             * @attribute value
              * The current value of the field
+             * @attribute value
+             * @type String | Integer
              */
             this.setAttributeConfig('value', {
                 getter: this._getValue,
                 method: this._setValue
             });
             /**
-             * @attribute selectableValues
-             * @type Object
              * This option is used to set the possible selectable values for 'select' and 'radio'
              * editor types
              * It should be an object with key - value pairs:
              *  the key will be displayed for the user.
-             *  For example, if you creates a editor which type is select do this:
-             *      select fields: {foo:1,bar:2}
+             *  For example, if you creates a editor which type is select do this:<br/>
+             *      <code>{foo:1,bar:2}</code><br/>
              *  the value of the options will be the numbers and the foo/bar will be used as the
              *  inner HTML of the option
+             * @attribute selectableValues
+             * @type Object
              */
             this.setAttributeConfig('selectableValues', {
                 validator: YL.isObject,
                 value: YL.isObject(cfg.selectableValues) ? cfg.selectableValues : DEFAULT_CONFIG.POSSIBLE_VALUES
             });
             /**
+             * Set to true if you want to allow to save an empty editor
              * @attribute allowEmpty
              * @type Boolean
-             * Set to true if you want to allow to save an empty editor
              */
             this.setAttributeConfig('allowEmpty', {
                 value: YL.isBoolean(cfg.allowEmpty) ? cfg.allowEmpty : DEFAULT_CONFIG.ALLOW_EMPTY
             });
 
             /**
-             * @attribute processBeforeRead
-             * @type Function
              * If you need to mainpulate the value before saving, you can use this config option.
              * The value of the config should be a function which returns the processed value
+             * @attribute processBeforeRead
+             * @type Function
              */
             this.setAttributeConfig('processBeforeRead', {
                 validator: YL.isFunction,
                 value: YL.isFunction(cfg.processBeforeRead) ? cfg.processBeforeRead : DEFAULT_CONFIG.PROCESS_BEFORE_READ_METHOD
             });
             /**
-             * @attribute processBeforeSave
-             * @type Function
              * If you need to mainpulate the value before saving, you can use this config option.
              * The value of the config should be a function which returns the processed value
+             * @attribute processBeforeSave
+             * @type Function
              */
             this.setAttributeConfig('processBeforeSave', {
                 validator: YL.isFunction,
                 value: YL.isFunction(cfg.processBeforeSave) ? cfg.processBeforeSave : DEFAULT_CONFIG.PROCESS_BEFORE_SAVE_METHOD
             });
             /**
+             * If you need to validate the value before saving, you can use this config option.
+             * The value is passed as an argument
+             * returns true if the value is valid
              * @attribute validator
              * @type Function
-             * If you need to validate the value before saving, you can use this config option.
-             * @returns true if the value is valid
              */
             this.setAttributeConfig('validator', {
                 validator: YL.isFunction,
@@ -781,9 +795,9 @@
             });
 
             /**
+             * The attribute is to override the default key listeners to save the editor's value
              * @attribute saveKeys
              * @type Object
-             * The attribute is to override the default key listeners to save the editor's value
              * @see YAHOO.util.KeyListener
              */
             this.setAttributeConfig('saveKeys', {
@@ -793,9 +807,9 @@
             });
 
             /**
+             * The attribute is to override the default key listeners to cancel the editor
              * @attribute cancelKeys
              * @type Object
-             * The attribute is to override the default key listeners to cancel the editor
              * @see YAHOO.util.KeyListener
              */
             this.setAttributeConfig('cancelKeys', {
@@ -805,22 +819,20 @@
             });
 
             /**
-             * @attribute animOnMouseover
-             * @type String
-             * @uses YAHOO.util.ColorAnim
              * Change the bacgkground color of the editable element on mouse over.
              * default is true
+             * @attribute animOnMouseover
+             * @type String
              */
             this.setAttributeConfig('animOnMouseover', {
                 validator: YL.isBoolean,
                 value: YL.isBoolean(cfg.animOnMouseover) ? cfg.animOnMouseover : DEFAULT_CONFIG.ANIM_ON_MOUSEOVER
             });
             /**
-             * @attribute animToColor
-             * @type String
-             * @uses YAHOO.util.ColorAnim
              * Change the background color of the editable element to this color,
              * default is #D7EEFF
+             * @attribute animToColor
+             * @type String
              */
             this.setAttributeConfig('animToColor', {
                 validator: YL.isString,
@@ -828,11 +840,10 @@
             });
 
             /**
-             * @attribute animFromColor
-             * @type String
-             * @uses YAHOO.util.ColorAnim
              * Change the background color of the editable element from this color,
              * default is #FFFFFF
+             * @attribute animFromColor
+             * @type String
              */
             this.setAttributeConfig('animFromColor', {
                 validator: YL.isString,
