@@ -167,7 +167,6 @@
         },
         genSelectField = function(name, value, selectableValues) {
             var field = _genField('select', name, ''),
-                option,
                 label;
             for(label in selectableValues) {
                 if(selectableValues.hasOwnProperty(label)) {
@@ -204,8 +203,7 @@
                 el,
                 elem,
                 name,
-                value,
-                type;
+                value;
 
             if(form && form.nodeName == 'FORM') {
                 elements = form.elements;
@@ -213,13 +211,14 @@
                 for (i=0; i < el; i++) {
                     elem = elements[i];
                     name = Dom.getAttribute(elem, 'name');
+                    value = elem.value;
                     if(name) {
                         if(elem.nodeName == 'INPUT') {
                             if(Dom.getAttribute(elem, 'type') != 'radio' || elem.checked) {
-                                values[name] = elem.value;
+                                values[name] = value;
                             }
                         } else {
-                            values[name] = elem.value;
+                            values[name] = value;
                         }
                     }
                 }
@@ -282,9 +281,11 @@
          * @type Boolean
          */
         validateType = function(type) {
-            var valid = false;
+            var valid = false,
+                i,
+                vl = VALID_TYPES.length;
             if(YL.isString(type)) {
-                for (var i = 0, vl = VALID_TYPES.length; i < vl; i++) {
+                for (i = 0; i < vl; i++) {
                     if(VALID_TYPES[i] === type) {
                         valid = true;
                         break;
@@ -427,7 +428,8 @@
                             toColor = this.get('animToColor'),
                             anim = new YU.ColorAnim(element, {backgroundColor: {to: toColor, from: fromColor}}, 0.3);
                         anim.onComplete.subscribe(function() {
-                            var anim = new YU.ColorAnim(element, {backgroundColor: {to: fromColor}}, 0.3).animate();
+                            var anim = new YU.ColorAnim(element, {backgroundColor: {to: fromColor}}, 0.3);
+                            anim.animate();
                         });
                         anim.animate();
                     }
@@ -480,12 +482,12 @@
         _restoreElement: function() {
             var element = this.get('element'),
                 value = this.get('value'),
-                type = this.get('type'),
                 selectableValues = this.get('selectableValues'),
-                html;
+                html,
+                label;
 
             if(YL.isObject(selectableValues)) {
-                for (var label in selectableValues) {
+                for (label in selectableValues) {
                     if(selectableValues[label] == value) {
                         html = label;
                         break;
@@ -608,19 +610,18 @@
             this._createControls('edit');
 
             var element = this.get('element'),
-                controlsContainer = document.createElement('span'),
                 controls = this.controls;
 
             element.appendChild(controls.container);
-
         },
         _getValue: function() {
             var htmlValue = this.get('htmlValue'),
                 selectableValues = this.get('selectableValues'),
+                key,
                 _ret;
 
             if(YL.isObject(selectableValues)) {
-                for(var key in selectableValues) {
+                for(key in selectableValues) {
                     if(key == htmlValue) {
                         _ret = selectableValues[key];
                         break;
@@ -632,11 +633,11 @@
             return _ret;
         },
         _setValue: function(value) {
-            var htmlValue = this.get('htmlValue'),
-                selectableValues = this.get('selectableValues');
+            var selectableValues = this.get('selectableValues'),
+                key;
 
             if(YL.isObject(selectableValues)) {
-                for(var key in selectableValues) {
+                for(key in selectableValues) {
                     if(selectableValues[key] == value) {
                         this.set('htmlValue', key);
                         break;
