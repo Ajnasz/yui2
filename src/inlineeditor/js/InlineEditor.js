@@ -14,7 +14,7 @@
      * @title InlineEditor widget
      * @param {HTMLElement | String} el The html element what will be
      * converted to an editable field
-     * @param {Object} cfg (optional)
+     * @param {Object} cfg (optional) Configurations as an object.
      * @beta
      */
     YAHOO.widget.InlineEditor = function(el, cfg) {
@@ -114,14 +114,41 @@
             element.value = value;
             return element;
         },
+        /**
+         * Generates an html option element
+         * @method _genOption
+         * @private
+         * @param {String} label The shown text of the option
+         * @param {String} value Value of the option
+         * @param {Boolean} selected Should be selected or not
+         * @return {HMLOptionElement} The option element
+         */
         _genOption = function(label, value, selected) {
             return new Option(label, value, selected);
         },
-        _genInputField = function(name, value, type) {
+        /**
+         * Generates a tex type input element
+         * @method _genInputField
+         * @private
+         * @param {String} name The name of the field
+         * @param {String} value The value of the field
+         * @return {HTMLInputElement} An input element
+         */
+        _genInputField = function(name, value) {
             var field = _genField('input', name, value);
             Dom.setAttribute(field, 'type', 'text');
             return field;
         },
+        /**
+         * Generates a single radio input field with it's label
+         * @method _genRadioField
+         * @private
+         * @param {String} name The name of the field
+         * @param {String} label String shown in the label element
+         * @param {String} value Value of the field
+         * @param {Boolean} checked Should set the checked attribute for the elment or not
+         * @return {HTMLSpanElement} A span element contains the field and it's label element
+         */
         _genRadioField = function(name, label, value, checked) {
             var radioContainer = document.createElement('span'),
                 labelElem = document.createElement('label'),
@@ -167,6 +194,15 @@
             Dom.setAttribute(field, 'cols', 40);
             return field;
         },
+        /**
+         * Generates a select field
+         * @method genSelectField
+         * @private
+         * @param {String} name The name of the select field
+         * @param {String} value The current value
+         * @param {Object} selectableValues The possible option values
+         * @return {HTMLSelectField} A select field
+         */
         genSelectField = function(name, value, selectableValues) {
             var field = _genField('select', name, ''),
                 label;
@@ -177,6 +213,15 @@
             }
             return field;
         },
+        /**
+         * Generates a radio field group
+         * @method genRadioField
+         * @private
+         * @param {String} name The name of the radio field
+         * @param {String} value The current value
+         * @param {Object} selectableValues The possible input values
+         * @return {HTMLSpanElement} A span element which contains all of the radio fields
+         */
         genRadioField = function(name, value, selectableValues) {
             var field = document.createElement('span'),
                 radio,
@@ -227,18 +272,46 @@
             return values;
         },
 
-        /**
-         * Constant representing the default editor type
-         * @property TYPE
-         * @namespace DEFAULT_CONFIG
-         * @private
-         * @static
-         * @final
-         */
         DEFAULT_CONFIG      = {
+            /**
+             * Constant representing the default editor type
+             * @property TYPE
+             * @namespace DEFAULT_CONFIG
+             * @type String
+             * @private
+             * @static
+             * @final
+             */
             TYPE: 'text',
+            /**
+             * Constant, allow to save the editor if empty or not by default
+             * @property ALLOW_EMPTY
+             * @namespace DEFAULT_CONFIG
+             * @type Boolean
+             * @private
+             * @static
+             * @final
+             */
             ALLOW_EMPTY: false,
+            /**
+             * Constant representing the default field name
+             * @property FIELD_NAME
+             * @namespace DEFAULT_CONFIG
+             * @type String
+             * @private
+             * @static
+             * @final
+             */
             FIELD_NAME: 'field',
+            /**
+             * Constant, a default method to generate the edit fields for the form
+             * @property FIELD_GENERATOR
+             * @namespace DEFAULT_CONFIG
+             * @type Function
+             * @private
+             * @static
+             * @final
+             */
             FIELD_GENERATOR: function(type, fieldName, value, selectableValues) {
                 var field;
                 switch(type) {
@@ -259,18 +332,73 @@
                 }
                 return field;
             },
+            /**
+             * Constant, a default method to process the new value before saving it
+             * @property PROCESS_BEFORE_SAVE_METHOD
+             * @namespace DEFAULT_CONFIG
+             * @type Function
+             * @return String The field value
+             * @private
+             * @static
+             * @final
+             */
             PROCESS_BEFORE_SAVE_METHOD: function(value) {
                 return value;
             },
+            /**
+             * Constant, a default method to process the value befor read it into the editor
+             * @property PROCESS_BEFORE_READ_METHOD
+             * @namespace DEFAULT_CONFIG
+             * @type Function
+             * @return String The field value
+             * @private
+             * @static
+             * @final
+             */
             PROCESS_BEFORE_READ_METHOD: function(value) {
                 return value;
             },
+            /**
+             * Validate the new value before save
+             * @property VALIDATION_METHOD
+             * @return Boolean The value is valid or not
+             * @private
+             * @final
+             */
             VALIDATION_METHOD: function(value) {
                 return true;
             },
-            POSSIBLE_VALUES: null,
+            /**
+             * Default value for the selectableValues attribute
+             * @property SELECTABLE_VALUES
+             * @type Object | Null
+             * @private
+             * @final
+             */
+            SELECTABLE_VALUES: null,
+            /**
+             * Default value for the animToColor attribute
+             * @private ANIM_TO_COLOR
+             * @type String
+             * @private
+             * @final
+             */
             ANIM_TO_COLOR: '#D7EEFF',
+            /**
+             * Default value for the animFromColor attribute
+             * @private ANIM_FROM_COLOR
+             * @type String
+             * @private
+             * @final
+             */
             ANIM_FROM_COLOR: '#FFFFFF',
+            /**
+             * Default value for the animOnMouseover attribute
+             * @private ANIM_ON_MOUSEOVER
+             * @type Boolean
+             * @private
+             * @final
+             */
             ANIM_ON_MOUSEOVER: true
         },
         /**
@@ -350,10 +478,10 @@
          * @return {Boolean} true if the saving was succes
          */
         save: function() {
-            var values = getFormValues(this._editor),
-                value = YL.trim(values[this.get('fieldName')]),
-                preprocess = this.get('processBeforeSave'),
-                validator = this.get('validator'),
+            var values      = getFormValues(this._editor),
+                value       = YL.trim(values[this.get('fieldName')]),
+                preprocess  = this.get('processBeforeSave'),
+                validator   = this.get('validator'),
                 _ret = false;
 
             value = preprocess.call(this, value);
@@ -413,6 +541,11 @@
             this._editStarted = false;
             return true;
         },
+        /**
+         * Attach buttons, event listeners to the editable element
+         * @method _setEditable
+         * @private
+         */
         _setEditable: function() {
             var element = this.get('element');
             Dom.addClass(element, CLASSES.ELEM_EDITABLE);
@@ -439,6 +572,13 @@
                 }, this, true);
             }
         },
+        /**
+         *
+         * @method _createEditor
+         * @private
+         * @return {HTMLFormElement | False} returns a form element
+         * or false if the edit field is not created
+         */
         _createEditor: function() {
             var form = createForm(this.get('id')),
                 type = this.get('type'),
@@ -466,6 +606,11 @@
             }
             return _ret;
         },
+        /**
+         * Replaces the editable element to a form
+         * @method _replaceElement
+         * @private
+         */
         _replaceElement: function() {
             var element = this.get('element'),
                 editor = this._createEditor();
@@ -481,6 +626,12 @@
             } catch(e){}
             this._editor = editor;
         },
+        /**
+         * Removes the edit form and sets the editable element's content
+         * to the current value
+         * @method _restoreElement
+         * @private
+         */
         _restoreElement: function() {
             var element = this.get('element'),
                 value = this.get('value'),
@@ -562,8 +713,9 @@
 
             Dom.setAttribute(button, 'type', 'button');
             Dom.addClass(button, 'yui-inline-editor-button');
-            this._destroyControls();
             Dom.addClass(container, CLASSES.CONTROLS_CONTAINER);
+
+            this._destroyControls();
 
             if(type === 'edit') {
                 editButton = button.cloneNode(false);
@@ -616,6 +768,13 @@
 
             element.appendChild(controls.container);
         },
+        /**
+         * Returns the current value.
+         * For some elements (eg select), the actual value and the displayed value
+         * are not the same, this method returns the value
+         * @method _getValue
+         * @return String The actual value
+         */
         _getValue: function() {
             var htmlValue = this.get('htmlValue'),
                 selectableValues = this.get('selectableValues'),
@@ -634,6 +793,13 @@
             }
             return _ret;
         },
+        /**
+         * Wrapper method, which used to set the htmlValue when the
+         * current value is changed
+         * @method _setValue
+         * @param {String | Integer} value The new value to set
+         * @private
+         */
         _setValue: function(value) {
             var selectableValues = this.get('selectableValues'),
                 key;
@@ -649,6 +815,16 @@
                 this.set('htmlValue', value);
             }
         },
+        /**
+         * The save keys can be different for different type of editors.
+         * If the saveKeys are not overwritten by a configuration, we
+         * need to get the correct keys for all of the editor types
+         * @method _getSaveKeys
+         * @param {String} name
+         * @param {Object} value
+         * @return {Object} The save keys definition
+         * @private
+         */
         _getSaveKeys: function(name, value) {
             if(!YL.isObject(value)) {
                 if(this.get('type') === 'textarea') {
@@ -659,6 +835,16 @@
             }
             return value;
         },
+        /**
+         * The cancel keys can be different for different type of editors.
+         * If the cancel are not overwritten by a configuration, we
+         * need to get the correct keys for all of the editor types
+         * @method _getCancelKeys
+         * @param {String} name
+         * @param {Object} value
+         * @return {Object} The cancel keys definition
+         * @private
+         */
         _getCancelKeys: function(name, value) {
             if(!YL.isObject(value)) {
                 value = {keys: [27]};
@@ -667,6 +853,15 @@
         },
 
 
+        /**
+         * Initialization method, it used in the constructor.
+         * Sets the configurations and adds the default listeners,
+         * classes to the editable element
+         * @method init
+         * @param {String | HTMLElement} el The editable element
+         * @param {Object} cfg (optional) Configurations as an object
+         * @private
+         */
         init: function(el, cfg) {
             var element = Dom.get(el);
             if(!element) {
@@ -674,10 +869,22 @@
                 return false;
             }
             cfg = cfg || {};
+            /**
+             * (Generated) ID of the editor
+             * @attribute id
+             * @type String
+             * @final
+             */
             this.setAttributeConfig('id', {
                 value: Dom.generateId(),
                 readOnly: true
             });
+            /**
+             * The editable element
+             * @attribute element
+             * @type HTMLElement
+             * @final
+             */
             this.setAttributeConfig('element', {
                 value: element,
                 readOnly: true
@@ -751,7 +958,7 @@
              */
             this.setAttributeConfig('selectableValues', {
                 validator: YL.isObject,
-                value: YL.isObject(cfg.selectableValues) ? cfg.selectableValues : DEFAULT_CONFIG.POSSIBLE_VALUES
+                value: YL.isObject(cfg.selectableValues) ? cfg.selectableValues : DEFAULT_CONFIG.SELECTABLE_VALUES
             });
             /**
              * Set to true if you want to allow to save an empty editor
@@ -763,7 +970,8 @@
             });
 
             /**
-             * If you need to mainpulate the value before saving, you can use this config option.
+             * If you need to mainpulate the value before read it into the edit field,
+             * you can use this config option.
              * The value of the config should be a function which returns the processed value
              * @attribute processBeforeRead
              * @type Function
