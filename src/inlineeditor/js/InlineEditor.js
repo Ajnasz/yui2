@@ -1,6 +1,6 @@
 /**
  * Inline editor widget
- * @module InlineEditor
+ * @module inlineeditor
  */
 (function() {
 
@@ -236,9 +236,10 @@
             return field;
         },
         /**
-         * Collects the element values of a form
+         * Collects the all of the values of the form
          * @method getFormValues
          * @param {HTMLFormElement} form The form element
+         * @private
          * @return {String} an object, where the key is the name of the input field
          *  and the value is the the value of the input field
          */
@@ -504,7 +505,7 @@
          * Drops all of the changes in the field, and restores the
          * original state
          * The method runs when user clicks on the cancel button, or
-         * press escape in the edit * field
+         * press escape in the edit field
          * @method cancel
          * @return {Boolean} true if the cancelling was succes
          */
@@ -774,6 +775,7 @@
          * are not the same, this method returns the value
          * @method _getValue
          * @return String The actual value
+         * @private
          */
         _getValue: function() {
             var htmlValue = this.get('htmlValue'),
@@ -871,7 +873,7 @@
             cfg = cfg || {};
             /**
              * (Generated) ID of the editor
-             * @attribute id
+             * @property id
              * @type String
              * @final
              */
@@ -881,8 +883,9 @@
             });
             /**
              * The editable element
-             * @attribute element
+             * @property element
              * @type HTMLElement
+             * @default a reference to the editable element
              * @final
              */
             this.setAttributeConfig('element', {
@@ -890,9 +893,9 @@
                 readOnly: true
             });
             /**
-             * The type of the inline editor. If it's not specified
-             * in the config then the default value is normally 'text'
-             * @attribute type
+             * The type of the inline editor.
+             * @config type
+             * @default 'text'
              * @type String
              */
             this.setAttributeConfig('type', {
@@ -900,8 +903,9 @@
                 value: cfg.type || DEFAULT_CONFIG.TYPE
             });
             /**
-             * The name of the edit field. Default is 'field'
-             * @attribute fieldName
+             * The name of the edit field
+             * @config fieldName
+             * @default field
              * @type String
              */
             this.setAttributeConfig('fieldName', {
@@ -910,7 +914,7 @@
             });
             /**
              * You can define a custom method what generates the edit field.
-             * With that option you can create custom edit fields
+             * With that option you can create custom edit fields<br>
              * params:
              * <ul>
              * <li><strong>type</strong> String</li>
@@ -918,7 +922,7 @@
              * <li><strong>value</strong> String | Integer</li>
              * <li<strong>selectableValues</strong> Object</li>
              * </ul>
-             * @attribute fieldGenerator
+             * @config fieldGenerator
              * @type Function
              */
             this.setAttributeConfig('fieldGenerator', {
@@ -929,7 +933,7 @@
              * The current html value of the field.
              * Mostly it's the same as the value property, but in some cases 
              * (eg. with select field) it's different
-             * @attribute htmlValue
+             * @config htmlValue
              * @type String | Integer
              */
             this.setAttributeConfig('htmlValue', {
@@ -937,7 +941,7 @@
             });
             /**
              * The current value of the field
-             * @attribute value
+             * @config value
              * @type String | Integer
              */
             this.setAttributeConfig('value', {
@@ -953,7 +957,8 @@
              *      <code>{foo:1,bar:2}</code><br/>
              *  the value of the options will be the numbers and the foo/bar will be used as the
              *  inner HTML of the option
-             * @attribute selectableValues
+             * @config selectableValues
+             * @default null
              * @type Object
              */
             this.setAttributeConfig('selectableValues', {
@@ -962,7 +967,8 @@
             });
             /**
              * Set to true if you want to allow to save an empty editor
-             * @attribute allowEmpty
+             * @config allowEmpty
+             * @default false
              * @type Boolean
              */
             this.setAttributeConfig('allowEmpty', {
@@ -973,7 +979,7 @@
              * If you need to mainpulate the value before read it into the edit field,
              * you can use this config option.
              * The value of the config should be a function which returns the processed value
-             * @attribute processBeforeRead
+             * @config processBeforeRead
              * @type Function
              */
             this.setAttributeConfig('processBeforeRead', {
@@ -983,7 +989,7 @@
             /**
              * If you need to mainpulate the value before saving, you can use this config option.
              * The value of the config should be a function which returns the processed value
-             * @attribute processBeforeSave
+             * @config processBeforeSave
              * @type Function
              */
             this.setAttributeConfig('processBeforeSave', {
@@ -994,7 +1000,7 @@
              * If you need to validate the value before saving, you can use this config option.
              * The value is passed as an argument
              * returns true if the value is valid
-             * @attribute validator
+             * @config validator
              * @type Function
              */
             this.setAttributeConfig('validator', {
@@ -1003,8 +1009,8 @@
             });
 
             /**
-             * The attribute is to override the default key listeners to save the editor's value
-             * @attribute saveKeys
+             * The config is to override the default key listeners to save the editor's value
+             * @config saveKeys
              * @type Object
              * @see YAHOO.util.KeyListener
              */
@@ -1015,8 +1021,8 @@
             });
 
             /**
-             * The attribute is to override the default key listeners to cancel the editor
-             * @attribute cancelKeys
+             * The config is to override the default key listeners to cancel the editor
+             * @config cancelKeys
              * @type Object
              * @see YAHOO.util.KeyListener
              */
@@ -1028,8 +1034,8 @@
 
             /**
              * Change the bacgkground color of the editable element on mouse over.
-             * default is true
-             * @attribute animOnMouseover
+             * @config animOnMouseover
+             * @default true
              * @type String
              */
             this.setAttributeConfig('animOnMouseover', {
@@ -1038,8 +1044,8 @@
             });
             /**
              * Change the background color of the editable element to this color,
-             * default is #D7EEFF
-             * @attribute animToColor
+             * @config animToColor
+             * @default #D7EEFF
              * @type String
              */
             this.setAttributeConfig('animToColor', {
@@ -1049,8 +1055,8 @@
 
             /**
              * Change the background color of the editable element from this color,
-             * default is #FFFFFF
-             * @attribute animFromColor
+             * @config animFromColor
+             * @default #FFFFFF
              * @type String
              */
             this.setAttributeConfig('animFromColor', {
