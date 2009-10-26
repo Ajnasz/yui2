@@ -340,7 +340,7 @@
 
 
 
-    YAHOO.extend(InlineEditor, YAHOO.util.AttributeProvider, {
+    YL.extend(InlineEditor, YAHOO.util.AttributeProvider, {
         /**
          * Saves the value, triggers the saveEvent event
          * The method runs when user clicks on the save button, or
