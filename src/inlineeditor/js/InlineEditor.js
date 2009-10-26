@@ -649,7 +649,7 @@
                 this.set('htmlValue', value);
             }
         },
-        _getSaveKeys: function(value) {
+        _getSaveKeys: function(name, value) {
             if(!YL.isObject(value)) {
                 if(this.get('type') === 'textarea') {
                     value = {ctrl: true, keys:[13]};
@@ -659,7 +659,7 @@
             }
             return value;
         },
-        _getCancelKeys: function(value) {
+        _getCancelKeys: function(name, value) {
             if(!YL.isObject(value)) {
                 value = {keys: [27]};
             }
