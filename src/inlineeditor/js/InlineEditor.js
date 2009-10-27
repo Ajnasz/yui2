@@ -28,13 +28,79 @@
         Dom                 = YU.Dom,
         InlineEditor        = YAHOO.widget.InlineEditor,
         CLASSES             = {
+            /**
+             * Constant representing the default class of the cancel button
+             * @config CLASSES.CANCEL_BUTTON
+             * @type String
+             * @namespace CLASSES
+             * @final
+             * @static
+             * @private
+             */
             CANCEL_BUTTON: 'yui-inline-editor-cancel',
+            /**
+             * Constant representing the default class of the save button
+             * @config CLASSES.SAVE_BUTTON
+             * @type String
+             * @final
+             * @static
+             * @private
+             */
             SAVE_BUTTON: 'yui-inline-editor-save',
+            /**
+             * Constant representing the default class of the edit button
+             * @config CLASSES.EDIT_BUTTON
+             * @type String
+             * @final
+             * @static
+             * @private
+             */
             EDIT_BUTTON: 'yui-inline-editor-edit',
+            /**
+             * Constant representing the class of the button container element
+             * @config CLASSES.CONTROLS_CONTAINER
+             * @type String
+             * @final
+             * @static
+             * @private
+             */
             CONTROLS_CONTAINER: 'yui-inline-editor-controls',
+            /**
+             * Constant, used to mark editable elements
+             * @config CLASSES.ELEM_EDITABLE
+             * @type String
+             * @final
+             * @static
+             * @private
+             */
             ELEM_EDITABLE: 'yui-inline-editor-editable',
+            /**
+             * Constant, used to mark when the elem editing is active
+             * @config CLASSES.EDITING_ACTIVE
+             * @type String
+             * @final
+             * @static
+             * @private
+             */
             EDITING_ACTIVE: 'yui-inline-editor-editing',
+            /**
+             * Constant, a class for the element which contains a radio field group
+             * @config CLASSES.RADIO_GROUP_CONTAINER
+             * @type String
+             * @final
+             * @static
+             * @private
+             */
             RADIO_GROUP_CONTAINER: 'yui-inline-editor-radio-group',
+            /**
+             * Constant, a class for the element which contains a radio field and
+             * it's label
+             * @config CLASSES.RADIO_ITEM_CONTAINER
+             * @type String
+             * @final
+             * @static
+             * @private
+             */
             RADIO_ITEM_CONTAINER: 'yui-inline-editor-radio-item'
         },
         /**
@@ -55,7 +121,7 @@
          * and editor field
          * @type YAHOO.util.CustomEvent
          */
-        editStartedEvent           = 'editStartedEvent',
+        editStartedEvent    = 'editStartedEvent',
         /**
          * @event cancelClickEvent
          * @description Fires when a user clicks on the cancel button
@@ -151,9 +217,9 @@
          */
         _genRadioField = function(name, label, value, checked) {
             var radioContainer = document.createElement('span'),
-                labelElem = document.createElement('label'),
-                field = _genField('input', name, value),
-                fieldId = Dom.generateId();
+                labelElem      = document.createElement('label'),
+                field          = _genField('input', name, value),
+                fieldId        = Dom.generateId();
 
             Dom.addClass(radioContainer, CLASSES.RADIO_ITEM_CONTAINER);
             Dom.setAttribute(field, 'id', fieldId);
@@ -411,8 +477,8 @@
          */
         validateType = function(type) {
             var valid = false,
-                i,
-                vl = VALID_TYPES.length;
+                vl    = VALID_TYPES.length,
+                i;
             if(YL.isString(type)) {
                 for (i = 0; i < vl; i++) {
                     if(VALID_TYPES[i] === type) {
@@ -453,7 +519,7 @@
          * an int oran array of ints representing keycodes).
          */
         _attachKeyListeners = function(field, scope, saveKeys, cancelKeys) {
-            var _ret = false,
+            var _ret        = false,
                 KeyListener = YU.KeyListener,
                 listener;
             if(field) {
@@ -614,7 +680,7 @@
          */
         _replaceElement: function() {
             var element = this.get('element'),
-                editor = this._createEditor();
+                editor  = this._createEditor();
 
             if(!editor) {
                 Y.log('editor is not an element', 'error');
@@ -634,8 +700,8 @@
          * @private
          */
         _restoreElement: function() {
-            var element = this.get('element'),
-                value = this.get('value'),
+            var element          = this.get('element'),
+                value            = this.get('value'),
                 selectableValues = this.get('selectableValues'),
                 html,
                 label;
@@ -706,7 +772,7 @@
          * @private
          */
         _createControls: function(type) {
-            var button = document.createElement('button'),
+            var button    = document.createElement('button'),
                 container = document.createElement('span'),
                 cancelButton,
                 saveButton,
@@ -733,7 +799,8 @@
                 };
             } else {
                 cancelButton = button.cloneNode(false);
-                saveButton = button.cloneNode(false);
+                saveButton  = button.cloneNode(false);
+
                 Dom.addClass(cancelButton, CLASSES.CANCEL_BUTTON);
                 Dom.addClass(saveButton, CLASSES.SAVE_BUTTON);
                 cancelButton.innerHTML = 'cancel';
@@ -764,7 +831,7 @@
         _addEditControl: function() {
             this._createControls('edit');
 
-            var element = this.get('element'),
+            var element  = this.get('element'),
                 controls = this.controls;
 
             element.appendChild(controls.container);
@@ -778,7 +845,7 @@
          * @private
          */
         _getValue: function() {
-            var htmlValue = this.get('htmlValue'),
+            var htmlValue        = this.get('htmlValue'),
                 selectableValues = this.get('selectableValues'),
                 key,
                 _ret;
