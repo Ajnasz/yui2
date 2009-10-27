@@ -43,7 +43,7 @@
                 ed2.subscribe('saveEvent', function(){
                             YAHOO.log('new field value is: ' + this.get('value'), 'info');
                         });
-                var ed3 = new YAHOO.widget.InlineEditor('paragraph-allow-empty', {type: 'textarea', allowEmpty: true});
+                var ed3 = new YAHOO.widget.InlineEditor('paragraph-allow-empty', {type: 'textarea', allowEmpty: true, saveKeys: {ctrl: false,keys:[13]}});
                 ed.subscribe('saveEvent', function(values){
                             YAHOO.log('new field value is: ' + values.field, 'info');
                             return false;
@@ -74,6 +74,7 @@
                         }});
 
                 YAHOO.log('inline editor initialized', 'info');
+                ED5 = ed5;
             };
         YAHOO.util.Event.onDOMReady(init);
     </script>
