@@ -73,6 +73,16 @@
                             return field;
                         }});
 
+                var ed6 = new YAHOO.widget.InlineEditor('span-for-custom-multi', {type: 'mytype', fieldGenerator: function(type, fieldName, value, selectableValues) {
+                            var span = document.createElement('span');
+                            span.innerHTML = '<input type="text" name="' +fieldName+ '" value="'+ value + '"/><input type="text" name="' +fieldName+ '2" value="'+ value + '">';
+                            return span;
+                        }});
+                ed6.subscribe('saveEvent', function(args){
+                    YAHOO.log("first field's value is: " + args[0], 'info');
+                    YAHOO.log("second field's value is: " + args[1].field2, 'info');
+                });
+
                 YAHOO.log('inline editor initialized', 'info');
                 ED5 = ed5;
             };
@@ -87,6 +97,7 @@
      <p><span id="span-for-select">bingyom</span></p>
      <p><span id="span-for-radio">tuta</span></p>
      <p><span id="span-for-custom">custom</span></p>
+     <p><span id="span-for-custom-multi">custom with multiple fields</span></p>
  </div>
 </body>
 </html>
