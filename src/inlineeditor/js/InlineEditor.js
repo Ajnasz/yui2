@@ -552,6 +552,7 @@
                 _ret = false;
 
             value = preprocess.call(this, value);
+
             if(value === '' && !this.get('allowEmpty')) {
                 Y.log("the field value is empty and it's not allowed");
                 this.fireEvent(emptyValueEvent);
@@ -559,7 +560,7 @@
                 if(validator.call(this, value)) {
                     this.set('value', value);
                     this._stopEdit();
-                    this.fireEvent(saveEvent, value, values);
+                    this.fireEvent(saveEvent, [value, values]);
                     _ret = true;
                 } else {
                     this.fireEvent(valueNotValidEvent);
