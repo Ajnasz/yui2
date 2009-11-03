@@ -245,6 +245,14 @@
         genTextField = function(name, value) {
             return _genInputField(name, value, 'text');
         },
+        genCheckboxField = function(name, value) {
+            var field = _genField('input', name, '1');
+            Dom.setAttribute(field, 'type', 'checkbox');
+            if(value === true) {
+              Dom.setAttribute(field, 'checked', 'checked');
+            }
+            return field;
+        },
 
         /**
          * Generates a textarea element for the editing
@@ -316,7 +324,8 @@
                 el,
                 elem,
                 name,
-                value;
+                value,
+                elemtype;
 
             if(form && form.nodeName == 'FORM') {
                 elements = form.elements;
@@ -327,7 +336,10 @@
                     value = elem.value;
                     if(name) {
                         if(elem.nodeName == 'INPUT') {
-                            if(Dom.getAttribute(elem, 'type') != 'radio' || elem.checked) {
+                            elemtype = Dom.getAttribute(elem, 'type');
+                            if(elemtype == 'checkbox') {
+                                values[name] = elem.checked ? true : false;
+                            } else if(elemtype == 'radio' || elem.checked) {
                                 values[name] = value;
                             }
                         } else {
@@ -395,6 +407,10 @@
 
                     case 'radio':
                         field = genRadioField(fieldName, value, selectableValues);
+                        break;
+
+                    case 'checkbox':
+                        field = genCheckboxField(fieldName, value, selectableValues);
                         break;
                 }
                 return field;
@@ -624,7 +640,6 @@
                 }
             }, this, true);
             if(this.get('animOnMouseover') && YL.isFunction(YU.ColorAnim)) {
-                Y.log('anim');
                 Event.on(element, 'mouseover', function() {
                     if(!this._editStarted) {
                         var fromColor = this.get('animFromColor'),
