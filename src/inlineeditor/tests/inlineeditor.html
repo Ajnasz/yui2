@@ -79,8 +79,8 @@
                             return span;
                         }});
                 ed6.subscribe('saveEvent', function(args){
-                    YAHOO.log("first field's value is: " + args[0], 'info');
-                    YAHOO.log("second field's value is: " + args[1].field2, 'info');
+                    YAHOO.log("first field's value is: " + args.value, 'info');
+                    YAHOO.log("second field's value is: " + args.values, 'info');
                 });
 
                 var ed7 = new YAHOO.widget.InlineEditor('span-for-checkbox', {type: 'checkbox', selectableValues:{
@@ -88,7 +88,6 @@
                     'false':false
                     }});
                 ed7.subscribe('saveEvent', function(args){
-                    console.log(args);
                     YAHOO.log("field's value is: " + args[0], 'info');
                 });
                 YAHOO.log('inline editor initialized', 'info');
