@@ -350,7 +350,7 @@
                             elemtype = Dom.getAttribute(elem, 'type');
                             if(elemtype == 'checkbox') {
                                 values[name] = elem.checked ? true : false;
-                            } else if(elemtype == 'radio' || elem.checked) {
+                            } else if(elemtype != 'radio' || elem.checked) {
                                 values[name] = value;
                             }
                         } else {
