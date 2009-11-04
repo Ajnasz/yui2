@@ -111,8 +111,19 @@
         cancelEvent         = 'cancelEvent',
         /**
          * @event saveEvent
-         * @description Fires when a user saves the editor
+         * @description Fires when a user saves the editor.
+         *
+         * second is an object which contains all of the form element's values.
+         * If you create a custom editor with more than one fields, you can access
+         * to the additional field values through the second argument
          * @type YAHOO.util.CustomEvent
+         * @param {Object} arg An object which  has two properties:
+         * <ul>
+         * <li><code>value &lt;String&gt;</code> The value of the edit field</li>
+         * <li><code>values &lt;Object&gt;</code> All of the form element's values.
+         * Useful if you create a custom editor with more than one fields, you can
+         * access to the additional field values through this property</li>
+         * </ul>
          */
         saveEvent           = 'saveEvent',
         /**
@@ -576,7 +587,7 @@
                 if(validator.call(this, value)) {
                     this.set('value', value);
                     this._stopEdit();
-                    this.fireEvent(saveEvent, [value, values]);
+                    this.fireEvent(saveEvent, {value: value, values: values});
                     _ret = true;
                 } else {
                     this.fireEvent(valueNotValidEvent);
