@@ -172,7 +172,7 @@
          * @static
          * @final
          */
-        VALID_TYPES         = ['text', 'textarea', 'select', 'radio'],
+        VALID_TYPES         = ['text', 'textarea', 'select', 'radio', 'checkbox'],
         /**
          * Generates a specified HTML element for the form
          * @method _genField
