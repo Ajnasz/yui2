@@ -213,7 +213,7 @@ YAHOO.namespace("tool");
  * @module yuitest
  * @namespace YAHOO.tool
  * @requires yahoo,dom,event,logger
- * @optional event-simulte
+ * @optional event-simulate
  */
 
 
@@ -332,7 +332,7 @@ YAHOO.tool.TestRunner = (function(){
          * @private
          * @static
          */
-        this.masterSuite = new YAHOO.tool.TestSuite("YUI Test Results");        
+        this.masterSuite = new YAHOO.tool.TestSuite("yuitests" + (new Date()).getTime());        
 
         /**
          * Pointer to the current node in the test tree.
@@ -341,7 +341,7 @@ YAHOO.tool.TestRunner = (function(){
          * @property _cur
          * @static
          */
-        this._cur = null;
+        this._cur = null;                
         
         /**
          * Pointer to the root node in the test tree.
@@ -485,6 +485,52 @@ YAHOO.tool.TestRunner = (function(){
             } else {
                 return null;
             }
+        },
+
+        /**
+         * Returns the coverage report for the files that have been executed.
+         * This returns only coverage information for files that have been
+         * instrumented using YUI Test Coverage and only those that were run
+         * in the same pass.
+         * @param {Function} format (Optional) A coverage format to return results in.
+         * @return {Object|String} Either the coverage object or, if a coverage
+         *      format is specified, a string representing the results in that format.
+         * @method getCoverage
+         */
+        getCoverage: function(format){
+            if (!this._running && typeof _yuitest_coverage == "object"){
+                if (YAHOO.lang.isFunction(format)){
+                    return format(_yuitest_coverage);                    
+                } else {
+                    return _yuitest_coverage;
+                }
+            } else {
+                return null;
+            }            
+        },
+        
+        //-------------------------------------------------------------------------
+        // Misc Methods
+        //-------------------------------------------------------------------------
+
+        /**
+         * Retrieves the name of the current result set.
+         * @return {String} The name of the result set.
+         * @method getName
+         */
+        getName: function(){
+            return this.masterSuite.name;
+        },         
+
+        /**
+         * The name assigned to the master suite of the TestRunner. This is the name
+         * that is output as the root's name when results are retrieved.
+         * @param {String} name The name of the result set.
+         * @return {Void}
+         * @method setName
+         */
+        setName: function(name){
+            this.masterSuite.name = name;
         },
 
         //-------------------------------------------------------------------------
@@ -915,6 +961,7 @@ YAHOO.tool.TestRunner = (function(){
          */
         clear : function () /*:Void*/ {
             this.masterSuite.items = [];
+            this.masterSuite.name = "yuitests" + (new Date()).getTime();
         },
         
         /**
@@ -2636,7 +2683,7 @@ YAHOO.namespace("tool.TestFormat");
             return xml;    
         }
 
-        return "<?xml version=\"1.0\" charset=\"UTF-8\"?>" + serializeToXML(results);
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + serializeToXML(results);
 
     };
 
@@ -2712,7 +2759,7 @@ YAHOO.namespace("tool.TestFormat");
      
         }
 
-        return "<?xml version=\"1.0\" charset=\"UTF-8\"?>" + serializeToJUnitXML(results);
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + serializeToJUnitXML(results);
     };
     
     /**
@@ -2797,6 +2844,43 @@ YAHOO.namespace("tool.TestFormat");
     };   
 
 })();
+
+YAHOO.namespace("tool.CoverageFormat");
+
+/**
+ * Returns the coverage report in JSON format. This is the straight
+ * JSON representation of the native coverage report.
+ * @param {Object} coverage The coverage report object.
+ * @return {String} A JSON-formatted string of coverage data.
+ * @method JSON
+ * @namespace YAHOO.tool.CoverageFormat
+ */
+YAHOO.tool.CoverageFormat.JSON = function(coverage){
+    return YAHOO.lang.JSON.stringify(coverage);
+};
+
+/**
+ * Returns the coverage report in a JSON format compatible with
+ * Xdebug. See <a href="http://www.xdebug.com/docs/code_coverage">Xdebug Documentation</a>
+ * for more information. Note: function coverage is not available
+ * in this format.
+ * @param {Object} coverage The coverage report object.
+ * @return {String} A JSON-formatted string of coverage data.
+ * @method XdebugJSON
+ * @namespace YAHOO.tool.CoverageFormat
+ */
+YAHOO.tool.CoverageFormat.XdebugJSON = function(coverage){
+    var report = {},
+        prop;
+    for (prop in coverage){
+        if (coverage.hasOwnProperty(prop)){
+            report[prop] = coverage[prop].lines;
+        }
+    }
+
+    return YAHOO.lang.JSON.stringify(report);        
+};
+
 
 YAHOO.namespace("tool");
 

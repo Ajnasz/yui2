@@ -5,7 +5,7 @@ YAHOO.namespace("tool");
  * @module yuitest
  * @namespace YAHOO.tool
  * @requires yahoo,dom,event,logger
- * @optional event-simulte
+ * @optional event-simulate
  */
 
 
@@ -124,7 +124,7 @@ YAHOO.tool.TestRunner = (function(){
          * @private
          * @static
          */
-        this.masterSuite = new YAHOO.tool.TestSuite("YUI Test Results");        
+        this.masterSuite = new YAHOO.tool.TestSuite("yuitests" + (new Date()).getTime());        
 
         /**
          * Pointer to the current node in the test tree.
@@ -133,7 +133,7 @@ YAHOO.tool.TestRunner = (function(){
          * @property _cur
          * @static
          */
-        this._cur = null;
+        this._cur = null;                
         
         /**
          * Pointer to the root node in the test tree.
@@ -277,6 +277,52 @@ YAHOO.tool.TestRunner = (function(){
             } else {
                 return null;
             }
+        },
+
+        /**
+         * Returns the coverage report for the files that have been executed.
+         * This returns only coverage information for files that have been
+         * instrumented using YUI Test Coverage and only those that were run
+         * in the same pass.
+         * @param {Function} format (Optional) A coverage format to return results in.
+         * @return {Object|String} Either the coverage object or, if a coverage
+         *      format is specified, a string representing the results in that format.
+         * @method getCoverage
+         */
+        getCoverage: function(format){
+            if (!this._running && typeof _yuitest_coverage == "object"){
+                if (YAHOO.lang.isFunction(format)){
+                    return format(_yuitest_coverage);                    
+                } else {
+                    return _yuitest_coverage;
+                }
+            } else {
+                return null;
+            }            
+        },
+        
+        //-------------------------------------------------------------------------
+        // Misc Methods
+        //-------------------------------------------------------------------------
+
+        /**
+         * Retrieves the name of the current result set.
+         * @return {String} The name of the result set.
+         * @method getName
+         */
+        getName: function(){
+            return this.masterSuite.name;
+        },         
+
+        /**
+         * The name assigned to the master suite of the TestRunner. This is the name
+         * that is output as the root's name when results are retrieved.
+         * @param {String} name The name of the result set.
+         * @return {Void}
+         * @method setName
+         */
+        setName: function(name){
+            this.masterSuite.name = name;
         },
 
         //-------------------------------------------------------------------------
@@ -707,6 +753,7 @@ YAHOO.tool.TestRunner = (function(){
          */
         clear : function () /*:Void*/ {
             this.masterSuite.items = [];
+            this.masterSuite.name = "yuitests" + (new Date()).getTime();
         },
         
         /**
