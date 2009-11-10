@@ -158,6 +158,12 @@
          */
         emptyValueEvent     = 'emptyValueEvent',
         /**
+         * @event elementReplacedEvent
+         * @description Fires when the original element replaced to the editor
+         * @type YAHOO.util.CustomEvent
+         */
+        elementReplacedEvent     = 'elementReplacedEvent',
+        /**
          * @event valueNotValidEvent
          * @description Fires when a user tries to save a value which
          * seems not valid by the validator method
@@ -707,6 +713,7 @@
          */
         _replaceElement: function() {
             var element = this.get('element'),
+                fieldName = this.get('fieldName'),
                 editor  = this._createEditor();
 
             if(!editor) {
@@ -716,8 +723,13 @@
             element.innerHTML = '';
             element.appendChild(editor);
             try {
-                editor.elements[0].focus();
+                // need to focus with a latency, to give time for other stuffs to initializate
+                // (basically the autocomplete inline editor needed that)
+                setTimeout(function() {
+                  editor[fieldName].focus();
+                }, 100)
             } catch(e){}
+            this.fireEvent(elementReplacedEvent);
             this._editor = editor;
         },
         /**
