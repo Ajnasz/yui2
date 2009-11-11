@@ -22,18 +22,22 @@
     };
     var Y                   = YAHOO,
         YU                  = Y.util,
-        YL                  = Y.lang,
-        Event               = YU.Event,
+        // YL                  = Y.lang,
+        // Event               = YU.Event,
         Dom                 = YU.Dom,
-        AutocompleteEditor  = YAHOO.widget.AutocompleteEditor,
+        // AutocompleteEditor  = YAHOO.widget.AutocompleteEditor,
+        /**
+         * @event acItemSelectEvent
+         * @description Fires when an item is selected from autocomplete dropdown list
+         * @type YAHOO.util.CustomEvent
+         */
         acItemSelectEvent   = 'acItemSelectEvent',
 
         fieldGenerator = function() {
             var doc = document,
                 container = doc.createElement('div'),
                 field = doc.createElement('input'),
-                results = doc.createElement('div')
-                ;
+                results = doc.createElement('div');
 
             Dom.setAttribute(field, 'type', 'text');
             Dom.setAttribute(field, 'name', this.get('fieldName'));
