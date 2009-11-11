@@ -722,13 +722,15 @@
             }
             element.innerHTML = '';
             element.appendChild(editor);
-            try {
-                // need to focus with a latency, to give time for other stuffs to initializate
-                // (basically the autocomplete inline editor needed that)
-                setTimeout(function() {
-                  editor[fieldName].focus();
-                }, 100)
-            } catch(e){}
+
+            // need to focus with a latency, to give time for other stuffs to initializate
+            // (basically the autocomplete inline editor needed that)
+            setTimeout(function() {
+              try {
+                editor[fieldName].focus();
+              } catch(e){}
+            }, 100);
+
             this.fireEvent(elementReplacedEvent);
             this._editor = editor;
         },
