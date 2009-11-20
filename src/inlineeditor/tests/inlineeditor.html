@@ -56,6 +56,9 @@
                             libe: 5,
                             talibe: 6
                         }});
+                ed4.subscribe('saveEvent', function(args) {
+                      Y.log(args);
+                    })
                 var ed5 = new YAHOO.widget.InlineEditor('span-for-radio', {type: 'radio', selectableValues: {
                             ingyom: 1,
                             bingyom: 2,
