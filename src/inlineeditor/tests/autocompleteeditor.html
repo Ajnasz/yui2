@@ -3,12 +3,12 @@
 <html>
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8">
-    <link type="text/css" rel="stylesheet" href="../../../build/reset-fonts-grids/reset-fonts-grids.css"> 
+    <link type="text/css" rel="stylesheet" href="../../../build/reset-fonts-grids/reset-fonts-grids.css">
     <link type="text/css" rel="stylesheet" href="../../../build/logger/assets/logger.css">
     <link type="text/css" rel="stylesheet" href="../../../build/yuitest/assets/testlogger.css">
-    <link type="text/css" rel="stylesheet" href="../../../build/base/base.css"> 
-    <link type="text/css" rel="stylesheet" href="../../../build/autocomplete/assets/skins/sam/autocomplete.css"> 
-    <link type="text/css" rel="stylesheet" href="../assets/inline-editor-core.css"> 
+    <link type="text/css" rel="stylesheet" href="../../../build/base/base.css">
+    <link type="text/css" rel="stylesheet" href="../../../build/autocomplete/assets/skins/sam/autocomplete.css">
+    <link type="text/css" rel="stylesheet" href="../assets/inline-editor-core.css">
     <title>Inlineeditor</title>
     <script type="text/javascript" src="../../../build/yahoo/yahoo-min.js"></script>
     <script type="text/javascript" src="../../../build/dom/dom-min.js"></script>
@@ -16,9 +16,9 @@
     <script type="text/javascript" src="../../../build/logger/logger-min.js"></script>
     <script type="text/javascript" src="../../../build/element/element-min.js"></script>
     <script type="text/javascript" src="../../../build/yuitest/yuitest-min.js"></script>
-    <script type="text/javascript" src="../../../build/animation/animation.js"></script> 
-    <script type="text/javascript" src="../../../build/datasource/datasource.js"></script> 
-    <script type="text/javascript" src="../../../build/autocomplete/autocomplete.js"></script> 
+    <script type="text/javascript" src="../../../build/animation/animation.js"></script>
+    <script type="text/javascript" src="../../../build/datasource/datasource.js"></script>
+    <script type="text/javascript" src="../../../build/autocomplete/autocomplete.js"></script>
     <script type="text/javascript" src="../js/InlineEditor.js"></script>
     <script type="text/javascript" src="../js/AutocompleteEditor.js"></script>
     <script type="text/javascript" charset="utf-8">
@@ -26,23 +26,23 @@
             // YAHOO.widget.Logger.enableBrowserConsole();
             YAHOO.util.Event.throwErrors = true;
             var logger = new YAHOO.widget.LogReader();
-            var dataSource = new YAHOO.util.LocalDataSource(["Alabama", 
-                "Alaska", 
-                "Arizona", 
-                "Arkansas", 
-                "California", 
-                "Colorado", 
-                "Connecticut", 
-                "Delaware", 
-                "Florida" 
-            ]); 
+            var dataSource = new YAHOO.util.LocalDataSource(["Alabama",
+                "Alaska",
+                "Arizona",
+                "Arkansas",
+                "California",
+                "Colorado",
+                "Connecticut",
+                "Delaware",
+                "Florida"
+            ]);
             ed = new YAHOO.widget.AutocompleteEditor('element', {dataSource: dataSource});
             ed.subscribe('saveEvent', function(args){
                 YAHOO.log('last selected' + this.get('lastSelected').toString());
                 YAHOO.log('new field value is: ' + args.values[this.get('fieldName')], 'info');
             });
             ed.subscribe('acItemSelectEvent', function(eventName){
-                YAHOO.log('item selected' +  arguments)
+                Y.log('item selected' +  arguments)
             });
         };
         YAHOO.util.Event.onDOMReady(init);
