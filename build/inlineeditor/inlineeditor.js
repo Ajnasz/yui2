@@ -563,8 +563,7 @@
                 _ret = true;
             }
             return _ret;
-        }
-        ;
+        };
 
 
 
@@ -687,8 +686,8 @@
                 fieldName = this.get('fieldName'),
                 selectableValues = this.get('selectableValues'),
                 generator = this.get('fieldGenerator'),
-                field,
-                _ret = false;
+                _ret = false,
+                field;
 
                 if(YL.isFunction(preprocess)) {
                     value = preprocess.call(this, value);
