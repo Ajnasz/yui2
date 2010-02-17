@@ -42,5 +42,6 @@ YAHOO.util.Event.onDOMReady(function(){
   addItems(firstVisible);
   carousel.subscribe('afterScroll', function(o) {
     addItems(o.first);
-  })
+  });
+  carousel.set('selectedItem', 4);
 });
