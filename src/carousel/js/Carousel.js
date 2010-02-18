@@ -3828,6 +3828,7 @@
             if (oel) {
                 // replace the node
                 carouselEl.replaceChild(el, oel);
+                
                 // ... and remove the item from the data structure
                 delete itemsTable.loading[pos];
             } else if(JS.isUndefined(obj.pos)){
@@ -3839,7 +3840,7 @@
                 if (sibling) {
                     carouselEl.insertBefore(el, sibling);
                 } else {
-                    YAHOO.log("Unable to find sibling","error",WidgetName);
+                    YAHOO.log("Unable to find sibling add elem","error",WidgetName);
                 }
             }
 
@@ -3936,22 +3937,17 @@
                 carouselEl = carousel._carouselEl,
                 itemsTable = carousel._itemsTable,
                 len = itemsTable.items.length,
+                firstVisible = this.get('firstVisible'),
                 sibling,
                 el,
                 j,
                 i,
                 _s;
-            i = this.get('firstVisible') - this.get('numVisible');
+            
+            i = firstVisible - this.get('numVisible');
             i = i < 0 ? 0 : i;
-            if(itemsTable.loading[i]) {
-              sibling = itemsTable.loading[i];
-              _s = ['loading', i]; 
-            } else {
-              sibling =  itemsTable.items[i];
-              _s = ['items', i]; 
-            }
             // attempt to find the next closest sibling
-            if(!sibling && i < len){
+            if(i < len){
                 j = i;
                 do {
                     if(itemsTable.loading[j]) {
@@ -3964,6 +3960,7 @@
                     j++;
                 } while (j<len && !sibling);
             }
+
 
             for (; i <= obj.last; i++) {
                 if(JS.isUndefined(itemsTable.loading[i]) && JS.isUndefined(itemsTable.items[i])){
@@ -3978,6 +3975,7 @@
                             sibling = Dom.get(sibling.id);
                             if (sibling) {
                                 carouselEl.insertBefore(el, sibling);
+//                                sibling = el;
                             } else {
                                 YAHOO.log("Unable to find sibling", "error",
                                         WidgetName);
