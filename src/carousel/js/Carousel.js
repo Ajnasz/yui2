@@ -2578,6 +2578,9 @@
 
             carousel.fireEvent(beforePageChangeEvent, { page: page });
 
+            carousel._firstItem = item;
+            carousel.set("firstVisible", item);
+
             // call loaditems to check if we have all the items to display
             lastItem = item + numPerPage - 1;
             carousel._loadItems(lastItem > numItems-1 ? numItems-1 : lastItem);
@@ -2603,9 +2606,6 @@
                 }
                 index += itemsPerCol ? itemsPerCol : 1;
             }
-
-            carousel._firstItem = item;
-            carousel.set("firstVisible", item);
 
             YAHOO.log("Scrolling to " + item + " delta = " + delta, WidgetName);
 
@@ -3936,20 +3936,36 @@
                 carouselEl = carousel._carouselEl,
                 itemsTable = carousel._itemsTable,
                 len = itemsTable.items.length,
-                sibling = itemsTable.items[obj.last + 1],
+                sibling,
                 el,
-                j;
-
+                j,
+                i,
+                _s;
+            i = this.get('firstVisible') - this.get('numVisible');
+            i = i < 0 ? 0 : i;
+            if(itemsTable.loading[i]) {
+              sibling = itemsTable.loading[i];
+              _s = ['loading', i]; 
+            } else {
+              sibling =  itemsTable.items[i];
+              _s = ['items', i]; 
+            }
             // attempt to find the next closest sibling
-            if(!sibling && obj.last < len){
-                j = obj.first;
+            if(!sibling && i < len){
+                j = i;
                 do {
-                    sibling = itemsTable.items[j];
+                    if(itemsTable.loading[j]) {
+                      sibling = itemsTable.loading[j];
+                      _s = ['loading', j]; 
+                    } else {
+                      sibling =  itemsTable.items[j];
+                      _s = ['items', j]; 
+                    }
                     j++;
                 } while (j<len && !sibling);
             }
 
-            for (var i = obj.first; i <= obj.last; i++) {
+            for (; i <= obj.last; i++) {
                 if(JS.isUndefined(itemsTable.loading[i]) && JS.isUndefined(itemsTable.items[i])){
                     el = carousel._createCarouselItem({
                             className : carousel.CLASSES.ITEM_LOADING,
