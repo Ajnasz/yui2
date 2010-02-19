@@ -2522,7 +2522,8 @@
                 index, stopAutoScroll,
                 itemsTable = carousel._itemsTable,
                 items = itemsTable.items,
-                loading = itemsTable.loading;
+                loading = itemsTable.loading,
+                previousFirst, animTo, previousPosition;
 
             if (JS.isUndefined(item) || item == carousel._firstItem ||
                 carousel.isAnimating()) {
@@ -2538,6 +2539,7 @@
             numItems       = carousel.get("numItems");
             numPerPage     = carousel.get("numVisible");
             page           = carousel.get("currentPage");
+            previousFirst  = carousel.get('firstVisible'); // should get here, before we set the new value
 
             stopAutoScroll = function () {
                 if (carousel.isAutoPlayOn()) {
@@ -2577,14 +2579,12 @@
             }
 
             carousel.fireEvent(beforePageChangeEvent, { page: page });
-
             carousel._firstItem = item;
             carousel.set("firstVisible", item);
 
             // call loaditems to check if we have all the items to display
             lastItem = item + numPerPage - 1;
             carousel._loadItems(lastItem > numItems-1 ? numItems-1 : lastItem);
-
             // Calculate the delta relative to the first item, the delta is
             // always negative.
             delta = 0 - item;
@@ -2618,7 +2618,14 @@
             animate   = animCfg.speed > 0;
 
             if (animate) {
-                carousel._animateAndSetCarouselOffset(offset, item, sentinel,
+                previousPosition = getCarouselItemPosition.call(carousel, previousFirst);
+                if(carousel.get('isVertical')) {
+                  animTo = parseInt(previousPosition.top, 10);
+                } else {
+                  animTo = parseInt(previousPosition.left, 10);
+                }
+                animTo = -animTo;
+                carousel._animateAndSetCarouselOffset({to: offset, from: animTo}, item, sentinel,
                         dontSelect);
             } else {
                 carousel._setCarouselOffset(offset);
@@ -2822,24 +2829,24 @@
          * Set the Carousel offset to the passed offset after animating.
          *
          * @method _animateAndSetCarouselOffset
-         * @param {Integer} offset The offset to which the Carousel has to be
-         * scrolled to.
+         * @param {Object} animTo An object, which represents the where the
+         * Carousel has to be scrolled from and to.
          * @param {Integer} item The index to which the Carousel will scroll.
          * @param {Integer} sentinel The last element in the view port.
          * @protected
          */
-        _animateAndSetCarouselOffset: function (offset, item, sentinel) {
+        _animateAndSetCarouselOffset: function (animTo, item, sentinel) {
             var carousel = this,
                 animCfg  = carousel.get("animation"),
                 animObj  = null;
 
             if (carousel.get("isVertical")) {
                 animObj = new YAHOO.util.Motion(carousel._carouselEl,
-                        { top: { to: offset } },
+                        { top: animTo },
                         animCfg.speed, animCfg.effect);
             } else {
                 animObj = new YAHOO.util.Motion(carousel._carouselEl,
-                        { left: { to: offset } },
+                        { left: animTo },
                         animCfg.speed, animCfg.effect);
             }
 
