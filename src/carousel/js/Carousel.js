@@ -577,13 +577,13 @@
                 styles.top  = top + "px";
             }
         } else {
-        if (isVertical) {
-            styles.left = 0;
-            styles.top  = ((pos * sz) + rsz) + "px";
-        } else {
-            styles.top  = 0;
-            styles.left = ((pos * sz) + rsz) + "px";
-        }
+            if (isVertical) {
+                styles.left = 0;
+                styles.top  = ((pos * sz) + rsz) + "px";
+            } else {
+                styles.top  = 0;
+                styles.left = ((pos * sz) + rsz) + "px";
+            }
         }
 
         return styles;
