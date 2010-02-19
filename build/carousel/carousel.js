@@ -270,8 +270,150 @@
      * for more information on listening for this event.
      * @type YAHOO.util.CustomEvent
      */
-    uiUpdateEvent = "uiUpdate";
+    uiUpdateEvent = "uiUpdate",
 
+
+
+    /*
+     * Config names for Carousel
+     */
+
+    /**
+     * @attribute carouselEl
+     * @description The type of the Carousel element.
+     * @default OL
+     * @type Boolean
+     */
+    carouselElAttribute = "carouselEl",
+
+    /**
+     * @attribute carouselItemEl
+     * @description The type of the list of items within the Carousel.
+     * @default LI
+     * @type Boolean
+     */
+    carouselItemElAttribute = "carouselItemEl",
+    /**
+     * @attribute currentPage
+     * @description The current page number (read-only.)
+     * @type Number
+     */
+    currentPageAttribute = "currentPage",
+    /**
+     * @attribute firstVisible
+     * @description The index to start the Carousel from (indexes begin
+     * from zero)
+     * @default 0
+     * @type Number
+     */
+    firstVisibleAttribute = "firstVisible",
+    /**
+     * @attribute selectOnScroll
+     * @description Set this to true to automatically set focus to
+     * follow scrolling in the Carousel.
+     * @default true
+     * @type Boolean
+     */
+    selectOnScrollAttribute = "selectOnScroll",
+    /**
+     * @attribute numVisible
+     * @description The number of visible items in the Carousel's
+     * viewport.
+     * @default 3
+     * @type Number
+     */
+    numVisibleAttribute = "numVisible",
+    /**
+     * @attribute numItems
+     * @description The number of items in the Carousel.
+     * @type Number
+     */
+    numItemsAttribute = "numItems",
+    /**
+     * @attribute scrollIncrement
+     * @description The number of items to scroll by for arrow keys.
+     * @default 1
+     * @type Number
+     */
+    scrollIncrementAttribute = "scrollIncrement",
+    /**
+     * @attribute selectedItem
+     * @description The index of the selected item.
+     * @type Number
+     */
+    selectedItemAttribute = "selectedItem",
+    /**
+     * @attribute revealAmount
+     * @description The percentage of the item to be revealed on each
+     * side of the Carousel (before and after the first and last item
+     * in the Carousel's viewport.)
+     * @default 0
+     * @type Number
+     */
+    revealAmountAttribute = "revealAmount",
+    /**
+     * @attribute isCircular
+     * @description Set this to true to wrap scrolling of the contents
+     * in the Carousel.
+     * @default false
+     * @type Boolean
+     */
+    isCircularAttribute = "isCircular",
+    /**
+     * @attribute isVertical
+     * @description True if the orientation of the Carousel is vertical
+     * @default false
+     * @type Boolean
+     */
+    isVerticalAttribute = "isVertical",
+    /**
+     * @attribute navigation
+     * @description The set of navigation controls for Carousel
+     * @default <br>
+     * { prev: null, // the previous navigation element<br>
+     *   next: null } // the next navigation element
+     * @type Object
+     */
+    navigationAttribute = "navigation",
+    /**
+     * @attribute animation
+     * @description The optional animation attributes for the Carousel.
+     * @default <br>
+     * { speed: 0, // the animation speed (in seconds)<br>
+     *   effect: null } // the animation effect (like
+     *   YAHOO.util.Easing.easeOut)
+     * @type Object
+     */
+    animationAttribute = "animation",
+    /**
+     * @attribute autoPlay
+     * @description Set this to time in milli-seconds to have the
+     * Carousel automatically scroll the contents.
+     * @type Number
+     * @deprecated Use autoPlayInterval instead.
+     */
+    autoPlayAttribute = "autoPlay",
+    /**
+     * @attribute autoPlayInterval
+     * @description The delay in milli-seconds for scrolling the
+     * Carousel during auto-play.
+     * Note: The startAutoPlay() method needs to be invoked to trigger
+     * automatic scrolling of Carousel.
+     * @type Number
+     */
+    autoPlayIntervalAttribute = "autoPlayInterval",
+    /**
+     * @attribute numPages
+     * @description The number of pages in the carousel.
+     * @type Number
+     */
+    numPagesAttribute = "numPages",
+    /**
+     * @attribute lastVisible
+     * @description The last item visible in the carousel.
+     * @type Number
+     */
+    lastVisibleAttribute = "lastVisible";
     /*
      * Private helper functions used by the Carousel component
      */
@@ -451,7 +593,7 @@
             child,
             item,
             size     = 0,
-            first = carousel.get("firstVisible"),
+            first = carousel.get(firstVisibleAttribute),
             vertical = false;
 
         if (carousel._itemsTable.numItems === 0) {
@@ -468,7 +610,7 @@
         child = Dom.get(item.id);
 
         if (typeof which == "undefined") {
-            vertical = carousel.get("isVertical");
+            vertical = carousel.get(isVerticalAttribute);
         } else {
             vertical = which == "height";
         }
@@ -497,10 +639,10 @@
     function getRevealSize() {
         var carousel = this, isVertical, sz;
 
-        isVertical = carousel.get("isVertical");
+        isVertical = carousel.get(isVerticalAttribute);
         sz  = getCarouselItemSize.call(carousel,
                 isVertical ? "height" : "width");
-        return (sz * carousel.get("revealAmount") / 100);
+        return (sz * carousel.get(revealAmountAttribute) / 100);
     }
 
     /**
@@ -531,7 +673,7 @@
             items = itemsTable.items,
             loading = itemsTable.loading;
 
-        isVertical = carousel.get("isVertical");
+        isVertical = carousel.get(isVerticalAttribute);
         sz  = getCarouselItemSize.call(carousel,
                 isVertical ? "height" : "width");
         rsz = getRevealSize.call(carousel);
@@ -597,7 +739,7 @@
      * @private
      */
     function getFirstVisibleForPosition(pos) {
-        var num = this.get("numVisible");
+        var num = this.get(numVisibleAttribute);
         return Math.floor(pos / num) * num;
     }
 
@@ -658,9 +800,9 @@
             cssClass   = carousel.CLASSES,
             el,
             firstItem  = carousel._firstItem,
-            isCircular = carousel.get("isCircular"),
-            numItems   = carousel.get("numItems"),
-            numVisible = carousel.get("numVisible"),
+            isCircular = carousel.get(isCircularAttribute),
+            numItems   = carousel.get(numItemsAttribute),
+            numVisible = carousel.get(numVisibleAttribute),
             position   = oldpos,
             sentinel   = firstItem + numVisible - 1;
 
@@ -717,13 +859,13 @@
             return;
         }
 
-        navigation = carousel.get("navigation");
-        sentinel   = carousel._firstItem + carousel.get("numVisible");
+        navigation = carousel.get(navigationAttribute);
+        sentinel   = carousel._firstItem + carousel.get(numVisibleAttribute);
 
         if (navigation.prev) {
-            if (carousel.get("numItems") === 0 || carousel._firstItem === 0) {
-                if (carousel.get("numItems") === 0 ||
-                   !carousel.get("isCircular")) {
+            if (carousel.get(numItemsAttribute) === 0 || carousel._firstItem === 0) {
+                if (carousel.get(numItemsAttribute) === 0 ||
+                   !carousel.get(isCircularAttribute)) {
                     Event.removeListener(navigation.prev, "click",
                             scrollPageBackward);
                     Dom.addClass(navigation.prev, cssClass.FIRST_NAV_DISABLED);
@@ -752,8 +894,8 @@
 
         attach = false;
         if (navigation.next) {
-            if (sentinel >= carousel.get("numItems")) {
-                if (!carousel.get("isCircular")) {
+            if (sentinel >= carousel.get(numItemsAttribute)) {
+                if (!carousel.get(isCircularAttribute)) {
                     Event.removeListener(navigation.next, "click",
                             scrollPageForward);
                     Dom.addClass(navigation.next, cssClass.DISABLED);
@@ -798,16 +940,16 @@
             return;
         }
 
-        numVisible = carousel.get("numVisible");
+        numVisible = carousel.get(numVisibleAttribute);
 
         if (!JS.isNumber(page)) {
-            page = Math.floor(carousel.get("selectedItem") / numVisible);
+            page = Math.floor(carousel.get(selectedItemAttribute) / numVisible);
         }
 
-        numPages = Math.ceil(carousel.get("numItems") / numVisible);
+        numPages = Math.ceil(carousel.get(numItemsAttribute) / numVisible);
 
         carousel._pages.num = numPages;
-        carousel._pages.cur = page;
+        carousel._pages.cur = carousel.get('currentPage');
 
         if (numPages > carousel.CONFIG.MAX_PAGER_BUTTONS) {
             carousel._updatePagerMenu();
@@ -891,19 +1033,19 @@
      */
     function updateStateAfterScroll(item, sentinel) {
         var carousel   = this,
-            page       = carousel.get("currentPage"),
+            page       = carousel.get(currentPageAttribute),
             newPage,
-            numPerPage = carousel.get("numVisible");
+            numPerPage = carousel.get(numVisibleAttribute);
 
         newPage = parseInt(carousel._firstItem / numPerPage, 10);
         if (newPage != page) {
-            carousel.setAttributeConfig("currentPage", { value: newPage });
+            carousel.setAttributeConfig(currentPageAttribute, { value: newPage });
             carousel.fireEvent(pageChangeEvent, newPage);
         }
 
-        if (carousel.get("selectOnScroll")) {
-            if (carousel.get("selectedItem") != carousel._selectedItem) {
-                carousel.set("selectedItem", carousel._selectedItem);
+        if (carousel.get(selectOnScrollAttribute)) {
+            if (carousel.get(selectedItemAttribute) != carousel._selectedItem) {
+                carousel.set(selectedItemAttribute, carousel._selectedItem);
             }
         }
 
@@ -1454,7 +1596,7 @@
                 elId,
                 replaceItems = 0,
                 newIndex, // Add newIndex as workaround for undefined pos
-                numItems = carousel.get("numItems");
+                numItems = carousel.get(numItemsAttribute);
 
             if (!item) {
                 return false;
@@ -1499,7 +1641,7 @@
             carousel._itemsTable.numItems++;
 
             if (numItems < carousel._itemsTable.items.length) {
-                carousel.set("numItems", carousel._itemsTable.items.length);
+                carousel.set(numItemsAttribute, carousel._itemsTable.items.length);
             }
 
             // Add newPos as workaround for undefined pos
@@ -1553,7 +1695,7 @@
          * @public
          */
         clearItems: function () {
-            var carousel = this, n = carousel.get("numItems");
+            var carousel = this, n = carousel.get(numItemsAttribute);
 
             while (n > 0) {
                 if (!carousel.removeItem(0)) {
@@ -1565,7 +1707,7 @@
                     is already empty.
                  */
                 if (carousel._itemsTable.numItems === 0) {
-                    carousel.set("numItems", 0);
+                    carousel.set(numItemsAttribute, 0);
                     break;
                 }
                 n--;
@@ -1602,12 +1744,12 @@
                 return;
             }
 
-            selItem              = carousel.get("selectedItem");
-            numVisible           = carousel.get("numVisible");
-            selectOnScroll       = carousel.get("selectOnScroll");
+            selItem              = carousel.get(selectedItemAttribute);
+            numVisible           = carousel.get(numVisibleAttribute);
+            selectOnScroll       = carousel.get(selectOnScrollAttribute);
             selected             = (selItem >= 0) ?
                                    carousel.getItem(selItem) : null;
-            first                = carousel.get("firstVisible");
+            first                = carousel.get(firstVisibleAttribute);
             last                 = first + numVisible - 1;
             isSelectionInvisible = (selItem < first || selItem > last);
             focusEl              = (selected && selected.id) ?
@@ -1685,9 +1827,9 @@
             Carousel.superclass.init.call(carousel, el, attrs);
 
             // check if we're starting somewhere in the middle
-            selected = carousel.get("selectedItem");
+            selected = carousel.get(selectedItemAttribute);
             if(selected > 0){
-                carousel.set("firstVisible",getFirstVisibleForPosition.call(carousel,selected));
+                carousel.set(firstVisibleAttribute,getFirstVisibleForPosition.call(carousel,selected));
             }
 
             if (el) {
@@ -1715,14 +1857,14 @@
             }
 
             if (!attrs || typeof attrs.isVertical == "undefined") {
-                carousel.set("isVertical", false);
+                carousel.set(isVerticalAttribute, false);
             }
 
             carousel._parseCarouselNavigation(el);
             carousel._navEl = carousel._setupCarouselNavigation();
 
             instances[elId] = { object: carousel };
-            carousel._loadItems(Math.min(carousel.get("firstVisible")+carousel.get("numVisible"),carousel.get("numItems"))-1);
+            carousel._loadItems(Math.min(carousel.get(firstVisibleAttribute)+carousel.get(numVisibleAttribute),carousel.get(numItemsAttribute))-1);
         },
 
         /**
@@ -1739,220 +1881,103 @@
             attrs = attrs || {};
             Carousel.superclass.initAttributes.call(carousel, attrs);
 
-            /**
-             * @attribute carouselEl
-             * @description The type of the Carousel element.
-             * @default OL
-             * @type Boolean
-             */
-            carousel.setAttributeConfig("carouselEl", {
+            carousel.setAttributeConfig(carouselElAttribute, {
                     validator : JS.isString,
                     value     : attrs.carouselEl || "OL"
             });
 
-            /**
-             * @attribute carouselItemEl
-             * @description The type of the list of items within the Carousel.
-             * @default LI
-             * @type Boolean
-             */
-            carousel.setAttributeConfig("carouselItemEl", {
+            carousel.setAttributeConfig(carouselItemElAttribute, {
                     validator : JS.isString,
                     value     : attrs.carouselItemEl || "LI"
             });
 
-            /**
-             * @attribute currentPage
-             * @description The current page number (read-only.)
-             * @type Number
-             */
-            carousel.setAttributeConfig("currentPage", {
+            carousel.setAttributeConfig(currentPageAttribute, {
                     readOnly : true,
                     value    : 0
             });
 
-            /**
-             * @attribute firstVisible
-             * @description The index to start the Carousel from (indexes begin
-             * from zero)
-             * @default 0
-             * @type Number
-             */
-            carousel.setAttributeConfig("firstVisible", {
+            carousel.setAttributeConfig(firstVisibleAttribute, {
                     method    : carousel._setFirstVisible,
                     validator : carousel._validateFirstVisible,
                     value     :
                         attrs.firstVisible || carousel.CONFIG.FIRST_VISIBLE
             });
 
-            /**
-             * @attribute selectOnScroll
-             * @description Set this to true to automatically set focus to
-             * follow scrolling in the Carousel.
-             * @default true
-             * @type Boolean
-             */
-            carousel.setAttributeConfig("selectOnScroll", {
+            carousel.setAttributeConfig(selectOnScrollAttribute, {
                     validator : JS.isBoolean,
                     value     : attrs.selectOnScroll || true
             });
 
-            /**
-             * @attribute numVisible
-             * @description The number of visible items in the Carousel's
-             * viewport.
-             * @default 3
-             * @type Number
-             */
-            carousel.setAttributeConfig("numVisible", {
+            carousel.setAttributeConfig(numVisibleAttribute, {
                     setter    : carousel._numVisibleSetter,
                     method    : carousel._setNumVisible,
                     validator : carousel._validateNumVisible,
                     value     : attrs.numVisible || carousel.CONFIG.NUM_VISIBLE
             });
 
-            /**
-             * @attribute numItems
-             * @description The number of items in the Carousel.
-             * @type Number
-             */
-            carousel.setAttributeConfig("numItems", {
+            carousel.setAttributeConfig(numItemsAttribute, {
                     method    : carousel._setNumItems,
                     validator : carousel._validateNumItems,
                     value     : carousel._itemsTable.numItems
             });
 
-            /**
-             * @attribute scrollIncrement
-             * @description The number of items to scroll by for arrow keys.
-             * @default 1
-             * @type Number
-             */
-            carousel.setAttributeConfig("scrollIncrement", {
+            carousel.setAttributeConfig(scrollIncrementAttribute, {
                     validator : carousel._validateScrollIncrement,
                     value     : attrs.scrollIncrement || 1
             });
 
-            /**
-             * @attribute selectedItem
-             * @description The index of the selected item.
-             * @type Number
-             */
-            carousel.setAttributeConfig("selectedItem", {
+            carousel.setAttributeConfig(selectedItemAttribute, {
                     setter    : carousel._selectedItemSetter,
                     method    : carousel._setSelectedItem,
                     validator : JS.isNumber,
                     value     : -1
             });
 
-            /**
-             * @attribute revealAmount
-             * @description The percentage of the item to be revealed on each
-             * side of the Carousel (before and after the first and last item
-             * in the Carousel's viewport.)
-             * @default 0
-             * @type Number
-             */
-            carousel.setAttributeConfig("revealAmount", {
+            carousel.setAttributeConfig(revealAmountAttribute, {
                     method    : carousel._setRevealAmount,
                     validator : carousel._validateRevealAmount,
                     value     : attrs.revealAmount || 0
             });
 
-            /**
-             * @attribute isCircular
-             * @description Set this to true to wrap scrolling of the contents
-             * in the Carousel.
-             * @default false
-             * @type Boolean
-             */
-            carousel.setAttributeConfig("isCircular", {
+            carousel.setAttributeConfig(isCircularAttribute, {
                     validator : JS.isBoolean,
                     value     : attrs.isCircular || false
             });
 
-            /**
-             * @attribute isVertical
-             * @description True if the orientation of the Carousel is vertical
-             * @default false
-             * @type Boolean
-             */
-            carousel.setAttributeConfig("isVertical", {
+            carousel.setAttributeConfig(isVerticalAttribute, {
                     method    : carousel._setOrientation,
                     validator : JS.isBoolean,
                     value     : attrs.isVertical || false
             });
 
-            /**
-             * @attribute navigation
-             * @description The set of navigation controls for Carousel
-             * @default <br>
-             * { prev: null, // the previous navigation element<br>
-             *   next: null } // the next navigation element
-             * @type Object
-             */
-            carousel.setAttributeConfig("navigation", {
+            carousel.setAttributeConfig(navigationAttribute, {
                     method    : carousel._setNavigation,
                     validator : carousel._validateNavigation,
                     value     :
                         attrs.navigation || {prev: null,next: null,page: null}
             });
 
-            /**
-             * @attribute animation
-             * @description The optional animation attributes for the Carousel.
-             * @default <br>
-             * { speed: 0, // the animation speed (in seconds)<br>
-             *   effect: null } // the animation effect (like
-             *   YAHOO.util.Easing.easeOut)
-             * @type Object
-             */
-            carousel.setAttributeConfig("animation", {
+            carousel.setAttributeConfig(animationAttribute, {
                     validator : carousel._validateAnimation,
                     value     : attrs.animation || { speed: 0, effect: null }
             });
 
-            /**
-             * @attribute autoPlay
-             * @description Set this to time in milli-seconds to have the
-             * Carousel automatically scroll the contents.
-             * @type Number
-             * @deprecated Use autoPlayInterval instead.
-             */
-            carousel.setAttributeConfig("autoPlay", {
+            carousel.setAttributeConfig(autoPlayAttribute, {
                     validator : JS.isNumber,
                     value     : attrs.autoPlay || 0
             });
 
-            /**
-             * @attribute autoPlayInterval
-             * @description The delay in milli-seconds for scrolling the
-             * Carousel during auto-play.
-             * Note: The startAutoPlay() method needs to be invoked to trigger
-             * automatic scrolling of Carousel.
-             * @type Number
-             */
-            carousel.setAttributeConfig("autoPlayInterval", {
+            carousel.setAttributeConfig(autoPlayIntervalAttribute, {
                     validator : JS.isNumber,
                     value     : attrs.autoPlayInterval || 0
             });
 
-            /**
-             * @attribute numPages
-             * @description The number of pages in the carousel.
-             * @type Number
-             */
-            carousel.setAttributeConfig("numPages", {
+            carousel.setAttributeConfig(numPagesAttribute, {
                     readOnly  : true,
                     getter    : carousel._getNumPages
             });
 
-            /**
-             * @attribute lastVisible
-             * @description The last item visible in the carousel.
-             * @type Number
-             */
-            carousel.setAttributeConfig("lastVisible", {
+            carousel.setAttributeConfig(lastVisibleAttribute, {
                     readOnly  : true,
                     getter    : carousel._getLastVisible
             });
@@ -1996,9 +2021,9 @@
             carousel.on(pageChangeEvent, syncPagerUi, carousel);
 
             carousel.on(renderEvent, function (ev) {
-                if (carousel.get("selectedItem") === null ||
-                    carousel.get("selectedItem") <= 0) { //in either case
-                carousel.set("selectedItem", carousel.get("firstVisible"));
+                if (carousel.get(selectedItemAttribute) === null ||
+                    carousel.get(selectedItemAttribute) <= 0) { //in either case
+                carousel.set(selectedItemAttribute, carousel.get(firstVisibleAttribute));
                 }
                 syncNavigation.call(carousel, ev);
                 syncPagerUi.call(carousel, ev);
@@ -2021,7 +2046,7 @@
             });
 
             carousel.on("firstVisibleChange", function (ev) {
-                if (!carousel.get("selectOnScroll")) {
+                if (!carousel.get(selectOnScrollAttribute)) {
                     if (ev.newValue >= 0) {
                         carousel._updateTabIndex(
                                 carousel.getElementForItem(ev.newValue));
@@ -2103,7 +2128,7 @@
         getElementForItem: function (index) {
             var carousel = this;
 
-            if (index < 0 || index >= carousel.get("numItems")) {
+            if (index < 0 || index >= carousel.get(numItemsAttribute)) {
                 return null;
             }
 
@@ -2142,7 +2167,7 @@
         getItem: function (index) {
             var carousel = this;
 
-            if (index < 0 || index >= carousel.get("numItems")) {
+            if (index < 0 || index >= carousel.get(numItemsAttribute)) {
                 return null;
             }
 
@@ -2209,7 +2234,7 @@
          */
         getItemPositionById: function (id) {
             var carousel = this,
-                n = carousel.get("numItems"),
+                n = carousel.get(numItemsAttribute),
                 i = 0,
                 items = carousel._itemsTable.items,
                 item;
@@ -2234,8 +2259,8 @@
          */
         getVisibleItems: function () {
             var carousel = this,
-                i        = carousel.get("firstVisible"),
-                n        = i + carousel.get("numVisible"),
+                i        = carousel.get(firstVisibleAttribute),
+                n        = i + carousel.get(numVisibleAttribute),
                 r        = [];
 
             while (i < n) {
@@ -2258,7 +2283,7 @@
         removeItem: function (index) {
             var carousel = this,
                 item,
-                num      = carousel.get("numItems");
+                num      = carousel.get(numItemsAttribute);
 
             if (index < 0 || index >= num) {
                 return false;
@@ -2267,7 +2292,7 @@
             item = carousel._itemsTable.items.splice(index, 1);
             if (item && item.length == 1) {
                 carousel._itemsTable.numItems--;
-                carousel.set("numItems", num - 1);
+                carousel.set(numItemsAttribute, num - 1);
 
                 carousel.fireEvent(itemRemovedEvent,
                         { item: item[0], pos: index, ev: itemRemovedEvent });
@@ -2296,7 +2321,7 @@
                 className,
                 content,
                 elId,
-                numItems = carousel.get("numItems"),
+                numItems = carousel.get(numItemsAttribute),
                 oel,
                 el = item;
 
@@ -2401,13 +2426,13 @@
                 Dom.addClass(carousel._clipEl, cssClass.MULTI_ROW);
             }
 
-            if (carousel.get("isVertical")) {
+            if (carousel.get(isVerticalAttribute)) {
                 carousel.addClass(cssClass.VERTICAL);
             } else {
                 carousel.addClass(cssClass.HORIZONTAL);
             }
 
-            if (carousel.get("numItems") < 1) {
+            if (carousel.get(numItemsAttribute) < 1) {
                 return false;
             }
 
@@ -2425,7 +2450,7 @@
         scrollBackward: function () {
             var carousel = this;
             carousel.scrollTo(carousel._firstItem -
-                              carousel.get("scrollIncrement"));
+                              carousel.get(scrollIncrementAttribute));
         },
 
         /**
@@ -2437,7 +2462,7 @@
         scrollForward: function () {
             var carousel = this;
             carousel.scrollTo(carousel._firstItem +
-                              carousel.get("scrollIncrement"));
+                              carousel.get(scrollIncrementAttribute));
         },
 
         /**
@@ -2448,9 +2473,9 @@
          */
         scrollPageBackward: function () {
             var carousel = this,
-                isVertical = carousel.get("isVertical"),
+                isVertical = carousel.get(isVerticalAttribute),
                 cols       = carousel._cols,
-                item     = carousel._firstItem - carousel.get("numVisible");
+                item     = carousel._firstItem - carousel.get(numVisibleAttribute);
 
             if (item < 0) { // only account for multi-row when scrolling backwards from item 0
                 if (cols) {
@@ -2458,7 +2483,7 @@
                 }
             }
 
-            if (carousel.get("selectOnScroll")) {
+            if (carousel.get(selectOnScrollAttribute)) {
                 carousel._selectedItem = carousel._getSelectedItem(item);
             }
 
@@ -2473,13 +2498,13 @@
          */
         scrollPageForward: function () {
             var carousel = this,
-                item     = carousel._firstItem + carousel.get("numVisible");
+                item     = carousel._firstItem + carousel.get(numVisibleAttribute);
 
-            if (item > carousel.get("numItems")) {
+            if (item > carousel.get(numItemsAttribute)) {
                 item = 0;
             }
 
-            if (carousel.get("selectOnScroll")) {
+            if (carousel.get(selectOnScrollAttribute)) {
                 carousel._selectedItem = carousel._getSelectedItem(item);
             }
 
@@ -2509,15 +2534,15 @@
                 return; // nothing to do!
             }
 
-            animCfg        = carousel.get("animation");
-            isCircular     = carousel.get("isCircular");
-            isVertical     = carousel.get("isVertical");
+            animCfg        = carousel.get(animationAttribute);
+            isCircular     = carousel.get(isCircularAttribute);
+            isVertical     = carousel.get(isVerticalAttribute);
             itemsPerRow    = carousel._cols;
             itemsPerCol    = carousel._rows;
             firstItem      = carousel._firstItem;
-            numItems       = carousel.get("numItems");
-            numPerPage     = carousel.get("numVisible");
-            page           = carousel.get("currentPage");
+            numItems       = carousel.get(numItemsAttribute);
+            numPerPage     = carousel.get(numVisibleAttribute);
+            page           = carousel.get(currentPageAttribute);
             previousFirst  = carousel.get('firstVisible'); // should get here, before we set the new value
 
             stopAutoScroll = function () {
@@ -2535,7 +2560,7 @@
                 }
             } else if (numItems > 0 && item > numItems - 1) {
 
-                if (carousel.get("isCircular")) {
+                if (carousel.get(isCircularAttribute)) {
                     item = numItems - item;
                 } else {
                     stopAutoScroll.call(carousel);
@@ -2559,7 +2584,7 @@
 
             carousel.fireEvent(beforePageChangeEvent, { page: page });
             carousel._firstItem = item;
-            carousel.set("firstVisible", item);
+            carousel.set(firstVisibleAttribute, item);
 
             // call loaditems to check if we have all the items to display
             lastItem = item + numPerPage - 1;
@@ -2620,7 +2645,7 @@
          */
         getPageForItem : function(item) {
             return Math.ceil(
-                (item+1) / parseInt(this.get("numVisible"),10)
+                (item+1) / parseInt(this.get(numVisibleAttribute),10)
             );
         },
 
@@ -2633,7 +2658,7 @@
          * @return {Number} First item's index
          */
         getFirstVisibleOnPage : function(page) {
-            return (page - 1) * this.get("numVisible");
+            return (page - 1) * this.get(numVisibleAttribute);
         },
 
         /**
@@ -2645,16 +2670,16 @@
         selectPreviousItem: function () {
             var carousel = this,
                 newpos   = 0,
-                selected = carousel.get("selectedItem");
+                selected = carousel.get(selectedItemAttribute);
 
             if (selected == this._firstItem) {
-                newpos = selected - carousel.get("numVisible");
+                newpos = selected - carousel.get(numVisibleAttribute);
                 carousel._selectedItem = carousel._getSelectedItem(selected-1);
                 carousel.scrollTo(newpos);
             } else {
-                newpos = carousel.get("selectedItem") -
-                         carousel.get("scrollIncrement");
-                carousel.set("selectedItem",carousel._getSelectedItem(newpos));
+                newpos = carousel.get(selectedItemAttribute) -
+                         carousel.get(scrollIncrementAttribute);
+                carousel.set(selectedItemAttribute,carousel._getSelectedItem(newpos));
             }
         },
 
@@ -2667,9 +2692,9 @@
         selectNextItem: function () {
             var carousel = this, newpos = 0;
 
-            newpos = carousel.get("selectedItem") +
-                     carousel.get("scrollIncrement");
-            carousel.set("selectedItem", carousel._getSelectedItem(newpos));
+            newpos = carousel.get(selectedItemAttribute) +
+                     carousel.get(scrollIncrementAttribute);
+            carousel.set(selectedItemAttribute, carousel._getSelectedItem(newpos));
         },
 
         /**
@@ -2698,7 +2723,7 @@
             var carousel = this, timer;
 
             if (JS.isUndefined(carousel._autoPlayTimer)) {
-                timer = carousel.get("autoPlayInterval");
+                timer = carousel.get(autoPlayIntervalAttribute);
                 if (timer <= 0) {
                     return;
                 }
@@ -2750,7 +2775,7 @@
                     'selectedItem' : carousel.get('selectedItem')+1,
                     'currentPage' : currentPage,
                     'firstVisible' : firstVisible,
-                    'lastVisible' : carousel.get("lastVisible")+1
+                    'lastVisible' : carousel.get(lastVisibleAttribute)+1
                 },
                 cb = pagination.callback || {},
                 scope = cb.scope && cb.obj ? cb.obj : carousel;
@@ -2814,10 +2839,10 @@
          */
         _animateAndSetCarouselOffset: function (animTo, item, sentinel) {
             var carousel = this,
-                animCfg  = carousel.get("animation"),
+                animCfg  = carousel.get(animationAttribute),
                 animObj  = null;
 
-            if (carousel.get("isVertical")) {
+            if (carousel.get(isVerticalAttribute)) {
                 animObj = new YAHOO.util.Motion(carousel._carouselEl,
                         { top: animTo },
                         animCfg.speed, animCfg.effect);
@@ -2858,14 +2883,14 @@
                 currIndex = carousel._firstItem,
                 index;
 
-            if (currIndex >= carousel.get("numItems") - 1) {
-                if (carousel.get("isCircular")) {
+            if (currIndex >= carousel.get(numItemsAttribute) - 1) {
+                if (carousel.get(isCircularAttribute)) {
                     index = 0;
                 } else {
                     carousel.stopAutoPlay();
                 }
             } else {
-                index = currIndex + carousel.get("numVisible");
+                index = currIndex + carousel.get(numVisibleAttribute);
             }
 
             carousel._selectedItem = carousel._getSelectedItem(index);
@@ -2892,7 +2917,7 @@
             }
 
             if (!carousel._carouselEl) {
-                carousel._carouselEl=createElement(carousel.get("carouselEl"),
+                carousel._carouselEl=createElement(carousel.get(carouselElAttribute),
                         { className: cssClass.CAROUSEL_EL });
             }
 
@@ -2920,7 +2945,7 @@
             var attr, carousel = this,
                 styles = getCarouselItemPosition.call(carousel, obj.pos);
 
-            return createElement(carousel.get("carouselItemEl"), {
+            return createElement(carousel.get(carouselItemElAttribute), {
                     className : obj.className,
                     styles    : obj.styles,
                     content   : obj.content,
@@ -2939,9 +2964,9 @@
          */
         _getValidIndex: function (index) {
             var carousel   = this,
-                isCircular = carousel.get("isCircular"),
-                numItems   = carousel.get("numItems"),
-                numVisible = carousel.get("numVisible"),
+                isCircular = carousel.get(isCircularAttribute),
+                numItems   = carousel.get(numItemsAttribute),
+                numVisible = carousel.get(numVisibleAttribute),
                 sentinel   = numItems - 1;
 
             if (index < 0) {
@@ -2964,21 +2989,21 @@
          */
         _getSelectedItem: function (val) {
             var carousel   = this,
-                isCircular = carousel.get("isCircular"),
-                numItems   = carousel.get("numItems"),
+                isCircular = carousel.get(isCircularAttribute),
+                numItems   = carousel.get(numItemsAttribute),
                 sentinel   = numItems - 1;
 
             if (val < 0) {
                 if (isCircular) {
                     val = numItems + val;
                 } else {
-                    val = carousel.get("selectedItem");
+                    val = carousel.get(selectedItemAttribute);
                 }
             } else if (val > sentinel) {
                 if (isCircular) {
                     val = val - numItems;
                 } else {
-                    val = carousel.get("selectedItem");
+                    val = carousel.get(selectedItemAttribute);
                 }
             }
             return val;
@@ -2993,7 +3018,7 @@
          */
         _itemClickHandler: function (ev) {
             var carousel     = this,
-                carouselItem = carousel.get("carouselItemEl"),
+                carouselItem = carousel.get(carouselItemElAttribute),
                 container    = carousel.get("element"),
                 el,
                 item,
@@ -3016,7 +3041,7 @@
             }
 
             if ((item = carousel.getItemPositionById(target.id)) >= 0) {
-                carousel.set("selectedItem", carousel._getSelectedItem(item));
+                carousel.set(selectedItemAttribute, carousel._getSelectedItem(item));
                 carousel.focus();
             }
         },
@@ -3076,11 +3101,11 @@
          */
         _loadItems: function(last) {
             var carousel    = this,
-                numItems    = carousel.get("numItems"),
-                numVisible  = carousel.get("numVisible"),
-                reveal      = carousel.get("revealAmount"),
+                numItems    = carousel.get(numItemsAttribute),
+                numVisible  = carousel.get(numVisibleAttribute),
+                reveal      = carousel.get(revealAmountAttribute),
                 first       = carousel._itemsTable.items.length,
-                lastVisible = carousel.get("lastVisible");
+                lastVisible = carousel.get(lastVisibleAttribute);
 
             // adjust if going backwards
             if(first > last && last+1 >= numVisible){
@@ -3167,7 +3192,7 @@
             var carousel = this, child, cssClass, domEl, found, node;
 
             cssClass  = carousel.CLASSES;
-            domEl     = carousel.get("carouselEl");
+            domEl     = carousel.get(carouselElAttribute);
             found     = false;
 
             for (child = parent.firstChild; child; child = child.nextSibling) {
@@ -3202,11 +3227,11 @@
                 domItemEl,
                 elId,
                 node,
-                index = carousel.get("firstVisible"),
+                index = carousel.get(firstVisibleAttribute),
                 parent   = carousel._carouselEl;
 
             rows = carousel._rows;
-            domItemEl = carousel.get("carouselItemEl");
+            domItemEl = carousel.get(carouselItemElAttribute);
 
             for (child = parent.firstChild; child; child = child.nextSibling) {
                 if (child.nodeType == 1) {
@@ -3299,7 +3324,7 @@
             }
 
             if (cfg) {
-                carousel.set("navigation", cfg);
+                carousel.set(navigationAttribute, cfg);
                 rv = true;
             }
 
@@ -3314,7 +3339,7 @@
          * @protected
          */
         _refreshUi: function () {
-            var carousel = this, i, isVertical = carousel.get("isVertical"), firstVisible = carousel.get("firstVisible"), item, n, rsz, sz;
+            var carousel = this, i, isVertical = carousel.get(isVerticalAttribute), firstVisible = carousel.get(firstVisibleAttribute), item, n, rsz, sz;
 
             if (carousel._itemsTable.numItems < 1) {
                 return;
@@ -3346,7 +3371,7 @@
         _setCarouselOffset: function (offset) {
             var carousel = this, which;
 
-            which = carousel.get("isVertical") ? "top" : "left";
+            which = carousel.get(isVerticalAttribute) ? "top" : "left";
             Dom.setStyle(carousel._carouselEl, which, offset + "px");
         },
 
@@ -3378,7 +3403,7 @@
             carousel._pages.el = createElement("UL");
             navContainer.appendChild(carousel._pages.el);
 
-            nav = carousel.get("navigation");
+            nav = carousel.get(navigationAttribute);
             if (JS.isString(nav.prev) || JS.isArray(nav.prev)) {
                 if (JS.isString(nav.prev)) {
                     nav.prev = [nav.prev];
@@ -3436,7 +3461,7 @@
             }
 
             if (cfg) {
-                carousel.set("navigation", cfg);
+                carousel.set(navigationAttribute, cfg);
             }
 
             return navContainer;
@@ -3452,10 +3477,10 @@
          */
         _setClipContainerSize: function (clip, num) {
             var carousel   = this,
-                isVertical = carousel.get("isVertical"),
+                isVertical = carousel.get(isVerticalAttribute),
                 rows       = carousel._rows,
                 cols       = carousel._cols,
-                reveal     = carousel.get("revealAmount"),
+                reveal     = carousel.get(revealAmountAttribute),
                 itemHeight = getCarouselItemSize.call(carousel, "height"),
                 itemWidth  = getCarouselItemSize.call(carousel, "width"),
                 containerHeight,
@@ -3467,7 +3492,7 @@
                  containerHeight = itemHeight * rows;
                  containerWidth  = itemWidth  * cols;
             } else {
-                num = num || carousel.get("numVisible");
+                num = num || carousel.get(numVisibleAttribute);
                 if (isVertical) {
                     containerHeight = itemHeight * num;
                 } else {
@@ -3530,7 +3555,7 @@
                 cols,
                 size;
 
-            isVertical = carousel.get("isVertical");
+            isVertical = carousel.get(isVerticalAttribute);
             rows       = carousel._rows;
             cols       = carousel._cols;
             clip       = clip || carousel._clipEl;
@@ -3587,10 +3612,10 @@
         _setFirstVisible: function (val) {
             var carousel = this;
 
-            if (val >= 0 && val < carousel.get("numItems")) {
+            if (val >= 0 && val < carousel.get(numItemsAttribute)) {
                 carousel.scrollTo(val);
             } else {
-                val = carousel.get("firstVisible");
+                val = carousel.get(firstVisibleAttribute);
             }
             return val;
         },
@@ -3658,7 +3683,7 @@
          */
         _selectedItemSetter: function (val) {
             var carousel = this;
-            return (val < carousel.get("numItems")) ? val : 0;
+            return (val < carousel.get(numItemsAttribute)) ? val : 0;
         },
 
         /**
@@ -3730,7 +3755,7 @@
                 val = JS.isNumber(val) ? val : 0;
                 carousel._setClipContainerSize();
             } else {
-                val = carousel.get("revealAmount");
+                val = carousel.get(revealAmountAttribute);
             }
             return val;
         },
@@ -3754,7 +3779,7 @@
          */
         _getNumPages: function () {
             return Math.ceil(
-                parseInt(this.get("numItems"),10) / parseInt(this.get("numVisible"),10)
+                parseInt(this.get(numItemsAttribute),10) / parseInt(this.get(numVisibleAttribute),10)
             );
         },
 
@@ -3766,9 +3791,9 @@
          */
         _getLastVisible: function () {
             var carousel = this;
-            return carousel.get("currentPage") + 1 == carousel.get("numPages") ?
-                   carousel.get("numItems") - 1:
-                   carousel.get("firstVisible") + carousel.get("numVisible") - 1;
+            return carousel.get(currentPageAttribute) + 1 == carousel.get(numPagesAttribute) ?
+                   carousel.get(numItemsAttribute) - 1:
+                   carousel.get(firstVisibleAttribute) + carousel.get(numVisibleAttribute) - 1;
         },
 
         /**
@@ -3821,8 +3846,8 @@
                 carousel._refreshUi();
             }
 
-            if (carousel.get("selectedItem") < 0) {
-                carousel.set("selectedItem", carousel.get("firstVisible"));
+            if (carousel.get(selectedItemAttribute) < 0) {
+                carousel.set(selectedItemAttribute, carousel.get(firstVisibleAttribute));
             }
 
             carousel._syncUiItems();
@@ -3879,7 +3904,7 @@
                 carouselEl = carousel._carouselEl,
                 el, item, num, pos;
 
-            num  = carousel.get("numItems");
+            num  = carousel.get(numItemsAttribute);
             item = obj.item;
             pos  = obj.pos;
 
@@ -3889,7 +3914,7 @@
                     carouselEl.removeChild(el);
                 }
 
-                if (carousel.get("selectedItem") == pos) {
+                if (carousel.get(selectedItemAttribute) == pos) {
                     pos = pos >= num ? num - 1 : pos;
                 }
             } else {
@@ -3970,7 +3995,7 @@
         _syncUiItems: function () {
             var attr,
                 carousel = this,
-                numItems = carousel.get("numItems"),
+                numItems = carousel.get(numItemsAttribute),
                 i,
                 itemsTable = carousel._itemsTable,
                 items = itemsTable.items,
@@ -4044,7 +4069,7 @@
                  html,
                  i,
                  item,
-                 n        = carousel.get("numVisible"),
+                 n        = carousel.get(numVisibleAttribute),
                  num      = carousel._pages.num, // total pages
                  pager    = carousel._pages.el;  // the pager container element
 
@@ -4099,7 +4124,7 @@
                 el,
                 i,
                 item,
-                n        = carousel.get("numVisible"),
+                n        = carousel.get(numVisibleAttribute),
                 num      = carousel._pages.num, // total pages
                 pager    = carousel._pages.el,  // the pager container element
                 sel;
@@ -4203,7 +4228,7 @@
          * @protected
          */
         _validateFirstVisible: function (val) {
-            var carousel = this, numItems = carousel.get("numItems");
+            var carousel = this, numItems = carousel.get(numItemsAttribute);
 
             if (JS.isNumber(val)) {
                 if (numItems === 0 && val == numItems) {
@@ -4284,7 +4309,7 @@
             var rv = false;
 
             if (JS.isNumber(val)) {
-                rv = val > 0 && val <= this.get("numItems");
+                rv = val > 0 && val <= this.get(numItemsAttribute);
             } else if (JS.isArray(val)) {
                 if (JS.isNumber(val[0]) && JS.isNumber(val[1])) {
                     rv = val[0] * val[1] > 0 && val.length == 2;
@@ -4324,7 +4349,7 @@
             var rv = false;
 
             if (JS.isNumber(val)) {
-                rv = (val > 0 && val < this.get("numItems"));
+                rv = (val > 0 && val < this.get(numItemsAttribute));
             }
 
             return rv;
