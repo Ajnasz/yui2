@@ -808,7 +808,7 @@
         numPages = Math.ceil(carousel.get("numItems") / numVisible);
 
         carousel._pages.num = numPages;
-        carousel._pages.cur = page;
+        carousel._pages.cur = carousel.get('currentPage');
 
         if (numPages > carousel.CONFIG.MAX_PAGER_BUTTONS) {
             carousel._updatePagerMenu();
