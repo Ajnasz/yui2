@@ -413,7 +413,10 @@
      * @description The last item visible in the carousel.
      * @type Number
      */
-    lastVisibleAttribute = "lastVisible";
+    lastVisibleAttribute = "lastVisible",
+
+
+    elementAttribute = "element";
     /*
      * Private helper functions used by the Carousel component
      */
@@ -2065,7 +2068,7 @@
 
             // Restore the focus on the navigation buttons
 
-            Event.onFocus(carousel.get("element"), function (ev, obj) {
+            Event.onFocus(carousel.get(elementAttribute), function (ev, obj) {
                 var target = Event.getTarget(ev);
 
                 if (target && target.nodeName.toUpperCase() == "A" &&
@@ -2085,7 +2088,7 @@
                 obj._updateNavButtons(Event.getTarget(ev), true);
             }, carousel);
 
-            Event.onBlur(carousel.get("element"), function (ev, obj) {
+            Event.onBlur(carousel.get(elementAttribute), function (ev, obj) {
                 obj._hasFocus = false;
                 obj._updateNavButtons(Event.getTarget(ev), false);
             }, carousel);
@@ -2416,7 +2419,7 @@
                 carousel.appendChild(carousel._clipEl);
                 carousel.appendTo(appendTo);
             } else {
-                if (!Dom.inDocument(carousel.get("element"))) {
+                if (!Dom.inDocument(carousel.get(elementAttribute))) {
                     return false;
                 }
                 carousel.appendChild(carousel._clipEl);
@@ -2543,7 +2546,7 @@
             numItems       = carousel.get(numItemsAttribute);
             numPerPage     = carousel.get(numVisibleAttribute);
             page           = carousel.get(currentPageAttribute);
-            previousFirst  = carousel.get('firstVisible'); // should get here, before we set the new value
+            previousFirst  = carousel.get(firstVisibleAttribute); // should get here, before we set the new value
 
             stopAutoScroll = function () {
                 if (carousel.isAutoPlayOn()) {
@@ -2621,7 +2624,7 @@
 
             if (animate) {
                 previousPosition = getCarouselItemPosition.call(carousel, previousFirst);
-                if(carousel.get('isVertical')) {
+                if(carousel.get(isVerticalAttribute)) {
                   animTo = parseInt(previousPosition.top, 10);
                 } else {
                   animTo = parseInt(previousPosition.left, 10);
@@ -2763,16 +2766,16 @@
                 pagination = carousel._pagination;
             if(!pagination.el){ return false; }
 
-            var numItems = carousel.get('numItems'),
-                numVisible = carousel.get('numVisible'),
-                firstVisible = carousel.get('firstVisible')+1,
-                currentPage = carousel.get('currentPage')+1,
-                numPages = carousel.get('numPages'),
+            var numItems = carousel.get(numItemsAttribute),
+                numVisible = carousel.get(numVisibleAttribute),
+                firstVisible = carousel.get(firstVisibleAttribute)+1,
+                currentPage = carousel.get(currentPageAttribute)+1,
+                numPages = carousel.get(numPagesAttribute),
                 replacements = {
                     'numVisible' : numVisible,
                     'numPages' : numPages,
                     'numItems' : numItems,
-                    'selectedItem' : carousel.get('selectedItem')+1,
+                    'selectedItem' : carousel.get(selectedItemAttribute)+1,
                     'currentPage' : currentPage,
                     'firstVisible' : firstVisible,
                     'lastVisible' : carousel.get(lastVisibleAttribute)+1
@@ -2805,8 +2808,8 @@
                     carousel._navEl.appendChild(carousel._pagination.el);
                 }
 
-                carousel.on('itemSelected', carousel.updatePagination);
-                carousel.on('pageChange', carousel.updatePagination);
+                carousel.on(itemSelectedEvent, carousel.updatePagination);
+                carousel.on(pageChangeEvent, carousel.updatePagination);
             }
 
             carousel.updatePagination();
@@ -3019,7 +3022,7 @@
         _itemClickHandler: function (ev) {
             var carousel     = this,
                 carouselItem = carousel.get(carouselItemElAttribute),
-                container    = carousel.get("element"),
+                container    = carousel.get(elementAttribute),
                 el,
                 item,
                 target       = Event.getTarget(ev),
@@ -3389,13 +3392,13 @@
 
             // TODO: can the _navBtns be tested against instead?
             navContainer = Dom.getElementsByClassName(cssClass.NAVIGATION,
-                    "DIV", carousel.get("element"));
+                    "DIV", carousel.get(elementAttribute));
 
             if (navContainer.length === 0) {
                 navContainer = createElement("DIV",
                         { className: cssClass.NAVIGATION });
                 carousel.insertBefore(navContainer,
-                        Dom.getFirstChild(carousel.get("element")));
+                        Dom.getFirstChild(carousel.get(elementAttribute)));
             } else {
                 navContainer = navContainer[0];
             }
@@ -3934,14 +3937,14 @@
                 carouselEl = carousel._carouselEl,
                 itemsTable = carousel._itemsTable,
                 len = itemsTable.items.length,
-                firstVisible = this.get('firstVisible'),
+                firstVisible = this.get(firstVisibleAttribute),
                 sibling,
                 el,
                 j,
                 i,
                 _s;
             
-            i = firstVisible - this.get('numVisible');
+            i = firstVisible - this.get(numVisibleAttribute);
             i = i < 0 ? 0 : i;
             // attempt to find the next closest sibling
             if(i < len){
