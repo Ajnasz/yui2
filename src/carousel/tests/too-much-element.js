@@ -3,8 +3,8 @@ try {
   var logger = new YAHOO.tool.TestLogger(),
   TestName = "CarouselTest",
   numVisible = 3,
-  firstVisible = 900,
-  itemNum     = 1000,
+  firstVisible = 4000,
+  itemNum     = 5000,
   added       = {},
   addItem = function(index) {
     if(!added[index]) {
