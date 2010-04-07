@@ -27,6 +27,7 @@
         Event               = YU.Event,
         Dom                 = YU.Dom,
         InlineEditor        = YAHOO.widget.InlineEditor,
+        widgetName          = 'InlineEditor',
         CLASSES             = {
             /**
              * Constant representing the default class of the cancel button
@@ -521,7 +522,7 @@
                 }
             }
             if(!valid) {
-                Y.log('field type is invalid:  ' + valid, 'error');
+                Y.log('field type is invalid:  ' + valid, 'error', widgetName);
                 throw new Error('field type is invalid');
             }
             return valid;
@@ -586,7 +587,7 @@
             value = preprocess.call(this, value);
 
             if(value === '' && !this.get('allowEmpty')) {
-                Y.log("the field value is empty and it's not allowed");
+                Y.log("the field value is empty and it's not allowed", 'warn', widgetName);
                 this.fireEvent(emptyValueEvent);
             } else {
                 if(validator.call(this, value)) {
@@ -716,7 +717,7 @@
                 editor  = this._createEditor();
 
             if(!editor) {
-                Y.log('editor is not an element', 'error');
+                Y.log('editor is not an element', 'error', widgetName);
                 return false;
             }
             element.innerHTML = '';
@@ -791,11 +792,11 @@
                     saveParent = cancel.parentNode;
                     if(cancelParent) {
                         cancelParent.removeChild(cancel);
-                        Y.log('cancel button removed', 'info');
+                        Y.log('cancel button removed', 'info', widgetName);
                     }
                     if(saveParent) {
                         saveParent.removeChild(save);
-                        Y.log('save button removed', 'info');
+                        Y.log('save button removed', 'info', widgetName);
                     }
                 }
 
@@ -974,7 +975,7 @@
         init: function(el, cfg) {
             var element = Dom.get(el);
             if(!element) {
-                Y.log('Inline Editor element not found', 'error');
+                Y.log('Inline Editor element not found', 'error', widgetName);
                 return false;
             }
             cfg = cfg || {};
@@ -1038,7 +1039,7 @@
             });
             /**
              * The current html value of the field.
-             * Mostly it's the same as the value property, but in some cases 
+             * Mostly it's the same as the value property, but in some cases
              * (eg. with select field) it's different
              * @config htmlValue
              * @type String | Integer
