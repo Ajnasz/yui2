@@ -57,8 +57,8 @@
                             talibe: 6
                         }});
                 ed4.subscribe('saveEvent', function(args) {
-                      Y.log(args);
-                    })
+                        Y.log(args);
+                    });
                 var ed5 = new YAHOO.widget.InlineEditor('span-for-radio', {type: 'radio', selectableValues: {
                             ingyom: 1,
                             bingyom: 2,
@@ -78,7 +78,8 @@
 
                 var ed6 = new YAHOO.widget.InlineEditor('span-for-custom-multi', {type: 'mytype', fieldGenerator: function(type, fieldName, value, selectableValues) {
                             var span = document.createElement('span');
-                            span.innerHTML = '<input type="text" name="' +fieldName+ '" value="'+ value + '"/><input type="text" name="' +fieldName+ '2" value="'+ value + '">';
+                            var parsint = parseInt(value, 10);
+                            span.innerHTML = '<input type="text" name="' +fieldName+ '" value="'+ value + '"/><input type="text" name="' +fieldName+ '2" value="'+ (isNaN(parsint) ? 'value of the other field is not a number. try to change it to number, then save it and try to edit again' : value) + '">';
                             return span;
                         }});
                 ed6.subscribe('saveEvent', function(args){
@@ -111,7 +112,7 @@
   <div id="doc">
      <h1 id="element">Hello</h1>
      <p id="paragraph">When you read/write this pragraph, it's content will be processed.<br>Basically the new line chars well be replaced to &lt;br&gt; and vica versa.</p>
-     <p id="paragraph-allow-empty">You can save this paragraph even if it's empty</p>
+     <p id="paragraph-allow-empty">You can save this paragraph even if it's empty and it will save the value when you press enter.</p>
      <p><span id="span-for-select">bingyom</span></p>
      <p><span id="span-for-radio">tuta</span></p>
      <p><span id="span-for-checkbox">true</span></p>
