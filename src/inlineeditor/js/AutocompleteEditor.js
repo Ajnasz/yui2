@@ -67,6 +67,16 @@
                 * @readonly
                 */
                 this.setAttributeConfig('lastSelected', {readOnly: true, value: null});
+                /**
+                 * Save the editor when user selects an item from the autocomplete
+                 * @config saveOnSelect
+                 * @default true
+                 * @type Boolean
+                 */
+                this.setAttributeConfig('saveOnSelect', {
+                    validator: YL.isBoolean,
+                    value: YL.isBoolean(cfg.saveOnSelect) ? cfg.saveOnSelect : true
+                });
                 this.subscribe('elementReplacedEvent', function() {
                     var id = this.get('id'),
                     autocomplete = attachAutocomplete(id + '-field', id + '-results', this.get('dataSource')),
@@ -74,6 +84,9 @@
                     autocomplete.itemSelectEvent.subscribe(function(eventName, args){
                         _editor.fireEvent(acItemSelectEvent, args);
                         setLastSelected.call(_editor, args);
+                        if(_editor.get('saveOnSelect')) {
+                            _editor.save();
+                        }
                     });
                     /**
                      * Autocomplete instance
