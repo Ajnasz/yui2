@@ -44,8 +44,8 @@
             return container;
 
         },
-        attachCalendar = function(calendar, calendarConfig, field) {
-            var calendar = new YAHOO.widget.Calendar(null, calendar, calendarConfig);
+        attachCalendar = function(calendarContainer, calendarConfig, field) {
+            var calendar = new YAHOO.widget.Calendar(null, calendarContainer, calendarConfig);
             calendar.render();
             var editor = this;
             calendar.selectEvent.subscribe(function(type, args, obj) {
@@ -62,7 +62,7 @@
                 this.set('fieldGenerator', fieldGenerator);
                 this.setAttributeConfig('calendarConfig', {});
                 this.setAttributeConfig('dateFormat', {
-                  value: cfg.dateFormat || '%Y-%m-%d',
+                  value: cfg.dateFormat || '%Y-%m-%d'
                 });
                 var currentValue = this.get('value');
 
