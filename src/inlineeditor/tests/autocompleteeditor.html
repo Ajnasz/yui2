@@ -38,11 +38,11 @@
             ]);
             ed = new YAHOO.widget.AutocompleteEditor('element', {dataSource: dataSource});
             ed.subscribe('saveEvent', function(args){
-                YAHOO.log('last selected' + this.get('lastSelected').toString());
+                YAHOO.log('last selected: ' + this.get('lastSelected').toString());
                 YAHOO.log('new field value is: ' + args.values[this.get('fieldName')], 'info');
             });
             ed.subscribe('acItemSelectEvent', function(eventName){
-                Y.log('item selected' +  arguments)
+                YAHOO.log('item selected: ' +  arguments);
             });
         };
         YAHOO.util.Event.onDOMReady(init);
