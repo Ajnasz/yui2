@@ -964,7 +964,7 @@
 
 
         /**
-         * Initialization method, it used in the constructor.
+         * Initialization method, it's called in the constructor.
          * Sets the configurations and adds the default listeners,
          * classes to the editable element
          * @method init
@@ -1196,6 +1196,7 @@
      * @beta
      */
     YAHOO.widget.AutocompleteEditor = function(el, cfg) {
+        cfg = YAHOO.lang.merge(cfg, {type: 'autocomplete'});
         YAHOO.widget.AutocompleteEditor.superclass.constructor.call(this, el, cfg);
         this._autocompleteInit.apply(this, arguments);
     };
@@ -1297,6 +1298,7 @@
      * @beta
      */
     YAHOO.widget.CalendarEditor = function(el, cfg) {
+        cfg = YAHOO.lang.merge(cfg, {type: 'calendar'});
         YAHOO.widget.CalendarEditor.superclass.constructor.call(this, el, cfg);
         this._calendarInit.apply(this, arguments);
     };
@@ -1325,9 +1327,9 @@
 
         },
         attachCalendar = function(calendarContainer, calendarConfig, field) {
-            var calendar = new YAHOO.widget.Calendar(null, calendarContainer, calendarConfig);
+            var calendar = new YAHOO.widget.Calendar(null, calendarContainer, calendarConfig),
+                editor = this;
             calendar.render();
-            var editor = this;
             calendar.selectEvent.subscribe(function(type, args, obj) {
                 var date = args[0][0].join('-');
                 field.value = YAHOO.util.Date.format(new Date(date), {format: editor.get('dateFormat')});
@@ -1344,29 +1346,54 @@
                 this.setAttributeConfig('dateFormat', {
                   value: cfg.dateFormat || '%Y-%m-%d'
                 });
-                var currentValue = this.get('value');
+                /**
+                 * Save the editor when user selects a date
+                 * @config saveOnSelect
+                 * @default true
+                 * @type Boolean
+                 */
+                this.setAttributeConfig('saveOnSelect', {
+                    validator: YL.isBoolean,
+                    value: YL.isBoolean(cfg.saveOnSelect) ? cfg.saveOnSelect : true
+                });
 
-
-                this.set('calendarConfig', YL.isObject(cfg.calendarConfig) ? YL.merge(defaultCalendarConf, cfg.calendarConfig) : defaultCalendarConf);
+                /**
+                 * Calendar configuration options
+                 * @config calendarConfig
+                 * @default <pre><code>{ close: false }</code></pre>
+                 */
+                this.set('calendarConfig', YL.isObject(cfg.calendarConfig) ?
+                                              YL.merge(defaultCalendarConf, cfg.calendarConfig) :
+                                              defaultCalendarConf);
                 this.on('saveEvent', function() {
-                  this.calendar.destroy();
+                  var calendar = this.calendar;
+                  calendar.hide();
+                  YL.later(100, calendar, calendar.destroy);
                   this.calendar = null;
                 });
                 this.on('cancelEvent', function() {
-                  this.calendar.destroy();
+                  this.calendar.hide();
                   this.calendar = null;
                 });
                 this.subscribe('elementReplacedEvent', function() {
-                    var id = this.get('id');
+                    var id = this.get('id'),
+                         selectedDates,
+                         editor = this,
+                         firstDate;
                     this.calendar = attachCalendar.call(this, id + '-calendar', this.get('calendarConfig'), Dom.get(this.get('id') + '-field'));
 
                     this.calendar.select(new Date(this.get('value')));
-                    var selectedDates = this.calendar.getSelectedDates();
+                    selectedDates = this.calendar.getSelectedDates();
                     if(selectedDates.length) {
-                      var firstDate = selectedDates[0];
+                      firstDate = selectedDates[0];
                       this.calendar.cfg.setProperty("pagedate", (firstDate.getMonth()+1) + "/" + firstDate.getFullYear());
                       this.calendar.render();
                     }
+                    this.calendar.selectEvent.subscribe(function(type, args, obj) {
+                      if(editor.get('saveOnSelect')) {
+                        editor.save();
+                      }
+                    });
                 });
             }
         });
