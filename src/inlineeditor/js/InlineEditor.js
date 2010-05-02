@@ -964,7 +964,7 @@
 
 
         /**
-         * Initialization method, it used in the constructor.
+         * Initialization method, it's called in the constructor.
          * Sets the configurations and adds the default listeners,
          * classes to the editable element
          * @method init
