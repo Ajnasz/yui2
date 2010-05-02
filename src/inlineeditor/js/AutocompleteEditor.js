@@ -22,7 +22,7 @@
     };
     var Y                   = YAHOO,
         YU                  = Y.util,
-        // YL                  = Y.lang,
+        YL                  = Y.lang,
         // Event               = YU.Event,
         Dom                 = YU.Dom,
         // AutocompleteEditor  = YAHOO.widget.AutocompleteEditor,
@@ -48,8 +48,11 @@
             return container;
         },
         attachAutocomplete = function(field, container, dataSource) {
-            var ac = new YAHOO.widget.AutoComplete(field, container, dataSource);
+            var ac = new Y.widget.AutoComplete(field, container, dataSource);
             return ac;
+        },
+        setLastSelected = function(args) {
+            this.setAttributeConfig('lastSelected', {readOnly: true, value: args});
         };
 
         YAHOO.extend(YAHOO.widget.AutocompleteEditor, YAHOO.widget.InlineEditor, {
@@ -63,14 +66,14 @@
                 * @type Array
                 * @readonly
                 */
-                this.setAttributeConfig('lastSelected', {value: null});
+                this.setAttributeConfig('lastSelected', {readOnly: true, value: null});
                 this.subscribe('elementReplacedEvent', function() {
                     var id = this.get('id'),
                     autocomplete = attachAutocomplete(id + '-field', id + '-results', this.get('dataSource')),
                     _editor = this;
                     autocomplete.itemSelectEvent.subscribe(function(eventName, args){
                         _editor.fireEvent(acItemSelectEvent, args);
-                        _editor.set('lastSelected', args);
+                        setLastSelected.call(_editor, args);
                     });
                     /**
                      * Autocomplete instance
