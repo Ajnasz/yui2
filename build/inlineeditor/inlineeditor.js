@@ -27,6 +27,7 @@
         Event               = YU.Event,
         Dom                 = YU.Dom,
         InlineEditor        = YAHOO.widget.InlineEditor,
+        widgetName          = 'InlineEditor',
         CLASSES             = {
             /**
              * Constant representing the default class of the cancel button
@@ -521,7 +522,7 @@
                 }
             }
             if(!valid) {
-                Y.log('field type is invalid:  ' + valid, 'error');
+                Y.log('field type is invalid:  ' + valid, 'error', widgetName);
                 throw new Error('field type is invalid');
             }
             return valid;
@@ -586,7 +587,7 @@
             value = preprocess.call(this, value);
 
             if(value === '' && !this.get('allowEmpty')) {
-                Y.log("the field value is empty and it's not allowed");
+                Y.log("the field value is empty and it's not allowed", 'warn', widgetName);
                 this.fireEvent(emptyValueEvent);
             } else {
                 if(validator.call(this, value)) {
@@ -716,7 +717,7 @@
                 editor  = this._createEditor();
 
             if(!editor) {
-                Y.log('editor is not an element', 'error');
+                Y.log('editor is not an element', 'error', widgetName);
                 return false;
             }
             element.innerHTML = '';
@@ -791,11 +792,11 @@
                     saveParent = cancel.parentNode;
                     if(cancelParent) {
                         cancelParent.removeChild(cancel);
-                        Y.log('cancel button removed', 'info');
+                        Y.log('cancel button removed', 'info', widgetName);
                     }
                     if(saveParent) {
                         saveParent.removeChild(save);
-                        Y.log('save button removed', 'info');
+                        Y.log('save button removed', 'info', widgetName);
                     }
                 }
 
@@ -974,7 +975,7 @@
         init: function(el, cfg) {
             var element = Dom.get(el);
             if(!element) {
-                Y.log('Inline Editor element not found', 'error');
+                Y.log('Inline Editor element not found', 'error', widgetName);
                 return false;
             }
             cfg = cfg || {};
@@ -1038,7 +1039,7 @@
             });
             /**
              * The current html value of the field.
-             * Mostly it's the same as the value property, but in some cases 
+             * Mostly it's the same as the value property, but in some cases
              * (eg. with select field) it's different
              * @config htmlValue
              * @type String | Integer
@@ -1200,7 +1201,7 @@
     };
     var Y                   = YAHOO,
         YU                  = Y.util,
-        // YL                  = Y.lang,
+        YL                  = Y.lang,
         // Event               = YU.Event,
         Dom                 = YU.Dom,
         // AutocompleteEditor  = YAHOO.widget.AutocompleteEditor,
@@ -1226,8 +1227,11 @@
             return container;
         },
         attachAutocomplete = function(field, container, dataSource) {
-            var ac = new YAHOO.widget.AutoComplete(field, container, dataSource);
+            var ac = new Y.widget.AutoComplete(field, container, dataSource);
             return ac;
+        },
+        setLastSelected = function(args) {
+            this.setAttributeConfig('lastSelected', {readOnly: true, value: args});
         };
 
         YAHOO.extend(YAHOO.widget.AutocompleteEditor, YAHOO.widget.InlineEditor, {
@@ -1241,14 +1245,27 @@
                 * @type Array
                 * @readonly
                 */
-                this.setAttributeConfig('lastSelected', {value: null});
+                this.setAttributeConfig('lastSelected', {readOnly: true, value: null});
+                /**
+                 * Save the editor when user selects an item from the autocomplete
+                 * @config saveOnSelect
+                 * @default true
+                 * @type Boolean
+                 */
+                this.setAttributeConfig('saveOnSelect', {
+                    validator: YL.isBoolean,
+                    value: YL.isBoolean(cfg.saveOnSelect) ? cfg.saveOnSelect : true
+                });
                 this.subscribe('elementReplacedEvent', function() {
                     var id = this.get('id'),
                     autocomplete = attachAutocomplete(id + '-field', id + '-results', this.get('dataSource')),
                     _editor = this;
                     autocomplete.itemSelectEvent.subscribe(function(eventName, args){
                         _editor.fireEvent(acItemSelectEvent, args);
-                        _editor.set('lastSelected', args);
+                        setLastSelected.call(_editor, args);
+                        if(_editor.get('saveOnSelect')) {
+                            _editor.save();
+                        }
                     });
                     /**
                      * Autocomplete instance
@@ -1257,6 +1274,99 @@
                      * @readonly
                      */
                     this.autocomplete = autocomplete;
+                });
+            }
+        });
+})();
+/**
+ * Inline editor widget
+ * @module inlineeditor
+ * @namespace YAHOO.widget
+ */
+(function() {
+    /**
+     * Inline editor thing where the input field is autocomplete
+     * @class CalendarEditor
+     * @constructor
+     * @extends YAHOO.widget.InlineEditor
+     * @requires yahoo, dom, event, element
+     * @title CalendarEditor widget
+     * @param {HTMLElement | String} el The html element what will be
+     * converted to an editable field
+     * @param {Object} cfg (optional) Configurations as an object.
+     * @beta
+     */
+    YAHOO.widget.CalendarEditor = function(el, cfg) {
+        YAHOO.widget.CalendarEditor.superclass.constructor.call(this, el, cfg);
+        this._calendarInit.apply(this, arguments);
+    };
+    var Y                   = YAHOO,
+        YU                  = Y.util,
+        YL                  = Y.lang,
+        // Event               = YU.Event,
+        Dom                 = YU.Dom,
+        defaultCalendarConf = {
+          close: false
+        },
+
+        fieldGenerator = function() {
+            var doc = document,
+                container = doc.createElement('div'),
+                field = doc.createElement('input'),
+                calendar = doc.createElement('div');
+
+            Dom.setAttribute(field, 'type', 'hidden');
+            Dom.setAttribute(field, 'name', this.get('fieldName'));
+            Dom.setAttribute(field, 'id', this.get('id') + '-field');
+            Dom.setAttribute(calendar, 'id', this.get('id') + '-calendar');
+            container.appendChild(field);
+            container.appendChild(calendar);
+            return container;
+
+        },
+        attachCalendar = function(calendarContainer, calendarConfig, field) {
+            var calendar = new YAHOO.widget.Calendar(null, calendarContainer, calendarConfig);
+            calendar.render();
+            var editor = this;
+            calendar.selectEvent.subscribe(function(type, args, obj) {
+                var date = args[0][0].join('-');
+                field.value = YAHOO.util.Date.format(new Date(date), {format: editor.get('dateFormat')});
+            });
+            return calendar;
+        };
+
+        YAHOO.extend(YAHOO.widget.CalendarEditor, YAHOO.widget.InlineEditor, {
+            _strToDate: function(str) {
+            },
+            _calendarInit: function(el, cfg) {
+                this.set('fieldGenerator', fieldGenerator);
+                this.setAttributeConfig('calendarConfig', {});
+                this.setAttributeConfig('dateFormat', {
+                  value: cfg.dateFormat || '%Y-%m-%d'
+                });
+                var currentValue = this.get('value');
+
+
+                this.set('calendarConfig', YL.isObject(cfg.calendarConfig) ? YL.merge(defaultCalendarConf, cfg.calendarConfig) : defaultCalendarConf);
+                this.on('saveEvent', function() {
+                  this.calendar.destroy();
+                  this.calendar = null;
+                });
+                this.on('cancelEvent', function() {
+                  this.calendar.destroy();
+                  this.calendar = null;
+                });
+                this.subscribe('elementReplacedEvent', function() {
+                    var id = this.get('id');
+                    this.calendar = attachCalendar.call(this, id + '-calendar', this.get('calendarConfig'), Dom.get(this.get('id') + '-field'));
+
+                    this.calendar.select(new Date(this.get('value')));
+                    var selectedDates = this.calendar.getSelectedDates();
+                    if(selectedDates.length) {
+                      var firstDate = selectedDates[0];
+                      this.calendar.cfg.setProperty("pagedate", (firstDate.getMonth()+1) + "/" + firstDate.getFullYear());
+                      this.calendar.render();
+                    }
                 });
             }
         });
