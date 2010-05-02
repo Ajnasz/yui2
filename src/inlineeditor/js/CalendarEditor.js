@@ -17,6 +17,7 @@
      * @beta
      */
     YAHOO.widget.CalendarEditor = function(el, cfg) {
+        cfg = YAHOO.lang.merge(cfg, {type: 'calendar'});
         YAHOO.widget.CalendarEditor.superclass.constructor.call(this, el, cfg);
         this._calendarInit.apply(this, arguments);
     };
