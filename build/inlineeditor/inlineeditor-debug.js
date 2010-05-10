@@ -127,6 +127,7 @@
          * </ul>
          */
         saveEvent           = 'saveEvent',
+        beforeSaveEvent     = 'beforeSaveEvent',
         /**
          * @event editStartedEvent
          * @description Fires when the node content has been replaced to
@@ -164,6 +165,7 @@
          * @type YAHOO.util.CustomEvent
          */
         elementReplacedEvent     = 'elementReplacedEvent',
+        elementRestoredEvent     = 'elementRestoredEvent',
         /**
          * @event valueNotValidEvent
          * @description Fires when a user tries to save a value which
@@ -208,7 +210,13 @@
          * @return {HMLOptionElement} The option element
          */
         _genOption = function(label, value, selected) {
-            return new Option(label, value, selected);
+            var option = document.createElement('option');
+            // option.innerHTML = label;
+            option.value = value;
+            option.text = label;
+            option.innerHTML = label;
+            option.selected = selected;
+            return option;
         },
         /**
          * Generates a tex type input element
@@ -235,21 +243,28 @@
          */
         _genRadioField = function(name, label, value, checked) {
             var radioContainer = document.createElement('span'),
-                labelElem      = document.createElement('label'),
-                field          = _genField('input', name, value),
-                fieldId        = Dom.generateId();
+            //    labelElem      = document.createElement('label'),
+            //    field          = _genField('input', name, value),
+            fieldId        = Dom.generateId();
 
-            Dom.addClass(radioContainer, CLASSES.RADIO_ITEM_CONTAINER);
-            Dom.setAttribute(field, 'id', fieldId);
-            Dom.setAttribute(labelElem, 'for', fieldId);
-            labelElem.innerHTML = label;
-
-            Dom.setAttribute(field, 'type', 'radio');
             if(checked) {
-                Dom.setAttribute(field, 'checked', 'checked');
+              radioContainer.innerHTML = '<label for="' + fieldId + '">' + label + '</label><input type="radio" name="' + name + '" value="' + value + '" checked="checked">';
+            } else {
+              radioContainer.innerHTML = '<label for="' + fieldId + '">' + label + '</label><input type="radio" name="' + name + '" value="' + value + '">';
             }
-            radioContainer.appendChild(field);
-            radioContainer.appendChild(labelElem);
+            // Dom.addClass(radioContainer, CLASSES.RADIO_ITEM_CONTAINER);
+            // Dom.setAttribute(field, 'id', fieldId);
+            // Dom.setAttribute(labelElem, 'for', fieldId);
+            // labelElem.innerHTML = label;
+
+            // Dom.setAttribute(field, 'type', 'radio');
+            // // need to set it here again, because IE sets the vlaue to 'on'
+            // field.value = value;
+            // field.name = name;
+            // if(checked) {
+            //    field.checked = true;
+            // }
+            // Y.log('name = ' + field.name + ', value = ' + field.value + ', checked = ' + field.checked);
             return radioContainer;
         },
         /**
@@ -264,12 +279,13 @@
             return _genInputField(name, value, 'text');
         },
         genCheckboxField = function(name, value) {
-            var field = _genField('input', name, '1');
-            Dom.setAttribute(field, 'type', 'checkbox');
+            var labelElem = document.createElement('label');
             if(value === true) {
-              Dom.setAttribute(field, 'checked', 'checked');
+              labelElem.innerHTML = '<input type="checkbox" name="' + name + '" value="1" id="' + Dom.generateId() + '" checked="checked">';
+            } else {
+              labelElem.innerHTML = '<input type="checkbox" name="' + name + '" value="1" id="' + Dom.generateId() + '">';
             }
-            return field;
+            return labelElem;
         },
 
         /**
@@ -297,10 +313,11 @@
          */
         genSelectField = function(name, value, selectableValues) {
             var field = _genField('select', name, ''),
-                label;
+                label, option;
             for(label in selectableValues) {
                 if(selectableValues.hasOwnProperty(label)) {
-                    field.appendChild(_genOption(label, selectableValues[label], (label == value || selectableValues[label] == value)));
+                    option = _genOption(label, selectableValues[label], (label == value || selectableValues[label] == value));
+                    field.appendChild(option);
                 }
             }
             return field;
@@ -345,19 +362,22 @@
                 value,
                 elemtype;
 
+
             if(form && form.nodeName == 'FORM') {
                 elements = form.elements;
                 el = elements.length;
                 for (i=0; i < el; i++) {
                     elem = elements[i];
-                    name = Dom.getAttribute(elem, 'name');
+                    name = elem.name;
                     value = elem.value;
                     if(name) {
                         if(elem.nodeName == 'INPUT') {
                             elemtype = Dom.getAttribute(elem, 'type');
+
                             if(elemtype == 'checkbox') {
                                 values[name] = elem.checked ? true : false;
                             } else if(elemtype != 'radio' || elem.checked) {
+
                                 values[name] = value;
                             }
                         } else {
@@ -500,7 +520,7 @@
              * @private
              * @final
              */
-            ANIM_ON_MOUSEOVER: true
+            ANIM_ON_MOUSEOVER: false
         },
         /**
          * Validates the type of the editor
@@ -578,6 +598,7 @@
          * @return {Boolean} true if the saving was succes
          */
         save: function() {
+            this.fireEvent(beforeSaveEvent);
             var values      = getFormValues(this._editor),
                 value       = YL.trim(values[this.get('fieldName')]),
                 preprocess  = this.get('processBeforeSave'),
@@ -694,6 +715,7 @@
                     value = preprocess.call(this, value);
                 }
                 field = generator.call(this, type, fieldName, value, selectableValues);
+
                 _attachKeyListeners(field, this, this.get('saveKeys'), this.get('cancelKeys'));
 
 
@@ -731,8 +753,8 @@
               } catch(e){}
             }, 100);
 
-            this.fireEvent(elementReplacedEvent);
             this._editor = editor;
+            this.fireEvent(elementReplacedEvent);
         },
         /**
          * Removes the edit form and sets the editable element's content
@@ -758,6 +780,7 @@
                 html = value;
             }
             element.innerHTML = html;
+            this.fireEvent(elementRestoredEvent);
             this._addEditControl();
             delete this._editor;
         },
@@ -780,7 +803,7 @@
 
             if(controls) {
                 container = controls.container;
-                if(container) {
+                if(container && container.parentNode) {
                     containerParent = container.parentNode;
                     containerParent.removeChild(container);
                 } else {
