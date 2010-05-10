@@ -7,16 +7,27 @@
     <link type="text/css" rel="stylesheet" href="../../../build/logger/assets/logger.css">
     <link type="text/css" rel="stylesheet" href="../../../build/yuitest/assets/testlogger.css">
     <link type="text/css" rel="stylesheet" href="../../../build/base/base.css"> 
+    <link type="text/css" rel="stylesheet" href="../../../build/editor/assets/editor-core.css"> 
     <link type="text/css" rel="stylesheet" href="../assets/inline-editor-core.css"> 
+    <link type="text/css" rel="stylesheet" href="../../../build/editor/assets/skins/sam/editor.css"> 
+    <link type="text/css" rel="stylesheet" href="../../../build/editor/assets/skins/sam/editor-skin.css"> 
     <title>Inlineeditor</title>
     <script type="text/javascript" src="../../../build/yahoo/yahoo-min.js"></script>
     <script type="text/javascript" src="../../../build/dom/dom-min.js"></script>
     <script type="text/javascript" src="../../../build/event/event-min.js"></script>
     <script type="text/javascript" src="../../../build/logger/logger-min.js"></script>
     <script type="text/javascript" src="../../../build/element/element-min.js"></script>
+    <script type="text/javascript" src="../../../build/json/json-min.js"></script>
     <script type="text/javascript" src="../../../build/yuitest/yuitest-min.js"></script>
     <script type="text/javascript" src="../../../build/animation/animation.js"></script> 
+
+    <script type="text/javascript" src="../../../build/selector/selector-min.js"></script>
+
+
+    <script type="text/javascript" src="../../../build/container/container_core.js"></script> 
+    <script type="text/javascript" src="../../../build/editor/editor.js"></script> 
     <script type="text/javascript" src="../js/InlineEditor.js"></script>
+    <script type="text/javascript" src="../js/RatingEditor.js"></script>
     <script type="text/javascript" charset="utf-8">
         var init = function() {
                 // YAHOO.widget.Logger.enableBrowserConsole();
@@ -29,6 +40,7 @@
                 var ed2 = new YAHOO.widget.InlineEditor('paragraph', {
                                 type: 'textarea',
                                 processBeforeSave: function(value) {
+                                  console.log(value);
                                     var output = value.replace(/\n/g, '<br>');
                                     return output;
                                 },
@@ -44,7 +56,7 @@
                             YAHOO.log('new field value is: ' + this.get('value'), 'info');
                         });
                 var ed3 = new YAHOO.widget.InlineEditor('paragraph-allow-empty', {type: 'textarea', allowEmpty: true, saveKeys: {ctrl: false,keys:[13]}});
-                ed.subscribe('saveEvent', function(values){
+                ed3.subscribe('saveEvent', function(values){
                             YAHOO.log('new field value is: ' + values.field, 'info');
                             return false;
                         });
@@ -57,7 +69,7 @@
                             talibe: 6
                         }});
                 ed4.subscribe('saveEvent', function(args) {
-                        Y.log(args);
+                        YAHOO.log(args);
                     });
                 var ed5 = new YAHOO.widget.InlineEditor('span-for-radio', {type: 'radio', selectableValues: {
                             ingyom: 1,
@@ -67,8 +79,11 @@
                             libe: 5,
                             talibe: 6
                         }});
+                ed5.subscribe('saveEvent', function(args) {
+                        YAHOO.log(args.value);
+                    });
 
-                var ed5 = new YAHOO.widget.InlineEditor('span-for-custom', {type: 'mytype', fieldGenerator: function(type, fieldName, value, selectableValues) {
+                var ed6 = new YAHOO.widget.InlineEditor('span-for-custom', {type: 'mytype', fieldGenerator: function(type, fieldName, value, selectableValues) {
                             var field = document.createElement('input');
                             field.type = 'text';
                             field.name = fieldName;
@@ -76,26 +91,58 @@
                             return field;
                         }});
 
-                var ed6 = new YAHOO.widget.InlineEditor('span-for-custom-multi', {type: 'mytype', fieldGenerator: function(type, fieldName, value, selectableValues) {
+                var ed7 = new YAHOO.widget.InlineEditor('span-for-custom-multi', {type: 'mytype', fieldGenerator: function(type, fieldName, value, selectableValues) {
                             var span = document.createElement('span');
                             var parsint = parseInt(value, 10);
                             span.innerHTML = '<input type="text" name="' +fieldName+ '" value="'+ value + '"/><input type="text" name="' +fieldName+ '2" value="'+ (isNaN(parsint) ? 'value of the other field is not a number. try to change it to number, then save it and try to edit again' : value) + '">';
                             return span;
                         }});
-                ed6.subscribe('saveEvent', function(args){
+                ed7.subscribe('saveEvent', function(args){
                     YAHOO.log("first field's value is: " + args.value, 'info');
                     YAHOO.log("second field's value is: " + args.values, 'info');
                 });
 
-                var ed7 = new YAHOO.widget.InlineEditor('span-for-checkbox', {type: 'checkbox', selectableValues:{
+                var ed8 = new YAHOO.widget.InlineEditor('span-for-checkbox', {type: 'checkbox', selectableValues:{
                     'true': true,
                     'false':false
                     }});
-                ed7.subscribe('saveEvent', function(args){
+                ed8.subscribe('saveEvent', function(args){
                     YAHOO.log("field's value is: " + args[0], 'info');
                 });
+                var ed9 = new YAHOO.widget.InlineEditor('span-for-custom-richtext', {type: 'textarea'});
+                ed9.subscribe('beforeSaveEvent', function() {
+                    if(this.richTextEditor) {
+                      this.richTextEditor.saveHTML();
+                    }
+                });
+                ed9.subscribe('saveEvent', function(values){
+                    console.log()
+                            YAHOO.log('new field value is: ' + values.value, 'info');
+                            return false;
+                        });
+                ed9.subscribe('elementReplacedEvent', function(){
+                      var cont = YAHOO.util.Dom.get('yui-inline-editor-' + this.get('id'));
+                      var field = cont.getElementsByTagName('textarea')[0];
+                      if(field) {
+                        var editor = new YAHOO.widget.Editor(field, {
+                            height: '300px',
+                            width: '522px',
+                            dompath: true, //Turns on the bar at the bottom
+                            animate: true //Animates the opening, closing and moving of Editor windows
+                        });
+                        editor.render();
+                        this.richTextEditor = editor;
+                      }
+
+                    });
+                ed9.subscribe('elementRestoredEvent', function(){
+                    if(this.richTextEditor) {
+                      this.richTextEditor.destroy();
+                      this.richTextEditor = null;
+                    }
+                    });
+                var ed10 = new YAHOO.widget.RatingEditor('span-for-rating-editor', {});
                 YAHOO.log('inline editor initialized', 'info');
-                ED5 = ed5;
             };
         YAHOO.util.Event.onDOMReady(init);
     </script>
@@ -108,7 +155,7 @@
       }
     </style>
 </head>
-<body>
+<body class="yui-skin-sam">
   <div id="doc">
      <h1 id="element">Hello</h1>
      <p id="paragraph">When you read/write this pragraph, it's content will be processed.<br>Basically the new line chars well be replaced to &lt;br&gt; and vica versa.</p>
@@ -118,6 +165,14 @@
      <p><span id="span-for-checkbox">true</span></p>
      <p><span id="span-for-custom">custom</span></p>
      <p><span id="span-for-custom-multi">custom with multiple fields</span></p>
+     <p><span id="span-for-custom-richtext">rich text editor</span></p>
+     <p>
+      <span id="span-for-rating-editor">
+        <span class="yui-selected-rate3 yui-rate">
+          <span class="yui-rate-indicator"></span>
+        </span>
+      </span>
+     </p>
  </div>
 </body>
 </html>
