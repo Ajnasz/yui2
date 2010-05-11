@@ -18,7 +18,8 @@
      * @beta
      */
     YAHOO.widget.InlineEditor = function(el, cfg) {
-        this.init.apply(this, arguments);
+        cfg = YAHOO.lang.isObject(cfg) ? cfg : {};
+        this.init(el, cfg);
     };
 
     var Y                   = YAHOO,
@@ -807,20 +808,24 @@
                     containerParent = container.parentNode;
                     containerParent.removeChild(container);
                 } else {
+                  if(controls.cancel) {
                     cancel = controls.cancel;
                     cancelParent = cancel.parentNode;
-                    save = controls.save;
-                    saveParent = cancel.parentNode;
-                    save = controls.save;
-                    saveParent = cancel.parentNode;
                     if(cancelParent) {
                         cancelParent.removeChild(cancel);
                         Y.log('cancel button removed', 'info', widgetName);
                     }
+                    delete controls.cancel;
+                  }
+                  if(controls.save) {
+                    save = controls.save;
+                    saveParent = save.parentNode;
                     if(saveParent) {
                         saveParent.removeChild(save);
                         Y.log('save button removed', 'info', widgetName);
                     }
+                    delete controls.save;
+                  }
                 }
 
                 delete this.controls;
@@ -1219,9 +1224,9 @@
      * @beta
      */
     YAHOO.widget.AutocompleteEditor = function(el, cfg) {
-        cfg = YAHOO.lang.merge(cfg, {type: 'autocomplete'});
+        cfg = YAHOO.lang.merge(YAHOO.lang.isObject(cfg) ? cfg : {}, {type: 'autocomplete'});
         YAHOO.widget.AutocompleteEditor.superclass.constructor.call(this, el, cfg);
-        this._autocompleteInit.apply(this, arguments);
+        this._autocompleteInit(this, el, cfg);
     };
     var Y                   = YAHOO,
         YU                  = Y.util,
@@ -1321,19 +1326,40 @@
      * @beta
      */
     YAHOO.widget.CalendarEditor = function(el, cfg) {
-        cfg = YAHOO.lang.merge(cfg, {type: 'calendar'});
+        cfg = YAHOO.lang.merge(YAHOO.lang.isObject(cfg) ? cfg : {}, {type: 'calendar'});
         YAHOO.widget.CalendarEditor.superclass.constructor.call(this, el, cfg);
-        this._calendarInit.apply(this, arguments);
+        this._calendarInit(el, cfg);
     };
     var Y                   = YAHOO,
         YU                  = Y.util,
         YL                  = Y.lang,
         // Event               = YU.Event,
         Dom                 = YU.Dom,
+        widgetName          = 'calendarEditor',
         defaultCalendarConf = {
           close: false
         },
 
+        /**
+         * Date.parse with progressive enhancement for ISO-8601
+         * Â© 2010 Colin Snover <http://zetafleet.com>
+         * Released under MIT license.
+         */
+        parseDate = function(date) {
+            var timestamp = Date.parse(date), struct, minutesOffset;
+            if(isNaN(timestamp) && (struct = /(\d{4})-?(\d{2})-?(\d{2})(?:[T ](\d{2}):?(\d{2}):?(\d{2})(?:\.(\d{3}))?(?:(Z)|([\-+])(\d{2})(?::?(\d{2}))?))?/.exec(date))) {
+                minutesOffset = 0;
+                if(struct[8] !== 'Z') {
+                    minutesOffset = +struct[10] * 60 + struct[11];
+
+                    if(struct[9] === '+') {
+                        minutesOffset = 0 - minutesOffset;
+                    }
+                }
+                timestamp = Date.UTC(+struct[1], +struct[2] - 1, +struct[3], +struct[4] || 0, (+struct[5] + minutesOffset) || 0, +struct[6] || 0, +struct[7] || 0);
+            }
+            return timestamp;
+        },
         fieldGenerator = function() {
             var doc = document,
                 container = doc.createElement('div'),
@@ -1354,15 +1380,21 @@
                 editor = this;
             calendar.render();
             calendar.selectEvent.subscribe(function(type, args, obj) {
-                var date = args[0][0].join('-');
-                field.value = YAHOO.util.Date.format(new Date(date), {format: editor.get('dateFormat')});
+                var dateParts = args[0][0], date;
+                // need to change month and day fields to 2 digits becuase the Date object can not parse one digit day and month strings
+                if(String(dateParts[1]).length == 1) {
+                  dateParts[1] = '0' + dateParts[1];
+                }
+                if(String(dateParts[2]).length == 1) {
+                  dateParts[2] = '0' + dateParts[2];
+                }
+                date = dateParts.join('-');
+                field.value = YAHOO.util.Date.format(new Date(parseDate(date)), {format: editor.get('dateFormat')});
             });
             return calendar;
         };
 
         YAHOO.extend(YAHOO.widget.CalendarEditor, YAHOO.widget.InlineEditor, {
-            _strToDate: function(str) {
-            },
             _calendarInit: function(el, cfg) {
                 this.set('fieldGenerator', fieldGenerator);
                 this.setAttributeConfig('calendarConfig', {});
@@ -1405,7 +1437,7 @@
                          firstDate;
                     this.calendar = attachCalendar.call(this, id + '-calendar', this.get('calendarConfig'), Dom.get(this.get('id') + '-field'));
 
-                    this.calendar.select(new Date(this.get('value')));
+                    this.calendar.select(new Date(parseDate(this.get('value'))));
                     selectedDates = this.calendar.getSelectedDates();
                     if(selectedDates.length) {
                       firstDate = selectedDates[0];
@@ -1418,7 +1450,89 @@
                       }
                     });
                 });
+                if(!/DIV|H\d/.test(this.get('element').nodeName.toUpperCase())) {
+                  Y.log("the calendar editor won't work in Internet Explorer, because the container element can not contain TABLE element", 'warn', widgetName);
+                }
             }
+        });
+        YAHOO.util.Date.parse = parseDate;
+})();
+/**
+ * Inline editor widget
+ * @module inlineeditor
+ * @namespace YAHOO.widget
+ */
+(function() {
+    YAHOO.widget.RatingEditor = function(el, cfg) {
+          cfg = YAHOO.lang.merge(cfg, {type: 'rating'});
+          YAHOO.widget.RatingEditor.superclass.constructor.call(this, el, cfg);
+          this._ratingInit.apply(this, arguments);
+    };
+    var Y                   = YAHOO,
+        YU                  = Y.util,
+        YL                  = Y.lang,
+        Event               = YU.Event,
+        Dom                 = YU.Dom,
+        Selector            = YU.Selector,
+
+        fieldGenerator = function(type, fieldName, value) {
+          var fields = '',
+              maxRate = this.get('maxRate'),
+              i = 1, output;
+
+          while(i <= maxRate) {
+            if(value == i) {
+              fields += '<label class="yui-rate-' + i + '"><input type="radio" name="' + fieldName +'" value="' + i + '" checked="checked"></label>';
+            } else {
+              fields += '<label class="yui-rate-' + i + '"><input type="radio" name="' + fieldName +'" value="' + i + '" /></label>';
+            }
+            i++;
+          }
+          output = document.createElement('p');
+          Dom.addClass(output, 'yui-rating yui-selected-rate' + value);
+
+          output.innerHTML = fields;
+          return output;
+
+        },
+        htmlFromValue = function(value) {
+          return '<span class="yui-selected-rate' + value + ' yui-rate"><span class="yui-rate-indicator"></span></span>';
+        };
+        YAHOO.extend(YAHOO.widget.RatingEditor, YAHOO.widget.InlineEditor, {
+          _ratingInit: function(cfg) {
+            this.set('fieldGenerator', fieldGenerator);
+            this.setAttributeConfig('maxRate', {
+              validator: YL.isNumber,
+              value: YL.isNumber(cfg.maxRate) ? cfg.maxRate : 5
+            });
+            this.setAttributeConfig('value', {
+              getter: function(name, value) {
+                var output;
+                if(YL.isNumber(value)) {
+                  output = value;
+                } else {
+                  output = +this.get('htmlValue').replace(/\n/g, '').replace(/.*yui-selected-rate(\d+).*/, '$1');
+                }
+                return output;
+              }
+            });
+            this.subscribe('elementReplacedEvent', function() {
+              var editor = this._editor,
+                  labels = Selector.query('input[type="radio"]', editor);
+
+              Event.on(labels, 'click', function(e) {
+                var p = editor.firstChild, target;
+                p.className = '';
+                target = Event.getTarget(e);
+                Dom.addClass(p, 'yui-rating yui-selected-rate' + target.value);
+              });
+            });
+            this.subscribe('elementRestoredEvent', function() {
+                var htmlValue = htmlFromValue(this.get('value'));
+                this.set('htmlValue', htmlValue);
+                this.get('element').innerHTML = htmlValue;
+            });
+          }
         });
 })();
 YAHOO.register("inlineeditor", YAHOO.widget.InlineEditor, {version: "@VERSION@", build: "@BUILD@"});
