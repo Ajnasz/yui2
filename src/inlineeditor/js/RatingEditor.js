@@ -4,11 +4,11 @@
  * @namespace YAHOO.widget
  */
 (function() {
-  YAHOO.widget.RatingEditor = function(el, cfg) {
-        cfg = YAHOO.lang.merge(cfg, {type: 'rating'});
-        YAHOO.widget.RatingEditor.superclass.constructor.call(this, el, cfg);
-        this._ratingInit.apply(this, arguments);
-  };
+    YAHOO.widget.RatingEditor = function(el, cfg) {
+          cfg = YAHOO.lang.merge(cfg, {type: 'rating'});
+          YAHOO.widget.RatingEditor.superclass.constructor.call(this, el, cfg);
+          this._ratingInit.apply(this, arguments);
+    };
     var Y                   = YAHOO,
         YU                  = Y.util,
         YL                  = Y.lang,
@@ -19,7 +19,7 @@
         fieldGenerator = function(type, fieldName, value) {
           var fields = '',
               maxRate = this.get('maxRate'),
-              i = 1;
+              i = 1, output;
 
           while(i <= maxRate) {
             if(value == i) {
@@ -29,7 +29,7 @@
             }
             i++;
           }
-          var output = document.createElement('p');
+          output = document.createElement('p');
           Dom.addClass(output, 'yui-rating yui-selected-rate' + value);
 
           output.innerHTML = fields;
@@ -58,15 +58,13 @@
               }
             });
             this.subscribe('elementReplacedEvent', function() {
-              var ratingEditor = this;
-              var editor = this._editor;
-              var labels = Selector.query('input[type="radio"]', editor);
+              var editor = this._editor,
+                  labels = Selector.query('input[type="radio"]', editor);
 
               Event.on(labels, 'click', function(e) {
-                Y.log('clicked')
-                var p = editor.firstChild;
+                var p = editor.firstChild, target;
                 p.className = '';
-                var target = Event.getTarget(e);
+                target = Event.getTarget(e);
                 Dom.addClass(p, 'yui-rating yui-selected-rate' + target.value);
               });
             });
