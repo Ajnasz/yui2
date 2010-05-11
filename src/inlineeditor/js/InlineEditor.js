@@ -670,7 +670,8 @@
          * @private
          */
         _setEditable: function() {
-            var element = this.get('element');
+            var element = this.get('element'),
+                editor = this;
             Dom.addClass(element, CLASSES.ELEM_EDITABLE);
             Event.on(element, 'click', function(e) {
                 var target = Event.getTarget(e);
@@ -808,20 +809,24 @@
                     containerParent = container.parentNode;
                     containerParent.removeChild(container);
                 } else {
+                  if(controls.cancel) {
                     cancel = controls.cancel;
                     cancelParent = cancel.parentNode;
-                    save = controls.save;
-                    saveParent = cancel.parentNode;
-                    save = controls.save;
-                    saveParent = cancel.parentNode;
                     if(cancelParent) {
                         cancelParent.removeChild(cancel);
                         Y.log('cancel button removed', 'info', widgetName);
                     }
+                    delete controls.cancel;
+                  }
+                  if(controls.save) {
+                    save = controls.save;
+                    saveParent = save.parentNode;
                     if(saveParent) {
                         saveParent.removeChild(save);
                         Y.log('save button removed', 'info', widgetName);
                     }
+                    delete controls.save;
+                  }
                 }
 
                 delete this.controls;
