@@ -670,8 +670,7 @@
          * @private
          */
         _setEditable: function() {
-            var element = this.get('element'),
-                editor = this;
+            var element = this.get('element');
             Dom.addClass(element, CLASSES.ELEM_EDITABLE);
             Event.on(element, 'click', function(e) {
                 var target = Event.getTarget(e);

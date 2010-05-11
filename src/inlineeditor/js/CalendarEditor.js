@@ -5,27 +5,6 @@
  */
 (function() {
     /**
-     * Date.parse with progressive enhancement for ISO-8601
-     * Â© 2010 Colin Snover <http://zetafleet.com>
-     * Released under MIT license.
-     */
-    var parseDate = function(date) {
-        var timestamp = Date.parse(date), struct;
-        if(isNaN(timestamp) && (struct = /(\d{4})-?(\d{2})-?(\d{2})(?:[T ](\d{2}):?(\d{2}):?(\d{2})(?:\.(\d{3}))?(?:(Z)|([+-])(\d{2})(?::?(\d{2}))?))?/.exec(date))) {
-            var minutesOffset = 0;
-            if(struct[8] !== 'Z') {
-                minutesOffset = +struct[10] * 60 + struct[11];
-
-                if(struct[9] === '+') {
-                    minutesOffset = 0 - minutesOffset;
-                }
-            }
-            timestamp = Date.UTC(+struct[1], +struct[2] - 1, +struct[3], +struct[4] || 0, (+struct[5] + minutesOffset) || 0, +struct[6] || 0, +struct[7] || 0);
-        }
-        return timestamp;
-    };
-    YAHOO.util.Date.parse = parseDate;
-    /**
      * Inline editor thing where the input field is autocomplete
      * @class CalendarEditor
      * @constructor
@@ -52,6 +31,26 @@
           close: false
         },
 
+        /**
+         * Date.parse with progressive enhancement for ISO-8601
+         * Â© 2010 Colin Snover <http://zetafleet.com>
+         * Released under MIT license.
+         */
+        parseDate = function(date) {
+            var timestamp = Date.parse(date), struct, minutesOffset;
+            if(isNaN(timestamp) && (struct = /(\d{4})-?(\d{2})-?(\d{2})(?:[T ](\d{2}):?(\d{2}):?(\d{2})(?:\.(\d{3}))?(?:(Z)|([\-+])(\d{2})(?::?(\d{2}))?))?/.exec(date))) {
+                minutesOffset = 0;
+                if(struct[8] !== 'Z') {
+                    minutesOffset = +struct[10] * 60 + struct[11];
+
+                    if(struct[9] === '+') {
+                        minutesOffset = 0 - minutesOffset;
+                    }
+                }
+                timestamp = Date.UTC(+struct[1], +struct[2] - 1, +struct[3], +struct[4] || 0, (+struct[5] + minutesOffset) || 0, +struct[6] || 0, +struct[7] || 0);
+            }
+            return timestamp;
+        },
         fieldGenerator = function() {
             var doc = document,
                 container = doc.createElement('div'),
@@ -72,15 +71,15 @@
                 editor = this;
             calendar.render();
             calendar.selectEvent.subscribe(function(type, args, obj) {
-                var dateParts = args[0][0];
+                var dateParts = args[0][0], date;
                 // need to change month and day fields to 2 digits becuase the Date object can not parse one digit day and month strings
                 if(String(dateParts[1]).length == 1) {
                   dateParts[1] = '0' + dateParts[1];
-                };
+                }
                 if(String(dateParts[2]).length == 1) {
                   dateParts[2] = '0' + dateParts[2];
-                };
-                var date = dateParts.join('-');
+                }
+                date = dateParts.join('-');
                 field.value = YAHOO.util.Date.format(new Date(parseDate(date)), {format: editor.get('dateFormat')});
             });
             return calendar;
@@ -148,4 +147,5 @@
                 }
             }
         });
+        YAHOO.util.Date.parse = parseDate;
 })();
