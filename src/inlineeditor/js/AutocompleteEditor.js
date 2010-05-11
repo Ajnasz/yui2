@@ -17,7 +17,7 @@
      * @beta
      */
     YAHOO.widget.AutocompleteEditor = function(el, cfg) {
-        cfg = YAHOO.lang.merge(YAHHO.lang.isObject(cfg) ? cfg : {}, {type: 'autocomplete'});
+        cfg = YAHOO.lang.merge(YAHOO.lang.isObject(cfg) ? cfg : {}, {type: 'autocomplete'});
         YAHOO.widget.AutocompleteEditor.superclass.constructor.call(this, el, cfg);
         this._autocompleteInit(this, el, cfg);
     };
