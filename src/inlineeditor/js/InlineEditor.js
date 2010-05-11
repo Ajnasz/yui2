@@ -18,7 +18,8 @@
      * @beta
      */
     YAHOO.widget.InlineEditor = function(el, cfg) {
-        this.init.apply(this, arguments);
+        cfg = YL.isObject(cfg) ? cfg : {};
+        this.init(el, cfg);
     };
 
     var Y                   = YAHOO,
