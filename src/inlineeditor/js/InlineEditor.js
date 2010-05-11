@@ -18,7 +18,7 @@
      * @beta
      */
     YAHOO.widget.InlineEditor = function(el, cfg) {
-        cfg = YL.isObject(cfg) ? cfg : {};
+        cfg = YAHOO.lang.isObject(cfg) ? cfg : {};
         this.init(el, cfg);
     };
 
