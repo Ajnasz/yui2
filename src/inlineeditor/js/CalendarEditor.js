@@ -47,6 +47,7 @@
         YL                  = Y.lang,
         // Event               = YU.Event,
         Dom                 = YU.Dom,
+        widgetName          = 'calendarEditor',
         defaultCalendarConf = {
           close: false
         },
@@ -142,6 +143,9 @@
                       }
                     });
                 });
+                if(!/DIV|H\d/.test(this.get('element').nodeName.toUpperCase())) {
+                  Y.log("the calendar editor won't work in Internet Explorer, because the container element can not contain TABLE element", 'warn', widgetName);
+                }
             }
         });
 })();
