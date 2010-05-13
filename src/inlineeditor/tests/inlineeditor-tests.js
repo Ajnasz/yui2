@@ -4,7 +4,8 @@ var editor1 = null,
     editor4 = null,
     editor5 = null,
     editor6 = null,
-    calendarEditor = null;
+    calendarEditor = null,
+    autocompleteEditor = null;
 (function() {
     var Dom = YAHOO.util.Dom,
         Event = YAHOO.util.Event,
@@ -47,7 +48,18 @@ try {
           'not selected':false
       }});
       editor6 = new YAHOO.widget.RatingEditor('span-for-rating-editor', {});
-      calendarEditor = new YAHOO.widget.CalendarEditor('calendar-editor');
+      calendarEditor = new YAHOO.widget.CalendarEditor('calendar-editor'),
+      dataSource = new YAHOO.util.LocalDataSource(["Alabama",
+          "Alaska",
+          "Arizona",
+          "Arkansas",
+          "California",
+          "Colorado",
+          "Connecticut",
+          "Delaware",
+          "Florida"
+      ]),
+      autocompleteEditor = new YAHOO.widget.AutocompleteEditor('autocomplete-editor', {dataSource: dataSource, saveOnSelect: true});
 
       Suite.add(new Tool.TestCase({
           name: 'YAHOO.widget.InlineEditor input',
@@ -63,7 +75,6 @@ try {
             Assert.areNotEqual(input.value, editor1.get('value'), 'changed field value is the same as the editor\'s value')
             editor1.save();
             Assert.areEqual(newValue, editor1.get('value'), 'saved value is not what is entered into the field');
-            
           }
       }));
       Suite.add(new Tool.TestCase({
