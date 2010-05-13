@@ -8,10 +8,12 @@
     <link type="text/css" rel="stylesheet" href="../../../build/yuitest/assets/testlogger.css">
     <link type="text/css" rel="stylesheet" href="../../../build/base/base.css"> 
     <link type="text/css" rel="stylesheet" href="../../../build/editor/assets/editor-core.css"> 
-    <link type="text/css" rel="stylesheet" href="../assets/inline-editor-core.css"> 
     <link type="text/css" rel="stylesheet" href="../../../build/editor/assets/skins/sam/editor.css"> 
     <link type="text/css" rel="stylesheet" href="../../../build/editor/assets/skins/sam/editor-skin.css"> 
     <link type="text/css" rel="stylesheet" href="../../../build/calendar/assets/skins/sam/calendar.css">
+    <link type="text/css" rel="stylesheet" href="../../../build/autocomplete/assets/skins/sam/autocomplete.css">
+    <link type="text/css" rel="stylesheet" href="../assets/inline-editor-core.css"> 
+    <link type="text/css" rel="stylesheet" href="../assets/inline-editor-rating.css"> 
     <title>Inlineeditor</title>
     <script type="text/javascript" src="../../../build/yahoo/yahoo-min.js"></script>
     <script type="text/javascript" src="../../../build/dom/dom-min.js"></script>
@@ -29,9 +31,11 @@
     <script type="text/javascript" src="../../../build/datasource/datasource.js"></script>
     <script type="text/javascript" src="../../../build/calendar/calendar.js"></script>
     <script type="text/javascript" src="../../../build/editor/editor.js"></script> 
+    <script type="text/javascript" src="../../../build/autocomplete/autocomplete.js"></script>
     <script type="text/javascript" src="../js/InlineEditor.js"></script>
     <script type="text/javascript" src="../js/RatingEditor.js"></script>
     <script type="text/javascript" src="../js/CalendarEditor.js"></script>
+    <script type="text/javascript" src="../js/AutocompleteEditor.js"></script>
     <script type="text/javascript" src="inlineeditor-tests.js"></script>
     <script type="text/javascript" charset="utf-8">
         var init = function() {
@@ -70,7 +74,6 @@
                     }
                 });
                 ed9.subscribe('saveEvent', function(values){
-                    console.log()
                             YAHOO.log('new field value is: ' + values.value, 'info');
                             return false;
                         });
@@ -89,7 +92,7 @@
                       }
 
                     });
-                ed9.subscribe('elementRestoredEvent', function(){
+                ed9.subscribe('beforeElementRestoredEvent', function(){
                     if(this.richTextEditor) {
                       this.richTextEditor.destroy();
                       this.richTextEditor = null;
@@ -100,11 +103,17 @@
         YAHOO.util.Event.onDOMReady(init);
     </script>
     <style type="text/css">
+      .yui-log {
+        font-size: 85%;
+      }
       .yui-log-entry {
           border-bottom:1px solid #ddd;
       }
       .yui-log-entry:hover {
         background-color: #eee;
+      }
+      #calendar-editor {
+        margin-bottom: 1em;
       }
     </style>
 </head>
@@ -124,9 +133,11 @@
       </span>
      </p>
      <div id="calendar-editor">2008-12-25</div>
+     <p id="autocomplete-editor">Alabama</p>
      <p><span id="span-for-custom">custom</span></p>
      <p><span id="span-for-custom-multi">custom with multiple fields</span></p>
-     <p><span id="span-for-custom-richtext">rich text editor</span></p>
+     <div id="span-for-custom-richtext">rich text editor</div>
+     <textarea id="foobar">ingyom bingyom malibe</textarea>
  </div>
 </body>
 </html>
