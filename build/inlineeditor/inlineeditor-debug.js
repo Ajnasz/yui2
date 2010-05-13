@@ -165,8 +165,10 @@
          * @description Fires when the original element replaced to the editor
          * @type YAHOO.util.CustomEvent
          */
-        elementReplacedEvent     = 'elementReplacedEvent',
-        elementRestoredEvent     = 'elementRestoredEvent',
+        elementReplacedEvent       = 'elementReplacedEvent',
+        beforeElementReplacedEvent = 'beforeElementReplacedEvent',
+        elementRestoredEvent       = 'elementRestoredEvent',
+        beforeElementRestoredEvent = 'beforeElementRestoredEvent',
         /**
          * @event valueNotValidEvent
          * @description Fires when a user tries to save a value which
@@ -743,6 +745,7 @@
                 Y.log('editor is not an element', 'error', widgetName);
                 return false;
             }
+            this.fireEvent(beforeElementReplacedEvent);
             element.innerHTML = '';
             element.appendChild(editor);
 
@@ -770,6 +773,7 @@
                 html,
                 label;
 
+            this.fireEvent(beforeElementRestoredEvent);
             if(YL.isObject(selectableValues)) {
                 for (label in selectableValues) {
                     if(selectableValues[label] == value) {
@@ -1226,7 +1230,7 @@
     YAHOO.widget.AutocompleteEditor = function(el, cfg) {
         cfg = YAHOO.lang.merge(YAHOO.lang.isObject(cfg) ? cfg : {}, {type: 'autocomplete'});
         YAHOO.widget.AutocompleteEditor.superclass.constructor.call(this, el, cfg);
-        this._autocompleteInit(this, el, cfg);
+        this._autocompleteInit(el, cfg);
     };
     var Y                   = YAHOO,
         YU                  = Y.util,
@@ -1256,8 +1260,7 @@
             return container;
         },
         attachAutocomplete = function(field, container, dataSource) {
-            var ac = new Y.widget.AutoComplete(field, container, dataSource);
-            return ac;
+            return new Y.widget.AutoComplete(field, container, dataSource);
         },
         setLastSelected = function(args) {
             this.setAttributeConfig('lastSelected', {readOnly: true, value: args});
