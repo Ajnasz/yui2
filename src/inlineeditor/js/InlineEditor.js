@@ -393,12 +393,23 @@
          */
         genSelectField = function(name, value, selectableValues) {
             var field = _genField('select', name, ''),
-                label, option;
-            for(label in selectableValues) {
-                if(selectableValues.hasOwnProperty(label)) {
-                    option = _genOption(label, selectableValues[label], (label == value || selectableValues[label] == value));
-                    field.appendChild(option);
-                }
+                label, option,
+                i, sl, oValue, itemLabel, itemValue;
+            if(YL.isArray(selectableValues)) {
+              for (i = 0, sl = selectableValues.length; i < sl; i++) {
+                oValue = selectableValues[i];
+                itemLabel = oValue.label;
+                itemValue = oValue.value;
+                option = _genOption(itemLabel, itemValue, (itemLabel == value || itemValue == value));
+                field.appendChild(option);
+              }
+            } else {
+              for(label in selectableValues) {
+                  if(selectableValues.hasOwnProperty(label)) {
+                      option = _genOption(label, selectableValues[label], (label == value || selectableValues[label] == value));
+                      field.appendChild(option);
+                  }
+              }
             }
             return field;
         },
