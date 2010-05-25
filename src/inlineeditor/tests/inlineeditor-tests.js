@@ -16,7 +16,10 @@ var editor1 = null,
     Event.onDOMReady(function() {
 try {
       var logger = new Tool.TestLogger(null, { height: '80%' });
-      editor1 = new YAHOO.widget.InlineEditor('element');
+        YAHOO.widget.InlineEditor.STRINGS.EDIT_BUTTON_TEXT = 'start editing';
+      editor1 = new YAHOO.widget.InlineEditor('element', {strings: {
+        SAVE_BUTTON_TEXT: 'save the new text'
+      }});
       editor2 = new YAHOO.widget.InlineEditor('paragraph', {type: 'textarea',
                                 processBeforeSave: function(value) {
                                     var output = value.replace(/\n/g, '<br>');
@@ -208,6 +211,7 @@ try {
       } else {
           YAHOO.tool.TestRunner.run();
       }
+                ed10 = new YAHOO.widget.InlineEditor('span-for-empty-editor');
 }catch(e) {
   Y.log(e, 'error')
 }
