@@ -907,13 +907,14 @@
             } else {
                 html = value;
             }
+            if(!html) {
+              html = this._yui_inline_editor_strings.EMPTY_TEXT;
+            }
             element.innerHTML = html;
             this.fireEvent(elementRestoredEvent);
             this._addEditControl();
             delete this._editor;
         },
-
-
         /**
          * Removes buttons from the dom and
          * deletes the references to them
@@ -1148,6 +1149,11 @@
                 Y.log('Inline Editor element not found', 'error', widgetName);
                 return false;
             }
+            elementInnerHTML = element.innerHTML;
+            // if the html is the same as the empty text, than make the value empty
+            if(elementInnerHTML === strings.EMPTY_TEXT) {
+              elementInnerHTML = '';
+            }
             cfg = cfg || {};
             /**
              * (Generated) ID of the editor
@@ -1215,7 +1221,7 @@
              * @type String | Integer
              */
             this.setAttributeConfig('htmlValue', {
-                value: element.innerHTML
+                value: elementInnerHTML
             });
             /**
              * The current value of the field
