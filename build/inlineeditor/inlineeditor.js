@@ -59,6 +59,15 @@
              */
             EDIT_BUTTON: 'yui-inline-editor-edit',
             /**
+             * Constant representing the default class of the lock marker button
+             * @config CLASSES.LOCKED_BUTTON
+             * @type String
+             * @final
+             * @static
+             * @private
+             */
+            LOCKED_BUTTON: 'yui-inline-editor-lock-marker',
+            /**
              * Constant representing the class of the button container element
              * @config CLASSES.CONTROLS_CONTAINER
              * @type String
@@ -76,6 +85,15 @@
              * @private
              */
             ELEM_EDITABLE: 'yui-inline-editor-editable',
+            /**
+             * Constant, used to mark locked elements
+             * @config CLASSES.LOCKED
+             * @type String
+             * @final
+             * @static
+             * @private
+             */
+            LOCKED: 'yui-inline-editor-locked',
             /**
              * Constant, used to mark when the elem editing is active
              * @config CLASSES.EDITING_ACTIVE
@@ -103,7 +121,60 @@
              * @static
              * @private
              */
-            RADIO_ITEM_CONTAINER: 'yui-inline-editor-radio-item'
+            RADIO_ITEM_CONTAINER: 'yui-inline-editor-radio-item',
+            /**
+             * Constant, a class for the element which marks that the element is empty
+             * @config CLASSES.EMPTY
+             * @type String
+             * @final
+             * @static
+             * @private
+             */
+            EMPTY: 'yui-inline-editor-empty'
+        },
+        STRINGS = {
+            /**
+             * Default innerHTML value of the edit button
+             * @property InlineEditor.EDIT_BUTTON_TEXT
+             * @static
+             * @type String
+             * @final
+             */
+            EDIT_BUTTON_TEXT:   'edit',
+            /**
+             * Default innerHTML value of the lock button which represents if a field
+             * is not editable
+             * @property InlineEditor.LOCK_BUTTON_TEXT
+             * @static
+             * @type String
+             * @final
+             */
+            LOCK_BUTTON_TEXT:   'locked',
+            /**
+             * Default innerHTML value of the save button
+             * @property InlineEditor.SAVE_BUTTON_TEXT
+             * @static
+             * @type String
+             * @final
+             */
+            SAVE_BUTTON_TEXT:   'save',
+            /**
+             * Default innerHTML value of the cancel button which represents if a field
+             * is not editable
+             * @property InlineEditor.CANCEL_BUTTON_TEXT
+             * @static
+             * @type String
+             * @final
+             */
+            CANCEL_BUTTON_TEXT: 'cancel',
+            /**
+             * Default innerHTML value of the field which has to be shown when the value is empty
+             * @property InlineEditor.EMPTY_TEXT
+             * @static
+             * @type String
+             * @final
+             */
+            EMPTY_TEXT:         'field is emtpy, please edit it'
         },
         /**
          * @event cancelEvent
@@ -128,6 +199,11 @@
          * </ul>
          */
         saveEvent           = 'saveEvent',
+        /**
+         * @event beforeSaveEvent
+         * @description Fires before the saving starts
+         * @type YAHOO.util.CustomEvent
+         */
         beforeSaveEvent     = 'beforeSaveEvent',
         /**
          * @event editStartedEvent
@@ -155,6 +231,12 @@
          */
         editClickEvent      = 'editClickEvent',
         /**
+         * @event lockedClickEvent
+         * @description Fires when a user clicks on the locked button
+         * @type YAHOO.util.CustomEvent
+         */
+        lockedClickEvent      = 'lockedClickEvent',
+        /**
          * @event emptyValueEvent
          * @description Fires when a user tries to save empty value
          * @type YAHOO.util.CustomEvent
@@ -166,8 +248,20 @@
          * @type YAHOO.util.CustomEvent
          */
         elementReplacedEvent       = 'elementReplacedEvent',
+        /**
+         * @event beforeElementReplacedEvent
+         * @description Fires before the original element replaced to the editor
+         */
         beforeElementReplacedEvent = 'beforeElementReplacedEvent',
+        /**
+         * @event beforeElementReplacedEvent
+         * @description Fires when the editor the original element
+         */
         elementRestoredEvent       = 'elementRestoredEvent',
+        /**
+         * @event beforeElementReplacedEvent
+         * @description Fires before the editor replaced to the original element
+         */
         beforeElementRestoredEvent = 'beforeElementRestoredEvent',
         /**
          * @event valueNotValidEvent
@@ -276,11 +370,19 @@
          * @private
          * @param {String} name The name of the text field
          * @param {String} value The value of the text field
-         * @return {HTMLInputElement} An input (text type) element
+         * @return {HTMLInputElement} An INPUT (text type) element
          */
         genTextField = function(name, value) {
             return _genInputField(name, value, 'text');
         },
+        /**
+         * Generates an INPUT (checkbox type) inside a LABEL element
+         * @method genCheckboxField
+         * @private
+         * @param {String} name The name of the text field
+         * @param {String} value The value of the text field
+         * @return {HTMLInputElement} A LABEL element
+         */
         genCheckboxField = function(name, value) {
             var labelElem = document.createElement('label');
             if(value === true) {
@@ -290,7 +392,6 @@
             }
             return labelElem;
         },
-
         /**
          * Generates a textarea element for the editing
          * @method genTextAreaField
@@ -316,12 +417,23 @@
          */
         genSelectField = function(name, value, selectableValues) {
             var field = _genField('select', name, ''),
-                label, option;
-            for(label in selectableValues) {
-                if(selectableValues.hasOwnProperty(label)) {
-                    option = _genOption(label, selectableValues[label], (label == value || selectableValues[label] == value));
-                    field.appendChild(option);
-                }
+                label, option,
+                i, sl, oValue, itemLabel, itemValue;
+            if(YL.isArray(selectableValues)) {
+              for (i = 0, sl = selectableValues.length; i < sl; i++) {
+                oValue = selectableValues[i];
+                itemLabel = oValue.label;
+                itemValue = oValue.value;
+                option = _genOption(itemLabel, itemValue, (itemLabel == value || itemValue == value));
+                field.appendChild(option);
+              }
+            } else {
+              for(label in selectableValues) {
+                  if(selectableValues.hasOwnProperty(label)) {
+                      option = _genOption(label, selectableValues[label], (label == value || selectableValues[label] == value));
+                      field.appendChild(option);
+                  }
+              }
             }
             return field;
         },
@@ -523,7 +635,15 @@
              * @private
              * @final
              */
-            ANIM_ON_MOUSEOVER: false
+            ANIM_ON_MOUSEOVER: false,
+            /**
+             * Default value for the locked attribute
+             * @private LOCKED
+             * @type Boolean
+             * @private
+             * @final
+             */
+            LOCKED: false
         },
         /**
          * Validates the type of the editor
@@ -645,7 +765,7 @@
          * @return {Boolean} true if the edit successfully started
          */
         edit: function() {
-            if(this._editStarted) {return false;}
+            if(this._editStarted || this.get('locked')) {return false;}
             var element = this.get('element');
             Dom.addClass(element, CLASSES.EDITING_ACTIVE);
             this._replaceElement();
@@ -674,6 +794,9 @@
         _setEditable: function() {
             var element = this.get('element');
             Dom.addClass(element, CLASSES.ELEM_EDITABLE);
+            if(this.get('locked')) {
+              Dom.addClass(element, CLASSES.LOCKED);
+            }
             Event.on(element, 'click', function(e) {
                 var target = Event.getTarget(e);
                 if(target == element && !this._editStarted) {
@@ -784,13 +907,14 @@
             } else {
                 html = value;
             }
+            if(!html) {
+              html = this._yui_inline_editor_strings.EMPTY_TEXT;
+            }
             element.innerHTML = html;
             this.fireEvent(elementRestoredEvent);
             this._addEditControl();
             delete this._editor;
         },
-
-
         /**
          * Removes buttons from the dom and
          * deletes the references to them
@@ -847,9 +971,11 @@
         _createControls: function(type) {
             var button    = document.createElement('button'),
                 container = document.createElement('span'),
+                strings   = this._yui_inline_editor_strings,
                 cancelButton,
                 saveButton,
-                editButton;
+                editButton,
+                lockedButton;
 
             Dom.setAttribute(button, 'type', 'button');
             Dom.addClass(button, 'yui-inline-editor-button');
@@ -859,15 +985,23 @@
 
             if(type === 'edit') {
                 editButton = button.cloneNode(false);
+                lockedButton = button.cloneNode(false);
                 Dom.addClass(editButton, CLASSES.EDIT_BUTTON);
-                editButton.innerHTML = 'edit';
+                Dom.addClass(lockedButton, CLASSES.LOCKED_BUTTON);
+                editButton.innerHTML = strings.EDIT_BUTTON_TEXT;
+                lockedButton.innerHTML = strings.LOCK_BUTTON_TEXT;
                 Event.on(editButton, 'click', function(event) {
                     this.edit(event);
                     this.fireEvent(editClickEvent, event);
                 }, this, true);
+                Event.on(lockedButton, 'click', function(event) {
+                    this.fireEvent(lockedClickEvent, event);
+                }, this, true);
                 container.appendChild(editButton);
+                container.appendChild(lockedButton);
                 this.controls = {
                     edit: editButton,
+                    locked: lockedButton,
                     container: container
                 };
             } else {
@@ -876,8 +1010,9 @@
 
                 Dom.addClass(cancelButton, CLASSES.CANCEL_BUTTON);
                 Dom.addClass(saveButton, CLASSES.SAVE_BUTTON);
-                cancelButton.innerHTML = 'cancel';
-                saveButton.innerHTML = 'save';
+
+                cancelButton.innerHTML = strings.CANCEL_BUTTON_TEXT;
+                saveButton.innerHTML = strings.SAVE_BUTTON_TEXT;
                 Event.on(cancelButton, 'click', function(event) {
                     this.cancel(event);
                     this.fireEvent(cancelClickEvent, event);
@@ -994,7 +1129,6 @@
             return value;
         },
 
-
         /**
          * Initialization method, it's called in the constructor.
          * Sets the configurations and adds the default listeners,
@@ -1005,15 +1139,25 @@
          * @private
          */
         init: function(el, cfg) {
-            var element = Dom.get(el);
+            // overwrite the strings object to make possible to customize the button texts for each instance
+            var strings = YL.merge(STRINGS, YL.isObject(cfg.strings) ? cfg.strings : {}),
+                element = Dom.get(el),
+                elementInnerHTML;
+
+            this._yui_inline_editor_strings = strings;
             if(!element) {
                 Y.log('Inline Editor element not found', 'error', widgetName);
                 return false;
             }
+            elementInnerHTML = element.innerHTML;
+            // if the html is the same as the empty text, than make the value empty
+            if(elementInnerHTML === strings.EMPTY_TEXT) {
+              elementInnerHTML = '';
+            }
             cfg = cfg || {};
             /**
              * (Generated) ID of the editor
-             * @property id
+             * @attribute id
              * @type String
              * @final
              */
@@ -1023,7 +1167,7 @@
             });
             /**
              * The editable element
-             * @property element
+             * @attribute element
              * @type HTMLElement
              * @default a reference to the editable element
              * @final
@@ -1034,7 +1178,7 @@
             });
             /**
              * The type of the inline editor.
-             * @config type
+             * @attribute type
              * @default 'text'
              * @type String
              */
@@ -1044,7 +1188,7 @@
             });
             /**
              * The name of the edit field
-             * @config fieldName
+             * @attribute fieldName
              * @default field
              * @type String
              */
@@ -1062,7 +1206,7 @@
              * <li><strong>value</strong> String | Integer</li>
              * <li<strong>selectableValues</strong> Object</li>
              * </ul>
-             * @config fieldGenerator
+             * @attribute fieldGenerator
              * @type Function
              */
             this.setAttributeConfig('fieldGenerator', {
@@ -1073,15 +1217,15 @@
              * The current html value of the field.
              * Mostly it's the same as the value property, but in some cases
              * (eg. with select field) it's different
-             * @config htmlValue
+             * @attribute htmlValue
              * @type String | Integer
              */
             this.setAttributeConfig('htmlValue', {
-                value: element.innerHTML
+                value: elementInnerHTML
             });
             /**
              * The current value of the field
-             * @config value
+             * @attribute value
              * @type String | Integer
              */
             this.setAttributeConfig('value', {
@@ -1097,7 +1241,7 @@
              *      <code>{foo:1,bar:2}</code><br/>
              *  the value of the options will be the numbers and the foo/bar will be used as the
              *  inner HTML of the option
-             * @config selectableValues
+             * @attribute selectableValues
              * @default null
              * @type Object
              */
@@ -1107,7 +1251,7 @@
             });
             /**
              * Set to true if you want to allow to save an empty editor
-             * @config allowEmpty
+             * @attribute allowEmpty
              * @default false
              * @type Boolean
              */
@@ -1119,7 +1263,7 @@
              * If you need to mainpulate the value before read it into the edit field,
              * you can use this config option.
              * The value of the config should be a function which returns the processed value
-             * @config processBeforeRead
+             * @attribute processBeforeRead
              * @type Function
              */
             this.setAttributeConfig('processBeforeRead', {
@@ -1129,7 +1273,7 @@
             /**
              * If you need to mainpulate the value before saving, you can use this config option.
              * The value of the config should be a function which returns the processed value
-             * @config processBeforeSave
+             * @attribute processBeforeSave
              * @type Function
              */
             this.setAttributeConfig('processBeforeSave', {
@@ -1140,7 +1284,7 @@
              * If you need to validate the value before saving, you can use this config option.
              * The value is passed as an argument
              * returns true if the value is valid
-             * @config validator
+             * @attribute validator
              * @type Function
              */
             this.setAttributeConfig('validator', {
@@ -1150,7 +1294,7 @@
 
             /**
              * The config is to override the default key listeners to save the editor's value
-             * @config saveKeys
+             * @attribute saveKeys
              * @type Object
              * @see YAHOO.util.KeyListener
              */
@@ -1162,7 +1306,7 @@
 
             /**
              * The config is to override the default key listeners to cancel the editor
-             * @config cancelKeys
+             * @attribute cancelKeys
              * @type Object
              * @see YAHOO.util.KeyListener
              */
@@ -1174,7 +1318,7 @@
 
             /**
              * Change the bacgkground color of the editable element on mouse over.
-             * @config animOnMouseover
+             * @attribute animOnMouseover
              * @default true
              * @type String
              */
@@ -1184,7 +1328,7 @@
             });
             /**
              * Change the background color of the editable element to this color,
-             * @config animToColor
+             * @attribute animToColor
              * @default #D7EEFF
              * @type String
              */
@@ -1195,7 +1339,7 @@
 
             /**
              * Change the background color of the editable element from this color,
-             * @config animFromColor
+             * @attribute animFromColor
              * @default #FFFFFF
              * @type String
              */
@@ -1204,10 +1348,32 @@
                 value: YL.isString(cfg.animFromColor) ? cfg.animFromColor : DEFAULT_CONFIG.ANIM_FROM_COLOR
             });
 
+            /**
+             * Set to true if you want to disable the editing
+             * @attribute locked
+             * @default false
+             * @type Boolean
+             */
+            this.setAttributeConfig('locked', {
+                validator: YL.isBoolean,
+                value: YL.isBoolean(cfg.locked) ? cfg.locked : Dom.hasClass(this.get('element'), CLASSES.LOCKED) ? true : DEFAULT_CONFIG.LOCKED,
+                method: function(value) {
+                    if(value) {
+                        this._stopEdit();
+                        Dom.addClass(this.get('element'), CLASSES.LOCKED);
+                    } else {
+                        Dom.removeClass(this.get('element'), CLASSES.LOCKED);
+                    }
+                }
+            });
+            if(this.get('value') === '' || Dom.hasClass(this.get('element'), CLASSES.EMPTY)) {
+              this.get('element').innerHTML = this._yui_inline_editor_strings.EMPTY_TEXT;
+            }
             this._addEditControl();
             this._setEditable();
         }
     });
+    YAHOO.widget.InlineEditor.STRINGS = STRINGS;
 })();
 /**
  * Inline editor widget
