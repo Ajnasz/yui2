@@ -1157,7 +1157,7 @@
             cfg = cfg || {};
             /**
              * (Generated) ID of the editor
-             * @property id
+             * @attribute id
              * @type String
              * @final
              */
@@ -1167,7 +1167,7 @@
             });
             /**
              * The editable element
-             * @property element
+             * @attribute element
              * @type HTMLElement
              * @default a reference to the editable element
              * @final
@@ -1178,7 +1178,7 @@
             });
             /**
              * The type of the inline editor.
-             * @config type
+             * @attribute type
              * @default 'text'
              * @type String
              */
@@ -1188,7 +1188,7 @@
             });
             /**
              * The name of the edit field
-             * @config fieldName
+             * @attribute fieldName
              * @default field
              * @type String
              */
@@ -1206,7 +1206,7 @@
              * <li><strong>value</strong> String | Integer</li>
              * <li<strong>selectableValues</strong> Object</li>
              * </ul>
-             * @config fieldGenerator
+             * @attribute fieldGenerator
              * @type Function
              */
             this.setAttributeConfig('fieldGenerator', {
@@ -1217,7 +1217,7 @@
              * The current html value of the field.
              * Mostly it's the same as the value property, but in some cases
              * (eg. with select field) it's different
-             * @config htmlValue
+             * @attribute htmlValue
              * @type String | Integer
              */
             this.setAttributeConfig('htmlValue', {
@@ -1225,7 +1225,7 @@
             });
             /**
              * The current value of the field
-             * @config value
+             * @attribute value
              * @type String | Integer
              */
             this.setAttributeConfig('value', {
@@ -1241,7 +1241,7 @@
              *      <code>{foo:1,bar:2}</code><br/>
              *  the value of the options will be the numbers and the foo/bar will be used as the
              *  inner HTML of the option
-             * @config selectableValues
+             * @attribute selectableValues
              * @default null
              * @type Object
              */
@@ -1251,7 +1251,7 @@
             });
             /**
              * Set to true if you want to allow to save an empty editor
-             * @config allowEmpty
+             * @attribute allowEmpty
              * @default false
              * @type Boolean
              */
@@ -1263,7 +1263,7 @@
              * If you need to mainpulate the value before read it into the edit field,
              * you can use this config option.
              * The value of the config should be a function which returns the processed value
-             * @config processBeforeRead
+             * @attribute processBeforeRead
              * @type Function
              */
             this.setAttributeConfig('processBeforeRead', {
@@ -1273,7 +1273,7 @@
             /**
              * If you need to mainpulate the value before saving, you can use this config option.
              * The value of the config should be a function which returns the processed value
-             * @config processBeforeSave
+             * @attribute processBeforeSave
              * @type Function
              */
             this.setAttributeConfig('processBeforeSave', {
@@ -1284,7 +1284,7 @@
              * If you need to validate the value before saving, you can use this config option.
              * The value is passed as an argument
              * returns true if the value is valid
-             * @config validator
+             * @attribute validator
              * @type Function
              */
             this.setAttributeConfig('validator', {
@@ -1294,7 +1294,7 @@
 
             /**
              * The config is to override the default key listeners to save the editor's value
-             * @config saveKeys
+             * @attribute saveKeys
              * @type Object
              * @see YAHOO.util.KeyListener
              */
@@ -1306,7 +1306,7 @@
 
             /**
              * The config is to override the default key listeners to cancel the editor
-             * @config cancelKeys
+             * @attribute cancelKeys
              * @type Object
              * @see YAHOO.util.KeyListener
              */
@@ -1318,7 +1318,7 @@
 
             /**
              * Change the bacgkground color of the editable element on mouse over.
-             * @config animOnMouseover
+             * @attribute animOnMouseover
              * @default true
              * @type String
              */
@@ -1328,7 +1328,7 @@
             });
             /**
              * Change the background color of the editable element to this color,
-             * @config animToColor
+             * @attribute animToColor
              * @default #D7EEFF
              * @type String
              */
@@ -1339,7 +1339,7 @@
 
             /**
              * Change the background color of the editable element from this color,
-             * @config animFromColor
+             * @attribute animFromColor
              * @default #FFFFFF
              * @type String
              */
@@ -1350,7 +1350,7 @@
 
             /**
              * Set to true if you want to disable the editing
-             * @config locked
+             * @attribute locked
              * @default false
              * @type Boolean
              */
