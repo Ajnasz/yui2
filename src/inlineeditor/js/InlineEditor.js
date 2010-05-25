@@ -199,6 +199,11 @@
          * </ul>
          */
         saveEvent           = 'saveEvent',
+        /**
+         * @event beforeSaveEvent
+         * @description Fires before the saving starts
+         * @type YAHOO.util.CustomEvent
+         */
         beforeSaveEvent     = 'beforeSaveEvent',
         /**
          * @event editStartedEvent
@@ -243,8 +248,20 @@
          * @type YAHOO.util.CustomEvent
          */
         elementReplacedEvent       = 'elementReplacedEvent',
+        /**
+         * @event beforeElementReplacedEvent
+         * @description Fires before the original element replaced to the editor
+         */
         beforeElementReplacedEvent = 'beforeElementReplacedEvent',
+        /**
+         * @event beforeElementReplacedEvent
+         * @description Fires when the editor the original element
+         */
         elementRestoredEvent       = 'elementRestoredEvent',
+        /**
+         * @event beforeElementReplacedEvent
+         * @description Fires before the editor replaced to the original element
+         */
         beforeElementRestoredEvent = 'beforeElementRestoredEvent',
         /**
          * @event valueNotValidEvent
@@ -353,11 +370,19 @@
          * @private
          * @param {String} name The name of the text field
          * @param {String} value The value of the text field
-         * @return {HTMLInputElement} An input (text type) element
+         * @return {HTMLInputElement} An INPUT (text type) element
          */
         genTextField = function(name, value) {
             return _genInputField(name, value, 'text');
         },
+        /**
+         * Generates an INPUT (checkbox type) inside a LABEL element
+         * @method genCheckboxField
+         * @private
+         * @param {String} name The name of the text field
+         * @param {String} value The value of the text field
+         * @return {HTMLInputElement} A LABEL element
+         */
         genCheckboxField = function(name, value) {
             var labelElem = document.createElement('label');
             if(value === true) {
@@ -367,7 +392,6 @@
             }
             return labelElem;
         },
-
         /**
          * Generates a textarea element for the editing
          * @method genTextAreaField
