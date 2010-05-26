@@ -80,7 +80,7 @@
                   dateParts[2] = '0' + dateParts[2];
                 }
                 date = dateParts.join('-');
-                field.value = YAHOO.util.Date.format(new Date(parseDate(date)), {format: editor.get('dateFormat')});
+                field.value = YU.Date.format(new Date(parseDate(date)), {format: editor.get('dateFormat')});
             });
             return calendar;
         };
