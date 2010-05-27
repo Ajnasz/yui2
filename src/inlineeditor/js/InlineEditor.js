@@ -849,7 +849,7 @@
                 this._createControls();
                 form.appendChild(field);
                 form.appendChild(this.controls.container);
-                Event.on(form, 'submit', Event.stopEvent);
+                Event.on(form, 'submit', Event.stopEvent, Event, true);
                 _ret = form;
             }
             return _ret;
