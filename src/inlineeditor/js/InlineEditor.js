@@ -420,13 +420,14 @@
                 label, option,
                 i, sl, oValue, itemLabel, itemValue;
             if(YL.isArray(selectableValues)) {
-              for (i = 0, sl = selectableValues.length; i < sl; i++) {
-                oValue = selectableValues[i];
-                itemLabel = oValue.label;
-                itemValue = oValue.value;
-                option = _genOption(itemLabel, itemValue, (itemLabel == value || itemValue == value));
-                field.appendChild(option);
-              }
+                for (i = 0, sl = selectableValues.length; i < sl; i++) {
+                    oValue = selectableValues[i];
+                    itemLabel = oValue.label;
+                    itemValue = oValue.value;
+
+                    option = _genOption(itemLabel, itemValue, (itemLabel == value || itemValue == value));
+                    field.appendChild(option);
+                }
             } else {
               for(label in selectableValues) {
                   if(selectableValues.hasOwnProperty(label)) {
@@ -449,13 +450,24 @@
         genRadioField = function(name, value, selectableValues) {
             var field = document.createElement('span'),
                 radio,
-                label;
+                label,
+                i, sl, oValue, itemLabel, itemValue;
             Dom.addClass(field, CLASSES.RADIO_GROUP_CONTAINER);
-            for(label in selectableValues) {
-                if(selectableValues.hasOwnProperty(label)) {
-                    radio = _genRadioField(name, label, selectableValues[label], (label == value || selectableValues[label] == value));
+            if(YL.isArray(selectableValues)) {
+                for (i = 0, sl = selectableValues.length; i < sl; i++) {
+                    oValue = selectableValues[i];
+                    itemLabel = oValue.label;
+                    itemValue = oValue.value;
+                    radio = _genRadioField(name, label, itemValue, (itemLabel == value || itemValue == value));
                     field.appendChild(radio);
                 }
+            } else {
+              for(label in selectableValues) {
+                  if(selectableValues.hasOwnProperty(label)) {
+                      radio = _genRadioField(name, label, selectableValues[label], (label == value || selectableValues[label] == value));
+                      field.appendChild(radio);
+                  }
+              }
             }
             return field;
         },
@@ -892,12 +904,24 @@
         _restoreElement: function() {
             var element          = this.get('element'),
                 value            = this.get('value'),
+                htmlValue        = this.get('htmlValue'),
                 selectableValues = this.get('selectableValues'),
                 html,
-                label;
+                label,
+                i, sl, oValue, itemLabel, itemValue;
 
             this.fireEvent(beforeElementRestoredEvent);
-            if(YL.isObject(selectableValues)) {
+            if(YL.isArray(selectableValues)) {
+                for (i = 0, sl = selectableValues.length; i < sl; i++) {
+                    oValue = selectableValues[i];
+                    itemLabel = oValue.label;
+                    itemValue = oValue.value;
+                    if(itemValue == value) {
+                        html = itemLabel;
+                        break;
+                    }
+                }
+            } else if(YL.isObject(selectableValues)) {
                 for (label in selectableValues) {
                     if(selectableValues[label] == value) {
                         html = label;
@@ -1056,9 +1080,20 @@
             var htmlValue        = this.get('htmlValue'),
                 selectableValues = this.get('selectableValues'),
                 key,
-                _ret;
+                _ret,
+                i, sl, oValue, itemLabel, itemValue;
 
-            if(YL.isObject(selectableValues)) {
+            if(YL.isArray(selectableValues)) {
+                for (i = 0, sl = selectableValues.length; i < sl; i++) {
+                    oValue    = selectableValues[i];
+                    itemLabel = oValue.label;
+                    itemValue = oValue.value;
+                    if(itemLabel == htmlValue) {
+                        _ret = itemValue;
+                        break;
+                    }
+                }
+            } else if(YL.isObject(selectableValues)) {
                 for(key in selectableValues) {
                     if(key == htmlValue) {
                         _ret = selectableValues[key];
@@ -1079,9 +1114,20 @@
          */
         _setValue: function(value) {
             var selectableValues = this.get('selectableValues'),
-                key;
+                key,
+                i, sl, oValue, itemLabel, itemValue;
 
-            if(YL.isObject(selectableValues)) {
+            if(YL.isArray(selectableValues)) {
+                for (i = 0, sl = selectableValues.length; i < sl; i++) {
+                    oValue    = selectableValues[i];
+                    itemLabel = oValue.label;
+                    itemValue = oValue.value;
+                    if(itemValue == value) {
+                        this.set('htmlValue', itemLabel);
+                        break;
+                    }
+                }
+            } else if(YL.isObject(selectableValues)) {
                 for(key in selectableValues) {
                     if(selectableValues[key] == value) {
                         this.set('htmlValue', key);
