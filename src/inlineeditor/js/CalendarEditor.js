@@ -33,8 +33,11 @@
 
         /**
          * Date.parse with progressive enhancement for ISO-8601
-         * Â© 2010 Colin Snover <http://zetafleet.com>
+         * © 2010 Colin Snover <http://zetafleet.com>
          * Released under MIT license.
+         * @method YAHOO.util.Date.parseDate
+         * @return timestamp
+         * @type Integer
          */
         parseDate = function(date) {
             var timestamp = Date.parse(date), struct, minutesOffset;

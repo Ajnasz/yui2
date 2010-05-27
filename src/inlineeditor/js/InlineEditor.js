@@ -818,7 +818,7 @@
             }
         },
         /**
-         *
+         * Generates the editor form
          * @method _createEditor
          * @protected
          * @return {HTMLFormElement | False} returns a form element
@@ -1097,7 +1097,7 @@
          * Wrapper method, which used to set the htmlValue when the
          * current value is changed
          * @method _setValue
-         * @param {String | Integer} value The new value to set
+         * @param {String} value The new value to set
          * @protected
          */
         _setValue: function(value) {
@@ -1239,7 +1239,7 @@
              * <ul>
              * <li><strong>type</strong> String</li>
              * <li><strong>fieldName</strong> String </li>
-             * <li><strong>value</strong> String | Integer</li>
+             * <li><strong>value</strong> String</li>
              * <li<strong>selectableValues</strong> Object</li>
              * </ul>
              * @attribute fieldGenerator
@@ -1254,7 +1254,7 @@
              * Mostly it's the same as the value property, but in some cases
              * (eg. with select field) it's different
              * @attribute htmlValue
-             * @type String | Integer
+             * @type String
              */
             this.setAttributeConfig('htmlValue', {
                 value: elementInnerHTML
@@ -1262,7 +1262,7 @@
             /**
              * The current value of the field
              * @attribute value
-             * @type String | Integer
+             * @type String
              */
             this.setAttributeConfig('value', {
                 getter: this._getValue,
