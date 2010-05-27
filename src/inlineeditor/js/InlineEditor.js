@@ -1104,7 +1104,7 @@
             } else {
                 _ret = htmlValue;
             }
-            return _ret;
+            return _preprocessHTMLValue.call(this, _ret);
         },
         /**
          * Wrapper method, which used to set the htmlValue when the
