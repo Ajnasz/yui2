@@ -31,7 +31,7 @@
         widgetName          = 'InlineEditor',
         CLASSES             = {
             /**
-             * Constant representing the default class of the cancel button
+             * Represents the default class of the cancel button
              * @config CLASSES.CANCEL_BUTTON
              * @type String
              * @namespace CLASSES
@@ -41,7 +41,7 @@
              */
             CANCEL_BUTTON: 'yui-inline-editor-cancel',
             /**
-             * Constant representing the default class of the save button
+             * Represents the default class of the save button
              * @config CLASSES.SAVE_BUTTON
              * @type String
              * @final
@@ -50,7 +50,7 @@
              */
             SAVE_BUTTON: 'yui-inline-editor-save',
             /**
-             * Constant representing the default class of the edit button
+             * Represents the default class of the edit button
              * @config CLASSES.EDIT_BUTTON
              * @type String
              * @final
@@ -59,7 +59,7 @@
              */
             EDIT_BUTTON: 'yui-inline-editor-edit',
             /**
-             * Constant representing the default class of the lock marker button
+             * Represents the default class of the lock marker button
              * @config CLASSES.LOCKED_BUTTON
              * @type String
              * @final
@@ -68,7 +68,7 @@
              */
             LOCKED_BUTTON: 'yui-inline-editor-lock-marker',
             /**
-             * Constant representing the class of the button container element
+             * Represents the class of the button container element
              * @config CLASSES.CONTROLS_CONTAINER
              * @type String
              * @final
@@ -77,7 +77,7 @@
              */
             CONTROLS_CONTAINER: 'yui-inline-editor-controls',
             /**
-             * Constant, used to mark editable elements
+             * Class to mark editable elements
              * @config CLASSES.ELEM_EDITABLE
              * @type String
              * @final
@@ -86,7 +86,7 @@
              */
             ELEM_EDITABLE: 'yui-inline-editor-editable',
             /**
-             * Constant, used to mark locked elements
+             * Class to mark locked elements
              * @config CLASSES.LOCKED
              * @type String
              * @final
@@ -95,7 +95,7 @@
              */
             LOCKED: 'yui-inline-editor-locked',
             /**
-             * Constant, used to mark when the elem editing is active
+             * Class to mark when the elem editing is active
              * @config CLASSES.EDITING_ACTIVE
              * @type String
              * @final
@@ -104,7 +104,7 @@
              */
             EDITING_ACTIVE: 'yui-inline-editor-editing',
             /**
-             * Constant, a class for the element which contains a radio field group
+             * A class for the element which contains a radio field group
              * @config CLASSES.RADIO_GROUP_CONTAINER
              * @type String
              * @final
@@ -113,7 +113,7 @@
              */
             RADIO_GROUP_CONTAINER: 'yui-inline-editor-radio-group',
             /**
-             * Constant, a class for the element which contains a radio field and
+             * A class for the element which contains a radio field and
              * it's label
              * @config CLASSES.RADIO_ITEM_CONTAINER
              * @type String
@@ -123,7 +123,7 @@
              */
             RADIO_ITEM_CONTAINER: 'yui-inline-editor-radio-item',
             /**
-             * Constant, a class for the element which marks that the element is empty
+             * A class for the element which marks that the element is empty
              * @config CLASSES.EMPTY
              * @type String
              * @final
@@ -135,44 +135,39 @@
         STRINGS = {
             /**
              * Default innerHTML value of the edit button
-             * @property InlineEditor.EDIT_BUTTON_TEXT
+             * @property InlineEditor.STRINGS.EDIT_BUTTON_TEXT
              * @static
              * @type String
-             * @final
              */
             EDIT_BUTTON_TEXT:   'edit',
             /**
              * Default innerHTML value of the lock button which represents if a field
              * is not editable
-             * @property InlineEditor.LOCK_BUTTON_TEXT
+             * @property InlineEditor.STRINGS.LOCK_BUTTON_TEXT
              * @static
              * @type String
-             * @final
              */
             LOCK_BUTTON_TEXT:   'locked',
             /**
              * Default innerHTML value of the save button
-             * @property InlineEditor.SAVE_BUTTON_TEXT
+             * @property InlineEditor.STRINGS.SAVE_BUTTON_TEXT
              * @static
              * @type String
-             * @final
              */
             SAVE_BUTTON_TEXT:   'save',
             /**
              * Default innerHTML value of the cancel button which represents if a field
              * is not editable
-             * @property InlineEditor.CANCEL_BUTTON_TEXT
+             * @property InlineEditor.STRINGS.CANCEL_BUTTON_TEXT
              * @static
              * @type String
-             * @final
              */
             CANCEL_BUTTON_TEXT: 'cancel',
             /**
              * Default innerHTML value of the field which has to be shown when the value is empty
-             * @property InlineEditor.EMPTY_TEXT
+             * @property InlineEditor.STRINGS.EMPTY_TEXT
              * @static
              * @type String
-             * @final
              */
             EMPTY_TEXT:         'field is emtpy, please edit it'
         },
@@ -272,11 +267,13 @@
         valueNotValidEvent  = 'valueNotValidEvent',
 
         /**
-         * Constant representing the valid inline editor types
+         * Represents the valid inline editor types
          * @property VALID_TYPES
+         * @type Array
          * @private
          * @static
          * @final
+         * @default ['text', 'textarea', 'select', 'radio', 'checkbox']
          */
         VALID_TYPES         = ['text', 'textarea', 'select', 'radio', 'checkbox'],
         /**
@@ -420,13 +417,14 @@
                 label, option,
                 i, sl, oValue, itemLabel, itemValue;
             if(YL.isArray(selectableValues)) {
-              for (i = 0, sl = selectableValues.length; i < sl; i++) {
-                oValue = selectableValues[i];
-                itemLabel = oValue.label;
-                itemValue = oValue.value;
-                option = _genOption(itemLabel, itemValue, (itemLabel == value || itemValue == value));
-                field.appendChild(option);
-              }
+                for (i = 0, sl = selectableValues.length; i < sl; i++) {
+                    oValue = selectableValues[i];
+                    itemLabel = oValue.label;
+                    itemValue = oValue.value;
+
+                    option = _genOption(itemLabel, itemValue, (itemLabel == value || itemValue == value));
+                    field.appendChild(option);
+                }
             } else {
               for(label in selectableValues) {
                   if(selectableValues.hasOwnProperty(label)) {
@@ -449,13 +447,24 @@
         genRadioField = function(name, value, selectableValues) {
             var field = document.createElement('span'),
                 radio,
-                label;
+                label,
+                i, sl, oValue, itemLabel, itemValue;
             Dom.addClass(field, CLASSES.RADIO_GROUP_CONTAINER);
-            for(label in selectableValues) {
-                if(selectableValues.hasOwnProperty(label)) {
-                    radio = _genRadioField(name, label, selectableValues[label], (label == value || selectableValues[label] == value));
+            if(YL.isArray(selectableValues)) {
+                for (i = 0, sl = selectableValues.length; i < sl; i++) {
+                    oValue = selectableValues[i];
+                    itemLabel = oValue.label;
+                    itemValue = oValue.value;
+                    radio = _genRadioField(name, label, itemValue, (itemLabel == value || itemValue == value));
                     field.appendChild(radio);
                 }
+            } else {
+              for(label in selectableValues) {
+                  if(selectableValues.hasOwnProperty(label)) {
+                      radio = _genRadioField(name, label, selectableValues[label], (label == value || selectableValues[label] == value));
+                      field.appendChild(radio);
+                  }
+              }
             }
             return field;
         },
@@ -507,42 +516,29 @@
         DEFAULT_CONFIG      = {
             /**
              * Constant representing the default editor type
-             * @property TYPE
-             * @namespace DEFAULT_CONFIG
+             * @property InlineEditor.DEFAULT_CONFIG.TYPE
              * @type String
-             * @private
-             * @static
-             * @final
+             * @default text
              */
             TYPE: 'text',
             /**
              * Constant, allow to save the editor if empty or not by default
-             * @property ALLOW_EMPTY
-             * @namespace DEFAULT_CONFIG
+             * @property InlineEditor.DEFAULT_CONFIG.ALLOW_EMPTY
              * @type Boolean
-             * @private
-             * @static
-             * @final
+             * @default false
              */
             ALLOW_EMPTY: false,
             /**
              * Constant representing the default field name
-             * @property FIELD_NAME
-             * @namespace DEFAULT_CONFIG
+             * @property InlineEditor.DEFAULT_CONFIG.FIELD_NAME
              * @type String
-             * @private
-             * @static
-             * @final
+             * @default field
              */
             FIELD_NAME: 'field',
             /**
              * Constant, a default method to generate the edit fields for the form
-             * @property FIELD_GENERATOR
-             * @namespace DEFAULT_CONFIG
+             * @property InlineEditor.DEFAULT_CONFIG.FIELD_GENERATOR
              * @type Function
-             * @private
-             * @static
-             * @final
              */
             FIELD_GENERATOR: function(type, fieldName, value, selectableValues) {
                 var field;
@@ -569,81 +565,71 @@
                 return field;
             },
             /**
-             * Constant, a default method to process the new value before saving it
-             * @property PROCESS_BEFORE_SAVE_METHOD
-             * @namespace DEFAULT_CONFIG
+             * A default method to process the new value before saving it
+             * @property InlineEditor.DEFAULT_CONFIG.PROCESS_BEFORE_SAVE_METHOD
              * @type Function
-             * @return String The field value
-             * @private
-             * @static
-             * @final
+             * @returns a string which is the field value
              */
             PROCESS_BEFORE_SAVE_METHOD: function(value) {
                 return value;
             },
             /**
              * Constant, a default method to process the value befor read it into the editor
-             * @property PROCESS_BEFORE_READ_METHOD
-             * @namespace DEFAULT_CONFIG
+             * @property InlineEditor.DEFAULT_CONFIG.PROCESS_BEFORE_READ_METHOD
              * @type Function
-             * @return String The field value
-             * @private
-             * @static
-             * @final
+             * @returns a string which is the field value
              */
             PROCESS_BEFORE_READ_METHOD: function(value) {
                 return value;
             },
             /**
              * Validate the new value before save
-             * @property VALIDATION_METHOD
-             * @return Boolean The value is valid or not
-             * @private
-             * @final
+             * @property InlineEditor.DEFAULT_CONFIG.VALIDATION_METHOD
+             * @return a boolean, which is the value is valid or not
+             * @default true
              */
             VALIDATION_METHOD: function(value) {
                 return true;
             },
             /**
              * Default value for the selectableValues attribute
-             * @property SELECTABLE_VALUES
+             * @property InlineEditor.DEFAULT_CONFIG.SELECTABLE_VALUES
              * @type Object | Null
-             * @private
-             * @final
              */
             SELECTABLE_VALUES: null,
             /**
              * Default value for the animToColor attribute
-             * @private ANIM_TO_COLOR
+             * @property InlineEditor.DEFAULT_CONFIG.ANIM_TO_COLOR
              * @type String
-             * @private
-             * @final
+             * @default #D7EEFF
              */
             ANIM_TO_COLOR: '#D7EEFF',
             /**
              * Default value for the animFromColor attribute
-             * @private ANIM_FROM_COLOR
+             * @property InlineEditor.DEFAULT_CONFIG.ANIM_FROM_COLOR
              * @type String
-             * @private
-             * @final
+             * @default #FFFFFF
              */
             ANIM_FROM_COLOR: '#FFFFFF',
             /**
              * Default value for the animOnMouseover attribute
-             * @private ANIM_ON_MOUSEOVER
+             * @property InlineEditor.DEFAULT_CONFIG.ANIM_ON_MOUSEOVER
              * @type Boolean
-             * @private
-             * @final
              */
             ANIM_ON_MOUSEOVER: false,
             /**
              * Default value for the locked attribute
-             * @private LOCKED
+             * @property InlineEditor.DEFAULT_CONFIG.LOCKED
              * @type Boolean
-             * @private
-             * @final
              */
-            LOCKED: false
+            LOCKED: false,
+            /**
+             * Set to true if the field need to be expanded
+             * @property InlineEditor.DEFAULT_CONFIG.SET_FIELD_SIZE
+             * @type Boolean
+             * @default true
+             */
+            SET_FIELD_SIZE: true
         },
         /**
          * Validates the type of the editor
@@ -707,6 +693,20 @@
                 _ret = true;
             }
             return _ret;
+        },
+        /**
+         * Pass the current value through a user defined method
+         * @method _preprocessHTMLValue
+         * @param {String} value
+         * @private
+         * @return String The changed value
+         */
+        _preprocessHTMLValue = function(value) {
+          var preprocess = this.get('processBeforeRead');
+          if(YL.isFunction(preprocess)) {
+            value = preprocess.call(this, value);
+          }
+          return value;
         };
 
 
@@ -722,13 +722,11 @@
          */
         save: function() {
             this.fireEvent(beforeSaveEvent);
-            var values      = getFormValues(this._editor),
-                value       = YL.trim(values[this.get('fieldName')]),
-                preprocess  = this.get('processBeforeSave'),
+            var fieldName   = this.get('fieldName'),
+                values      = getFormValues(this._editor),
+                value       = YL.trim(values[fieldName]),
                 validator   = this.get('validator'),
                 _ret = false;
-
-            value = preprocess.call(this, value);
 
             if(value === '' && !this.get('allowEmpty')) {
                 Y.log("the field value is empty and it's not allowed", 'warn', widgetName);
@@ -789,7 +787,7 @@
         /**
          * Attach buttons, event listeners to the editable element
          * @method _setEditable
-         * @private
+         * @protected
          */
         _setEditable: function() {
             var element = this.get('element');
@@ -822,7 +820,7 @@
         /**
          *
          * @method _createEditor
-         * @private
+         * @protected
          * @return {HTMLFormElement | False} returns a form element
          * or false if the edit field is not created
          */
@@ -830,16 +828,12 @@
             var form = createForm(this.get('id')),
                 type = this.get('type'),
                 value = this.get('value'),
-                preprocess = this.get('processBeforeRead'),
                 fieldName = this.get('fieldName'),
                 selectableValues = this.get('selectableValues'),
                 generator = this.get('fieldGenerator'),
                 _ret = false,
                 field;
 
-                if(YL.isFunction(preprocess)) {
-                    value = preprocess.call(this, value);
-                }
                 field = generator.call(this, type, fieldName, value, selectableValues);
 
                 _attachKeyListeners(field, this, this.get('saveKeys'), this.get('cancelKeys'));
@@ -849,7 +843,7 @@
                 this._createControls();
                 form.appendChild(field);
                 form.appendChild(this.controls.container);
-                Event.on(form, 'submit', Event.stopEvent);
+                Event.on(form, 'submit', Event.stopEvent, Event, true);
                 _ret = form;
             }
             return _ret;
@@ -857,12 +851,13 @@
         /**
          * Replaces the editable element to a form
          * @method _replaceElement
-         * @private
+         * @protected
          */
         _replaceElement: function() {
             var element = this.get('element'),
                 fieldName = this.get('fieldName'),
-                editor  = this._createEditor();
+                editor  = this._createEditor(),
+                field;
 
             if(!editor) {
                 Y.log('editor is not an element', 'error', widgetName);
@@ -871,15 +866,18 @@
             this.fireEvent(beforeElementReplacedEvent);
             element.innerHTML = '';
             element.appendChild(editor);
+            field = editor[fieldName];
 
             // need to focus with a latency, to give time for other stuffs to initializate
             // (basically the autocomplete inline editor needed that)
             setTimeout(function() {
               try {
-                editor[fieldName].focus();
+                field.focus();
               } catch(e){}
             }, 100);
-
+            if(this.get('setFieldSize')) {
+              Dom.setStyle(field, 'width', editor.offsetWidth - 10 + 'px');
+            }
             this._editor = editor;
             this.fireEvent(elementReplacedEvent);
         },
@@ -887,17 +885,30 @@
          * Removes the edit form and sets the editable element's content
          * to the current value
          * @method _restoreElement
-         * @private
+         * @protected
          */
         _restoreElement: function() {
+
             var element          = this.get('element'),
                 value            = this.get('value'),
+                htmlValue        = this.get('htmlValue'),
                 selectableValues = this.get('selectableValues'),
                 html,
-                label;
+                label,
+                i, sl, oValue, itemLabel, itemValue;
 
             this.fireEvent(beforeElementRestoredEvent);
-            if(YL.isObject(selectableValues)) {
+            if(YL.isArray(selectableValues)) {
+                for (i = 0, sl = selectableValues.length; i < sl; i++) {
+                    oValue = selectableValues[i];
+                    itemLabel = oValue.label;
+                    itemValue = oValue.value;
+                    if(itemValue == value) {
+                        html = itemLabel;
+                        break;
+                    }
+                }
+            } else if(YL.isObject(selectableValues)) {
                 for (label in selectableValues) {
                     if(selectableValues[label] == value) {
                         html = label;
@@ -905,11 +916,12 @@
                     }
                 }
             } else {
-                html = value;
+                html = htmlValue;
             }
             if(!html) {
               html = this._yui_inline_editor_strings.EMPTY_TEXT;
             }
+
             element.innerHTML = html;
             this.fireEvent(elementRestoredEvent);
             this._addEditControl();
@@ -919,7 +931,7 @@
          * Removes buttons from the dom and
          * deletes the references to them
          * @method _destroyControls
-         * @private
+         * @protected
          */
         _destroyControls: function() {
             var controls = this.controls,
@@ -966,7 +978,7 @@
          * @param {String} type If the value is 'edit' then
          * the edit button will be created, otherwise the
          * save and cancel buttons
-         * @private
+         * @protected
          */
         _createControls: function(type) {
             var button    = document.createElement('button'),
@@ -1034,7 +1046,7 @@
         /**
          * Adds the edit button to editable element.
          * @method _addEditControl
-         * @private
+         * @protected
          */
         _addEditControl: function() {
             this._createControls('edit');
@@ -1050,15 +1062,26 @@
          * are not the same, this method returns the value
          * @method _getValue
          * @return String The actual value
-         * @private
+         * @protected
          */
         _getValue: function() {
             var htmlValue        = this.get('htmlValue'),
                 selectableValues = this.get('selectableValues'),
                 key,
-                _ret;
+                _ret,
+                i, sl, oValue, itemLabel, itemValue;
 
-            if(YL.isObject(selectableValues)) {
+            if(YL.isArray(selectableValues)) {
+                for (i = 0, sl = selectableValues.length; i < sl; i++) {
+                    oValue    = selectableValues[i];
+                    itemLabel = oValue.label;
+                    itemValue = oValue.value;
+                    if(itemLabel == htmlValue) {
+                        _ret = itemValue;
+                        break;
+                    }
+                }
+            } else if(YL.isObject(selectableValues)) {
                 for(key in selectableValues) {
                     if(key == htmlValue) {
                         _ret = selectableValues[key];
@@ -1068,20 +1091,31 @@
             } else {
                 _ret = htmlValue;
             }
-            return _ret;
+            return _preprocessHTMLValue.call(this, _ret);
         },
         /**
          * Wrapper method, which used to set the htmlValue when the
          * current value is changed
          * @method _setValue
          * @param {String | Integer} value The new value to set
-         * @private
+         * @protected
          */
         _setValue: function(value) {
             var selectableValues = this.get('selectableValues'),
-                key;
+                key,
+                i, sl, oValue, itemLabel, itemValue;
 
-            if(YL.isObject(selectableValues)) {
+            if(YL.isArray(selectableValues)) {
+                for (i = 0, sl = selectableValues.length; i < sl; i++) {
+                    oValue    = selectableValues[i];
+                    itemLabel = oValue.label;
+                    itemValue = oValue.value;
+                    if(itemValue == value) {
+                        this.set('htmlValue', itemLabel);
+                        break;
+                    }
+                }
+            } else if(YL.isObject(selectableValues)) {
                 for(key in selectableValues) {
                     if(selectableValues[key] == value) {
                         this.set('htmlValue', key);
@@ -1100,7 +1134,7 @@
          * @param {String} name
          * @param {Object} value
          * @return {Object} The save keys definition
-         * @private
+         * @protected
          */
         _getSaveKeys: function(name, value) {
             if(!YL.isObject(value)) {
@@ -1120,7 +1154,7 @@
          * @param {String} name
          * @param {Object} value
          * @return {Object} The cancel keys definition
-         * @private
+         * @protected
          */
         _getCancelKeys: function(name, value) {
             if(!YL.isObject(value)) {
@@ -1136,19 +1170,22 @@
          * @method init
          * @param {String | HTMLElement} el The editable element
          * @param {Object} cfg (optional) Configurations as an object
-         * @private
+         * @protected
          */
         init: function(el, cfg) {
-            // overwrite the strings object to make possible to customize the button texts for each instance
-            var strings = YL.merge(STRINGS, YL.isObject(cfg.strings) ? cfg.strings : {}),
+            var strings,
                 element = Dom.get(el),
                 elementInnerHTML;
 
-            this._yui_inline_editor_strings = strings;
             if(!element) {
                 Y.log('Inline Editor element not found', 'error', widgetName);
                 return false;
             }
+
+            // overwrite the strings object to make possible to customize the button texts for each instance
+            strings = YL.merge(STRINGS, YL.isObject(cfg.strings) ? cfg.strings : {});
+            this._yui_inline_editor_strings = strings;
+
             elementInnerHTML = element.innerHTML;
             // if the html is the same as the empty text, than make the value empty
             if(elementInnerHTML === strings.EMPTY_TEXT) {
@@ -1166,10 +1203,9 @@
                 readOnly: true
             });
             /**
-             * The editable element
+             * A reference to the editable element
              * @attribute element
              * @type HTMLElement
-             * @default a reference to the editable element
              * @final
              */
             this.setAttributeConfig('element', {
@@ -1230,8 +1266,16 @@
              */
             this.setAttributeConfig('value', {
                 getter: this._getValue,
-                method: this._setValue
+                method: this._setValue,
+                setter: function(value) {
+                  var preprocess = this.get('processBeforeSave');
+                  if(YL.isFunction(preprocess)) {
+                    value = preprocess.call(this, value);
+                  }
+                  return value;
+                }
             });
+
             /**
              * This option is used to set the possible selectable values for 'select' and 'radio'
              * editor types
@@ -1320,7 +1364,7 @@
              * Change the bacgkground color of the editable element on mouse over.
              * @attribute animOnMouseover
              * @default true
-             * @type String
+             * @type Boolean
              */
             this.setAttributeConfig('animOnMouseover', {
                 validator: YL.isBoolean,
@@ -1366,14 +1410,28 @@
                     }
                 }
             });
+            /**
+             * If it's true, the edit field will be resized. It's size is the same as it's form's size but -10px.
+             * @attribute setFieldSize
+             * @default true
+             * @type Boolean
+             */
+            this.setAttributeConfig('setFieldSize', {
+                validator: YL.isBoolean,
+                value: YL.isBoolean(cfg.setFieldSize) ? cfg.setFieldSize : DEFAULT_CONFIG.SET_FIELD_SIZE
+            });
+
             if(this.get('value') === '' || Dom.hasClass(this.get('element'), CLASSES.EMPTY)) {
               this.get('element').innerHTML = this._yui_inline_editor_strings.EMPTY_TEXT;
+              // Set the value to empty string if the field is defined as empty
+              this.set('value', '');
             }
             this._addEditControl();
             this._setEditable();
         }
     });
-    YAHOO.widget.InlineEditor.STRINGS = STRINGS;
+    InlineEditor.STRINGS = STRINGS;
+    InlineEditor.DEFAULT_CONFIG = DEFAULT_CONFIG;
 })();
 /**
  * Inline editor widget
@@ -1453,6 +1511,10 @@
                 this.setAttributeConfig('saveOnSelect', {
                     validator: YL.isBoolean,
                     value: YL.isBoolean(cfg.saveOnSelect) ? cfg.saveOnSelect : true
+                });
+                this.subscribe('editStartedEvent', function() {
+                    setLastSelected.call(this, null);
+                    this.set('value', '');
                 });
                 this.subscribe('elementReplacedEvent', function() {
                     var id = this.get('id'),
@@ -1634,6 +1696,7 @@
  */
 (function() {
     YAHOO.widget.RatingEditor = function(el, cfg) {
+          cfg = cfg || {};
           cfg = YAHOO.lang.merge(cfg, {type: 'rating'});
           YAHOO.widget.RatingEditor.superclass.constructor.call(this, el, cfg);
           this._ratingInit.apply(this, arguments);
@@ -1666,7 +1729,11 @@
 
         },
         htmlFromValue = function(value) {
-          return '<span class="yui-selected-rate' + value + ' yui-rate"><span class="yui-rate-indicator"></span></span>';
+          var output = '';
+          if(value !== '') {
+            output = '<span class="yui-selected-rate' + value + ' yui-rate"><span class="yui-rate-indicator"></span></span>';
+          }
+          return output;
         };
         YAHOO.extend(YAHOO.widget.RatingEditor, YAHOO.widget.InlineEditor, {
           _ratingInit: function(cfg) {
@@ -1681,7 +1748,13 @@
                 if(YL.isNumber(value)) {
                   output = value;
                 } else {
-                  output = +this.get('htmlValue').replace(/\n/g, '').replace(/.*yui-selected-rate(\d+).*/, '$1');
+                  output = this.get('htmlValue').replace(/\n/g, '').replace(/.*yui-selected-rate(\d+).*/, '$1');
+                }
+                if(output ===  this._yui_inline_editor_strings.EMPTY_TEXT) {
+                  output = '';
+                }
+                if(output !== '') {
+                  output = +output;
                 }
                 return output;
               }
@@ -1700,7 +1773,10 @@
             this.subscribe('elementRestoredEvent', function() {
                 var htmlValue = htmlFromValue(this.get('value'));
                 this.set('htmlValue', htmlValue);
-                this.get('element').innerHTML = htmlValue;
+                // keep the empty string if the value is empty
+                if(htmlValue !== '') {
+                  this.get('element').innerHTML = htmlValue;
+                }
             });
           }
         });
