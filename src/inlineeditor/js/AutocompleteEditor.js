@@ -77,6 +77,10 @@
                     validator: YL.isBoolean,
                     value: YL.isBoolean(cfg.saveOnSelect) ? cfg.saveOnSelect : true
                 });
+                this.subscribe('editStartedEvent', function() {
+                    setLastSelected.call(this, null);
+                    this.set('value', '');
+                });
                 this.subscribe('elementReplacedEvent', function() {
                     var id = this.get('id'),
                     autocomplete = attachAutocomplete(id + '-field', id + '-results', this.get('dataSource')),
