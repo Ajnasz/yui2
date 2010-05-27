@@ -1373,5 +1373,6 @@
             this._setEditable();
         }
     });
-    YAHOO.widget.InlineEditor.STRINGS = STRINGS;
+    InlineEditor.STRINGS = STRINGS;
+    InlineEditor.DEFAULT_CONFIG = DEFAULT_CONFIG;
 })();
