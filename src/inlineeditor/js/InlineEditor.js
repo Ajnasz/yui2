@@ -1449,6 +1449,8 @@
 
             if(this.get('value') === '' || Dom.hasClass(this.get('element'), CLASSES.EMPTY)) {
               this.get('element').innerHTML = this._yui_inline_editor_strings.EMPTY_TEXT;
+              // Set the value to empty string if the field is defined as empty
+              this.set('value', '');
             }
             this._addEditControl();
             this._setEditable();
