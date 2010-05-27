@@ -941,11 +941,12 @@
                     }
                 }
             } else {
-                html = value;
+                html = htmlValue;
             }
             if(!html) {
               html = this._yui_inline_editor_strings.EMPTY_TEXT;
             }
+
             element.innerHTML = html;
             this.fireEvent(elementRestoredEvent);
             this._addEditControl();
