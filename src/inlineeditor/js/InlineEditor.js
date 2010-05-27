@@ -655,7 +655,14 @@
              * @private
              * @final
              */
-            LOCKED: false
+            LOCKED: false,
+            /**
+             * Set to true if the field need to be expanded
+             * @property InlineEditor.DEFAULT_CONFIG.SET_FIELD_SIZE
+             * @type Boolean
+             * @default true
+             */
+            SET_FIELD_SIZE: true
         },
         /**
          * Validates the type of the editor
@@ -875,7 +882,8 @@
         _replaceElement: function() {
             var element = this.get('element'),
                 fieldName = this.get('fieldName'),
-                editor  = this._createEditor();
+                editor  = this._createEditor(),
+                field;
 
             if(!editor) {
                 Y.log('editor is not an element', 'error', widgetName);
@@ -884,15 +892,18 @@
             this.fireEvent(beforeElementReplacedEvent);
             element.innerHTML = '';
             element.appendChild(editor);
+            field = editor[fieldName];
 
             // need to focus with a latency, to give time for other stuffs to initializate
             // (basically the autocomplete inline editor needed that)
             setTimeout(function() {
               try {
-                editor[fieldName].focus();
+                field.focus();
               } catch(e){}
             }, 100);
-
+            if(this.get('setFieldSize')) {
+              Dom.setStyle(field, 'width', editor.offsetWidth - 10 + 'px');
+            }
             this._editor = editor;
             this.fireEvent(elementReplacedEvent);
         },
@@ -1421,6 +1432,17 @@
                     }
                 }
             });
+            /**
+             * If it's true, the edit field will be resized. It's size is the same as it's form's size but -10px.
+             * @attribute setFieldSize
+             * @default true
+             * @type Boolean
+             */
+            this.setAttributeConfig('setFieldSize', {
+                validator: YL.isBoolean,
+                value: YL.isBoolean(cfg.setFieldSize) ? cfg.setFieldSize : DEFAULT_CONFIG.SET_FIELD_SIZE
+            });
+
             if(this.get('value') === '' || Dom.hasClass(this.get('element'), CLASSES.EMPTY)) {
               this.get('element').innerHTML = this._yui_inline_editor_strings.EMPTY_TEXT;
             }
