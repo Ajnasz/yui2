@@ -719,6 +719,13 @@
                 _ret = true;
             }
             return _ret;
+        },
+        _preprocessHTMLValue = function(value) {
+          var preprocess = this.get('processBeforeRead');
+          if(YL.isFunction(preprocess)) {
+            value = preprocess.call(this, value);
+          }
+          return value;
         };
 
 
@@ -734,13 +741,11 @@
          */
         save: function() {
             this.fireEvent(beforeSaveEvent);
-            var values      = getFormValues(this._editor),
-                value       = YL.trim(values[this.get('fieldName')]),
-                preprocess  = this.get('processBeforeSave'),
+            var fieldName   = this.get('fieldName'),
+                values      = getFormValues(this._editor),
+                value       = YL.trim(values[fieldName]),
                 validator   = this.get('validator'),
                 _ret = false;
-
-            value = preprocess.call(this, value);
 
             if(value === '' && !this.get('allowEmpty')) {
                 Y.log("the field value is empty and it's not allowed", 'warn', widgetName);
@@ -842,16 +847,12 @@
             var form = createForm(this.get('id')),
                 type = this.get('type'),
                 value = this.get('value'),
-                preprocess = this.get('processBeforeRead'),
                 fieldName = this.get('fieldName'),
                 selectableValues = this.get('selectableValues'),
                 generator = this.get('fieldGenerator'),
                 _ret = false,
                 field;
 
-                if(YL.isFunction(preprocess)) {
-                    value = preprocess.call(this, value);
-                }
                 field = generator.call(this, type, fieldName, value, selectableValues);
 
                 _attachKeyListeners(field, this, this.get('saveKeys'), this.get('cancelKeys'));
@@ -1276,8 +1277,16 @@
              */
             this.setAttributeConfig('value', {
                 getter: this._getValue,
-                method: this._setValue
+                method: this._setValue,
+                setter: function(value) {
+                  var preprocess = this.get('processBeforeSave');
+                  if(YL.isFunction(preprocess)) {
+                    value = preprocess.call(this, value);
+                  }
+                  return value;
+                }
             });
+
             /**
              * This option is used to set the possible selectable values for 'select' and 'radio'
              * editor types
