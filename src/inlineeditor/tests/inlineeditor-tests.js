@@ -12,6 +12,7 @@ var editor1 = null,
         Tool = YAHOO.tool,
         Suite = new Tool.TestSuite('yuisuite'),
         Assert = YAHOO.util.Assert;
+    YAHOO.widget.InlineEditor.DEFAULT_CONFIG.SET_FIELD_SIZE = false;
 
     Event.onDOMReady(function() {
 try {
@@ -30,14 +31,14 @@ try {
                                     return output;
                                 }
       });
-      editor3 = new YAHOO.widget.InlineEditor('span-for-select', {type: 'select', selectableValues: {
-          ingyom: 1,
-          bingyom: 2,
-          malibe: 3,
-          tuta: 4,
-          libe: 5,
-          talibe: 6
-      }});
+      editor3 = new YAHOO.widget.InlineEditor('span-for-select', {type: 'select', selectableValues: [
+          {label: 'ingyom', value: 1},
+          {label: 'bingyom', value: 2},
+          {label: 'malibe', value: 3},
+          {label: 'tuta', value: 4},
+          {label: 'libe', value: 5},
+          {label: 'talibe', value: 6}
+      ]});
       editor4 = new YAHOO.widget.InlineEditor('span-for-radio', {type: 'radio', selectableValues: {
           ingyom: 1,
           bingyom: 2,
@@ -87,7 +88,7 @@ try {
             Assert.isTrue(editor2.edit(), 'editor not started');
             Assert.areEqual(1, editor2.get('element').getElementsByTagName('TEXTAREA').length, 'Edit field is not found or it\'s not a textarea');
             Assert.isFalse(/<br\s*\/?>/.test(editor2.get('element').getElementsByTagName('TEXTAREA')[0].value), 'value preprocessing error');
-            Assert.isTrue(/<br\s*\/?>/i.test(editor2.get('value')), 'value preprocessing error');
+            Assert.isFalse(/<br\s*\/?>/i.test(editor2.get('value')), 'value preprocessing error');
             Assert.isTrue(editor2.save(), 'value preprocessing error');
         }
       }));
@@ -97,7 +98,7 @@ try {
             Assert.areEqual(Dom.get('span-for-select'), editor3.get('element'), 'Could not fiend Editors container');
             Assert.isTrue(editor3.edit(), 'editor not started');
             var selects = editor3.get('element').getElementsByTagName('select');
-            Assert.areEqual(1, selects.length, 'Select fieldnot found');
+            Assert.areEqual(1, selects.length, 'Select field not found');
             var select = selects[0];
             Assert.areEqual(6, select.options.length, 'not all option rendered');
             Assert.areEqual(1, select.selectedIndex, 'not the first item is the selected');
@@ -212,8 +213,10 @@ try {
           YAHOO.tool.TestRunner.run();
       }
                 ed10 = new YAHOO.widget.InlineEditor('span-for-empty-editor');
+                ed11 = new YAHOO.widget.RatingEditor('span-for-empty-rating-editor');
+                ed11 = new YAHOO.widget.RatingEditor('span-for-empty-textarea-editor', {type: 'textarea'});
 }catch(e) {
-  Y.log(e, 'error')
+  console.log(e)
 }
     });
 })();
