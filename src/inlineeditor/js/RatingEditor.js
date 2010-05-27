@@ -5,6 +5,7 @@
  */
 (function() {
     YAHOO.widget.RatingEditor = function(el, cfg) {
+          cfg = cfg || {};
           cfg = YAHOO.lang.merge(cfg, {type: 'rating'});
           YAHOO.widget.RatingEditor.superclass.constructor.call(this, el, cfg);
           this._ratingInit.apply(this, arguments);
@@ -37,7 +38,11 @@
 
         },
         htmlFromValue = function(value) {
-          return '<span class="yui-selected-rate' + value + ' yui-rate"><span class="yui-rate-indicator"></span></span>';
+          var output = '';
+          if(value !== '') {
+            output = '<span class="yui-selected-rate' + value + ' yui-rate"><span class="yui-rate-indicator"></span></span>';
+          }
+          return output;
         };
         YAHOO.extend(YAHOO.widget.RatingEditor, YAHOO.widget.InlineEditor, {
           _ratingInit: function(cfg) {
@@ -52,7 +57,13 @@
                 if(YL.isNumber(value)) {
                   output = value;
                 } else {
-                  output = +this.get('htmlValue').replace(/\n/g, '').replace(/.*yui-selected-rate(\d+).*/, '$1');
+                  output = this.get('htmlValue').replace(/\n/g, '').replace(/.*yui-selected-rate(\d+).*/, '$1');
+                }
+                if(output ===  this._yui_inline_editor_strings.EMPTY_TEXT) {
+                  output = '';
+                }
+                if(output !== '') {
+                  output = +output;
                 }
                 return output;
               }
@@ -71,7 +82,10 @@
             this.subscribe('elementRestoredEvent', function() {
                 var htmlValue = htmlFromValue(this.get('value'));
                 this.set('htmlValue', htmlValue);
-                this.get('element').innerHTML = htmlValue;
+                // keep the empty string if the value is empty
+                if(htmlValue !== '') {
+                  this.get('element').innerHTML = htmlValue;
+                }
             });
           }
         });
