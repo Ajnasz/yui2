@@ -1198,16 +1198,19 @@
          * @private
          */
         init: function(el, cfg) {
-            // overwrite the strings object to make possible to customize the button texts for each instance
-            var strings = YL.merge(STRINGS, YL.isObject(cfg.strings) ? cfg.strings : {}),
+            var strings,
                 element = Dom.get(el),
                 elementInnerHTML;
 
-            this._yui_inline_editor_strings = strings;
             if(!element) {
                 Y.log('Inline Editor element not found', 'error', widgetName);
                 return false;
             }
+
+            // overwrite the strings object to make possible to customize the button texts for each instance
+            strings = YL.merge(STRINGS, YL.isObject(cfg.strings) ? cfg.strings : {});
+            this._yui_inline_editor_strings = strings;
+
             elementInnerHTML = element.innerHTML;
             // if the html is the same as the empty text, than make the value empty
             if(elementInnerHTML === strings.EMPTY_TEXT) {
