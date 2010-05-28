@@ -885,7 +885,8 @@
             var element = this.get('element'),
                 fieldName = this.get('fieldName'),
                 editor  = this._createEditor(),
-                field;
+                field,
+                size;
 
             if(!editor) {
                 Y.log('editor is not an element', 'error', widgetName);
@@ -904,7 +905,7 @@
               } catch(e){}
             }, 100);
             if(this.get('setFieldSize')) {
-              var size = +Dom.getStyle(editor, 'width').replace('px', '');
+              size = +Dom.getStyle(editor, 'width').replace('px', '');
               if(isNaN(size)) {
                 size = editor.offsetWidth;
               }
