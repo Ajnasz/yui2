@@ -214,7 +214,8 @@ try {
       }
                 ed10 = new YAHOO.widget.InlineEditor('span-for-empty-editor');
                 ed11 = new YAHOO.widget.RatingEditor('span-for-empty-rating-editor');
-                ed11 = new YAHOO.widget.RatingEditor('span-for-empty-textarea-editor', {type: 'textarea'});
+                ed12 = new YAHOO.widget.RatingEditor('span-for-empty-textarea-editor', {type: 'textarea'});
+                ed12.subscribe('beforeEditEvent', function(){alert("O");return false;});
 }catch(e) {
   console.log(e)
 }
