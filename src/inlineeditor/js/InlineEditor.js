@@ -30,6 +30,7 @@
         InlineEditor        = YAHOO.widget.InlineEditor,
         widgetName          = 'InlineEditor',
         CLASSES             = {
+            BUTTON: 'yui-inline-editor-button',
             /**
              * Represents the default class of the cancel button
              * @config CLASSES.CANCEL_BUTTON
@@ -1012,6 +1013,8 @@
          * @protected
          */
         _createControls: function(type) {
+            this._destroyControls();
+
             var button    = document.createElement('button'),
                 container = document.createElement('span'),
                 strings   = this._yui_inline_editor_strings,
@@ -1020,19 +1023,22 @@
                 editButton,
                 lockedButton;
 
-            Dom.setAttribute(button, 'type', 'button');
-            Dom.addClass(button, 'yui-inline-editor-button');
+            // fixes #2528689
+            // http://yuilibrary.com/projects/yui2/ticket/
+            button.setAttribute('type', 'button');
+            Dom.addClass(button, CLASSES.BUTTON);
             Dom.addClass(container, CLASSES.CONTROLS_CONTAINER);
-
-            this._destroyControls();
 
             if(type === 'edit') {
                 editButton = button.cloneNode(false);
                 lockedButton = button.cloneNode(false);
+
                 Dom.addClass(editButton, CLASSES.EDIT_BUTTON);
                 Dom.addClass(lockedButton, CLASSES.LOCKED_BUTTON);
+
                 editButton.innerHTML = strings.EDIT_BUTTON_TEXT;
                 lockedButton.innerHTML = strings.LOCK_BUTTON_TEXT;
+
                 Event.on(editButton, 'click', function(event) {
                     this.edit(event);
                     this.fireEvent(editClickEvent, event);
@@ -1040,8 +1046,10 @@
                 Event.on(lockedButton, 'click', function(event) {
                     this.fireEvent(lockedClickEvent, event);
                 }, this, true);
+
                 container.appendChild(editButton);
                 container.appendChild(lockedButton);
+
                 this.controls = {
                     edit: editButton,
                     locked: lockedButton,
@@ -1056,6 +1064,7 @@
 
                 cancelButton.innerHTML = strings.CANCEL_BUTTON_TEXT;
                 saveButton.innerHTML = strings.SAVE_BUTTON_TEXT;
+
                 Event.on(cancelButton, 'click', function(event) {
                     this.cancel(event);
                     this.fireEvent(cancelClickEvent, event);
@@ -1064,6 +1073,7 @@
                     this.save(event);
                     this.fireEvent(saveClickEvent, event);
                 }, this, true);
+
                 container.appendChild(cancelButton);
                 container.appendChild(saveButton);
 
