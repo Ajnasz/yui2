@@ -265,6 +265,13 @@
          * @type YAHOO.util.CustomEvent
          */
         valueNotValidEvent  = 'valueNotValidEvent',
+        /**
+         * @event beforeEditEvent
+         * @description Fires before the editing starts. If a subscribed
+         * method returns false the editing won't start
+         * @type YAHOO.util.CustomEvent
+         */
+        beforeEditEvent = 'beforeEditEvent',
 
         /**
          * Represents the valid inline editor types
@@ -763,7 +770,7 @@
          * @return {Boolean} true if the edit successfully started
          */
         edit: function() {
-            if(this._editStarted || this.get('locked')) {return false;}
+            if(this._editStarted || this.get('locked') || this.fireEvent(beforeEditEvent) === false) {return false;}
             var element = this.get('element');
             Dom.addClass(element, CLASSES.EDITING_ACTIVE);
             this._replaceElement();
