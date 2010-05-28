@@ -1463,10 +1463,10 @@
                 value: YL.isBoolean(cfg.setFieldSize) ? cfg.setFieldSize : DEFAULT_CONFIG.SET_FIELD_SIZE
             });
 
-            if(this.get('value') === '' || Dom.hasClass(this.get('element'), CLASSES.EMPTY)) {
-              this.get('element').innerHTML = this._yui_inline_editor_strings.EMPTY_TEXT;
-              // Set the value to empty string if the field is defined as empty
-              this.set('value', '');
+            if(this.get('value') === '' || Dom.hasClass(element, CLASSES.EMPTY)) {
+                element.innerHTML = this._yui_inline_editor_strings.EMPTY_TEXT;
+                // Set the value to empty string if the field is defined as empty
+                this.set('value', '');
             }
             this._addEditControl();
             this._setEditable();
