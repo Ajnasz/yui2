@@ -903,7 +903,11 @@
               } catch(e){}
             }, 100);
             if(this.get('setFieldSize')) {
-              Dom.setStyle(field, 'width', editor.offsetWidth - 10 + 'px');
+              var size = +Dom.getStyle(editor, 'width').replace('px', '');
+              if(isNaN(size)) {
+                size = editor.offsetWidth;
+              }
+              Dom.setStyle(field, 'width', +size - 10 + 'px');
             }
             this._editor = editor;
             this.fireEvent(elementReplacedEvent);
