@@ -30,6 +30,15 @@
         InlineEditor        = YAHOO.widget.InlineEditor,
         widgetName          = 'InlineEditor',
         CLASSES             = {
+            /**
+             * The default class of buttons
+             * @config CLASSES.BUTTON
+             * @type String
+             * @namespace CLASSES
+             * @final
+             * @static
+             * @private
+             */
             BUTTON: 'yui-inline-editor-button',
             /**
              * Represents the default class of the cancel button
@@ -247,16 +256,19 @@
         /**
          * @event beforeElementReplacedEvent
          * @description Fires before the original element replaced to the editor
+         * @type YAHOO.util.CustomEvent
          */
         beforeElementReplacedEvent = 'beforeElementReplacedEvent',
         /**
          * @event beforeElementReplacedEvent
          * @description Fires when the editor the original element
+         * @type YAHOO.util.CustomEvent
          */
         elementRestoredEvent       = 'elementRestoredEvent',
         /**
          * @event beforeElementReplacedEvent
          * @description Fires before the editor replaced to the original element
+         * @type YAHOO.util.CustomEvent
          */
         beforeElementRestoredEvent = 'beforeElementRestoredEvent',
         /**
@@ -526,21 +538,21 @@
              * Constant representing the default editor type
              * @property InlineEditor.DEFAULT_CONFIG.TYPE
              * @type String
-             * @default text
+             * @default 'text'
              */
             TYPE: 'text',
             /**
              * Constant, allow to save the editor if empty or not by default
              * @property InlineEditor.DEFAULT_CONFIG.ALLOW_EMPTY
              * @type Boolean
-             * @default false
+             * @default FALSE
              */
             ALLOW_EMPTY: false,
             /**
              * Constant representing the default field name
              * @property InlineEditor.DEFAULT_CONFIG.FIELD_NAME
              * @type String
-             * @default field
+             * @default 'field'
              */
             FIELD_NAME: 'field',
             /**
@@ -594,7 +606,7 @@
              * Validate the new value before save
              * @property InlineEditor.DEFAULT_CONFIG.VALIDATION_METHOD
              * @return a boolean, which is the value is valid or not
-             * @default true
+             * @default TRUE
              */
             VALIDATION_METHOD: function(value) {
                 return true;
@@ -603,6 +615,7 @@
              * Default value for the selectableValues attribute
              * @property InlineEditor.DEFAULT_CONFIG.SELECTABLE_VALUES
              * @type Object | Null
+             * @default NULL
              */
             SELECTABLE_VALUES: null,
             /**
@@ -623,19 +636,21 @@
              * Default value for the animOnMouseover attribute
              * @property InlineEditor.DEFAULT_CONFIG.ANIM_ON_MOUSEOVER
              * @type Boolean
+             * @default FALSE
              */
             ANIM_ON_MOUSEOVER: false,
             /**
              * Default value for the locked attribute
              * @property InlineEditor.DEFAULT_CONFIG.LOCKED
              * @type Boolean
+             * @default FALSE
              */
             LOCKED: false,
             /**
              * Set to true if the field need to be expanded
              * @property InlineEditor.DEFAULT_CONFIG.SET_FIELD_SIZE
              * @type Boolean
-             * @default true
+             * @default TRUE
              */
             SET_FIELD_SIZE: true
         },
@@ -1267,7 +1282,7 @@
             /**
              * The name of the edit field
              * @attribute fieldName
-             * @default field
+             * @default 'field'
              * @type String
              */
             this.setAttributeConfig('fieldName', {
@@ -1328,7 +1343,7 @@
              *  the value of the options will be the numbers and the foo/bar will be used as the
              *  inner HTML of the option
              * @attribute selectableValues
-             * @default null
+             * @default NULL
              * @type Object
              */
             this.setAttributeConfig('selectableValues', {
@@ -1338,7 +1353,7 @@
             /**
              * Set to true if you want to allow to save an empty editor
              * @attribute allowEmpty
-             * @default false
+             * @default FALSE
              * @type Boolean
              */
             this.setAttributeConfig('allowEmpty', {
@@ -1405,7 +1420,7 @@
             /**
              * Change the bacgkground color of the editable element on mouse over.
              * @attribute animOnMouseover
-             * @default true
+             * @default TRUE
              * @type Boolean
              */
             this.setAttributeConfig('animOnMouseover', {
@@ -1437,7 +1452,7 @@
             /**
              * Set to true if you want to disable the editing
              * @attribute locked
-             * @default false
+             * @default FALSE
              * @type Boolean
              */
             this.setAttributeConfig('locked', {
@@ -1455,7 +1470,7 @@
             /**
              * If it's true, the edit field will be resized. It's size is the same as it's form's size but -10px.
              * @attribute setFieldSize
-             * @default true
+             * @default TRUE
              * @type Boolean
              */
             this.setAttributeConfig('setFieldSize', {
