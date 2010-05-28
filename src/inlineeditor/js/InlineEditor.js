@@ -790,7 +790,8 @@
          * @protected
          */
         _setEditable: function() {
-            var element = this.get('element');
+            var element = this.get('element'), anim,
+                finisAnimation;
             Dom.addClass(element, CLASSES.ELEM_EDITABLE);
             if(this.get('locked')) {
               Dom.addClass(element, CLASSES.LOCKED);
@@ -802,19 +803,38 @@
                 }
             }, this, true);
             if(this.get('animOnMouseover') && YL.isFunction(YU.ColorAnim)) {
+                finisAnimation = function() {
+                    Dom.setStyle(element, 'background-color', '');
+                };
                 Event.on(element, 'mouseover', function() {
-                    if(!this._editStarted) {
+                    if(!this._editStarted && !this.get('locked')) {
                         var fromColor = this.get('animFromColor'),
-                            toColor = this.get('animToColor'),
-                            anim = new YU.ColorAnim(element, {backgroundColor: {to: toColor, from: fromColor}}, 0.3);
+                            toColor = this.get('animToColor');
+                        anim = new YU.ColorAnim(element, {
+                          backgroundColor: {
+                            to: toColor,
+                            from: fromColor
+                          }
+                        }, 0.3);
                         anim.onComplete.subscribe(function() {
-                            var anim = new YU.ColorAnim(element, {backgroundColor: {to: fromColor}}, 0.3);
+                            var anim = new YU.ColorAnim(element, {
+                              backgroundColor: {
+                                to: fromColor
+                              }
+                            }, 0.3);
+                            anim.onComplete.subscribe(finisAnimation);
                             anim.animate();
                         });
                         anim.animate();
                     }
 
                 }, this, true);
+                this.subscribe(editStartedEvent, function() {
+                  if(anim.isAnimated()) {
+                    anim.stop();
+                  }
+                  finisAnimation();
+                });
             }
         },
         /**
