@@ -31,6 +31,16 @@
         widgetName          = 'InlineEditor',
         CLASSES             = {
             /**
+             * The default class of buttons
+             * @config CLASSES.BUTTON
+             * @type String
+             * @namespace CLASSES
+             * @final
+             * @static
+             * @private
+             */
+            BUTTON: 'yui-inline-editor-button',
+            /**
              * Represents the default class of the cancel button
              * @config CLASSES.CANCEL_BUTTON
              * @type String
@@ -246,16 +256,19 @@
         /**
          * @event beforeElementReplacedEvent
          * @description Fires before the original element replaced to the editor
+         * @type YAHOO.util.CustomEvent
          */
         beforeElementReplacedEvent = 'beforeElementReplacedEvent',
         /**
          * @event beforeElementReplacedEvent
          * @description Fires when the editor the original element
+         * @type YAHOO.util.CustomEvent
          */
         elementRestoredEvent       = 'elementRestoredEvent',
         /**
          * @event beforeElementReplacedEvent
          * @description Fires before the editor replaced to the original element
+         * @type YAHOO.util.CustomEvent
          */
         beforeElementRestoredEvent = 'beforeElementRestoredEvent',
         /**
@@ -265,6 +278,13 @@
          * @type YAHOO.util.CustomEvent
          */
         valueNotValidEvent  = 'valueNotValidEvent',
+        /**
+         * @event beforeEditEvent
+         * @description Fires before the editing starts. If a subscribed
+         * method returns false the editing won't start
+         * @type YAHOO.util.CustomEvent
+         */
+        beforeEditEvent = 'beforeEditEvent',
 
         /**
          * Represents the valid inline editor types
@@ -518,21 +538,21 @@
              * Constant representing the default editor type
              * @property InlineEditor.DEFAULT_CONFIG.TYPE
              * @type String
-             * @default text
+             * @default 'text'
              */
             TYPE: 'text',
             /**
              * Constant, allow to save the editor if empty or not by default
              * @property InlineEditor.DEFAULT_CONFIG.ALLOW_EMPTY
              * @type Boolean
-             * @default false
+             * @default FALSE
              */
             ALLOW_EMPTY: false,
             /**
              * Constant representing the default field name
              * @property InlineEditor.DEFAULT_CONFIG.FIELD_NAME
              * @type String
-             * @default field
+             * @default 'field'
              */
             FIELD_NAME: 'field',
             /**
@@ -586,7 +606,7 @@
              * Validate the new value before save
              * @property InlineEditor.DEFAULT_CONFIG.VALIDATION_METHOD
              * @return a boolean, which is the value is valid or not
-             * @default true
+             * @default TRUE
              */
             VALIDATION_METHOD: function(value) {
                 return true;
@@ -595,6 +615,7 @@
              * Default value for the selectableValues attribute
              * @property InlineEditor.DEFAULT_CONFIG.SELECTABLE_VALUES
              * @type Object | Null
+             * @default NULL
              */
             SELECTABLE_VALUES: null,
             /**
@@ -615,19 +636,21 @@
              * Default value for the animOnMouseover attribute
              * @property InlineEditor.DEFAULT_CONFIG.ANIM_ON_MOUSEOVER
              * @type Boolean
+             * @default FALSE
              */
             ANIM_ON_MOUSEOVER: false,
             /**
              * Default value for the locked attribute
              * @property InlineEditor.DEFAULT_CONFIG.LOCKED
              * @type Boolean
+             * @default FALSE
              */
             LOCKED: false,
             /**
              * Set to true if the field need to be expanded
              * @property InlineEditor.DEFAULT_CONFIG.SET_FIELD_SIZE
              * @type Boolean
-             * @default true
+             * @default TRUE
              */
             SET_FIELD_SIZE: true
         },
@@ -763,7 +786,7 @@
          * @return {Boolean} true if the edit successfully started
          */
         edit: function() {
-            if(this._editStarted || this.get('locked')) {return false;}
+            if(this._editStarted || this.get('locked') || this.fireEvent(beforeEditEvent) === false) {return false;}
             var element = this.get('element');
             Dom.addClass(element, CLASSES.EDITING_ACTIVE);
             this._replaceElement();
@@ -790,7 +813,8 @@
          * @protected
          */
         _setEditable: function() {
-            var element = this.get('element');
+            var element = this.get('element'), anim,
+                finisAnimation;
             Dom.addClass(element, CLASSES.ELEM_EDITABLE);
             if(this.get('locked')) {
               Dom.addClass(element, CLASSES.LOCKED);
@@ -802,23 +826,42 @@
                 }
             }, this, true);
             if(this.get('animOnMouseover') && YL.isFunction(YU.ColorAnim)) {
+                finisAnimation = function() {
+                    Dom.setStyle(element, 'background-color', '');
+                };
                 Event.on(element, 'mouseover', function() {
-                    if(!this._editStarted) {
+                    if(!this._editStarted && !this.get('locked')) {
                         var fromColor = this.get('animFromColor'),
-                            toColor = this.get('animToColor'),
-                            anim = new YU.ColorAnim(element, {backgroundColor: {to: toColor, from: fromColor}}, 0.3);
+                            toColor = this.get('animToColor');
+                        anim = new YU.ColorAnim(element, {
+                          backgroundColor: {
+                            to: toColor,
+                            from: fromColor
+                          }
+                        }, 0.3);
                         anim.onComplete.subscribe(function() {
-                            var anim = new YU.ColorAnim(element, {backgroundColor: {to: fromColor}}, 0.3);
+                            var anim = new YU.ColorAnim(element, {
+                              backgroundColor: {
+                                to: fromColor
+                              }
+                            }, 0.3);
+                            anim.onComplete.subscribe(finisAnimation);
                             anim.animate();
                         });
                         anim.animate();
                     }
 
                 }, this, true);
+                this.subscribe(editStartedEvent, function() {
+                  if(anim.isAnimated()) {
+                    anim.stop();
+                  }
+                  finisAnimation();
+                });
             }
         },
         /**
-         *
+         * Generates the editor form
          * @method _createEditor
          * @protected
          * @return {HTMLFormElement | False} returns a form element
@@ -857,7 +900,8 @@
             var element = this.get('element'),
                 fieldName = this.get('fieldName'),
                 editor  = this._createEditor(),
-                field;
+                field,
+                size;
 
             if(!editor) {
                 Y.log('editor is not an element', 'error', widgetName);
@@ -876,7 +920,11 @@
               } catch(e){}
             }, 100);
             if(this.get('setFieldSize')) {
-              Dom.setStyle(field, 'width', editor.offsetWidth - 10 + 'px');
+              size = +Dom.getStyle(editor, 'width').replace('px', '');
+              if(isNaN(size)) {
+                size = editor.offsetWidth;
+              }
+              Dom.setStyle(field, 'width', +size - 10 + 'px');
             }
             this._editor = editor;
             this.fireEvent(elementReplacedEvent);
@@ -981,6 +1029,8 @@
          * @protected
          */
         _createControls: function(type) {
+            this._destroyControls();
+
             var button    = document.createElement('button'),
                 container = document.createElement('span'),
                 strings   = this._yui_inline_editor_strings,
@@ -989,19 +1039,22 @@
                 editButton,
                 lockedButton;
 
-            Dom.setAttribute(button, 'type', 'button');
-            Dom.addClass(button, 'yui-inline-editor-button');
+            // fixes #2528689
+            // http://yuilibrary.com/projects/yui2/ticket/
+            button.setAttribute('type', 'button');
+            Dom.addClass(button, CLASSES.BUTTON);
             Dom.addClass(container, CLASSES.CONTROLS_CONTAINER);
-
-            this._destroyControls();
 
             if(type === 'edit') {
                 editButton = button.cloneNode(false);
                 lockedButton = button.cloneNode(false);
+
                 Dom.addClass(editButton, CLASSES.EDIT_BUTTON);
                 Dom.addClass(lockedButton, CLASSES.LOCKED_BUTTON);
+
                 editButton.innerHTML = strings.EDIT_BUTTON_TEXT;
                 lockedButton.innerHTML = strings.LOCK_BUTTON_TEXT;
+
                 Event.on(editButton, 'click', function(event) {
                     this.edit(event);
                     this.fireEvent(editClickEvent, event);
@@ -1009,8 +1062,10 @@
                 Event.on(lockedButton, 'click', function(event) {
                     this.fireEvent(lockedClickEvent, event);
                 }, this, true);
+
                 container.appendChild(editButton);
                 container.appendChild(lockedButton);
+
                 this.controls = {
                     edit: editButton,
                     locked: lockedButton,
@@ -1025,6 +1080,7 @@
 
                 cancelButton.innerHTML = strings.CANCEL_BUTTON_TEXT;
                 saveButton.innerHTML = strings.SAVE_BUTTON_TEXT;
+
                 Event.on(cancelButton, 'click', function(event) {
                     this.cancel(event);
                     this.fireEvent(cancelClickEvent, event);
@@ -1033,6 +1089,7 @@
                     this.save(event);
                     this.fireEvent(saveClickEvent, event);
                 }, this, true);
+
                 container.appendChild(cancelButton);
                 container.appendChild(saveButton);
 
@@ -1097,7 +1154,7 @@
          * Wrapper method, which used to set the htmlValue when the
          * current value is changed
          * @method _setValue
-         * @param {String | Integer} value The new value to set
+         * @param {String} value The new value to set
          * @protected
          */
         _setValue: function(value) {
@@ -1225,7 +1282,7 @@
             /**
              * The name of the edit field
              * @attribute fieldName
-             * @default field
+             * @default 'field'
              * @type String
              */
             this.setAttributeConfig('fieldName', {
@@ -1239,7 +1296,7 @@
              * <ul>
              * <li><strong>type</strong> String</li>
              * <li><strong>fieldName</strong> String </li>
-             * <li><strong>value</strong> String | Integer</li>
+             * <li><strong>value</strong> String</li>
              * <li<strong>selectableValues</strong> Object</li>
              * </ul>
              * @attribute fieldGenerator
@@ -1254,7 +1311,7 @@
              * Mostly it's the same as the value property, but in some cases
              * (eg. with select field) it's different
              * @attribute htmlValue
-             * @type String | Integer
+             * @type String
              */
             this.setAttributeConfig('htmlValue', {
                 value: elementInnerHTML
@@ -1262,7 +1319,7 @@
             /**
              * The current value of the field
              * @attribute value
-             * @type String | Integer
+             * @type String
              */
             this.setAttributeConfig('value', {
                 getter: this._getValue,
@@ -1286,7 +1343,7 @@
              *  the value of the options will be the numbers and the foo/bar will be used as the
              *  inner HTML of the option
              * @attribute selectableValues
-             * @default null
+             * @default NULL
              * @type Object
              */
             this.setAttributeConfig('selectableValues', {
@@ -1296,7 +1353,7 @@
             /**
              * Set to true if you want to allow to save an empty editor
              * @attribute allowEmpty
-             * @default false
+             * @default FALSE
              * @type Boolean
              */
             this.setAttributeConfig('allowEmpty', {
@@ -1363,7 +1420,7 @@
             /**
              * Change the bacgkground color of the editable element on mouse over.
              * @attribute animOnMouseover
-             * @default true
+             * @default TRUE
              * @type Boolean
              */
             this.setAttributeConfig('animOnMouseover', {
@@ -1395,7 +1452,7 @@
             /**
              * Set to true if you want to disable the editing
              * @attribute locked
-             * @default false
+             * @default FALSE
              * @type Boolean
              */
             this.setAttributeConfig('locked', {
@@ -1413,7 +1470,7 @@
             /**
              * If it's true, the edit field will be resized. It's size is the same as it's form's size but -10px.
              * @attribute setFieldSize
-             * @default true
+             * @default TRUE
              * @type Boolean
              */
             this.setAttributeConfig('setFieldSize', {
@@ -1421,10 +1478,10 @@
                 value: YL.isBoolean(cfg.setFieldSize) ? cfg.setFieldSize : DEFAULT_CONFIG.SET_FIELD_SIZE
             });
 
-            if(this.get('value') === '' || Dom.hasClass(this.get('element'), CLASSES.EMPTY)) {
-              this.get('element').innerHTML = this._yui_inline_editor_strings.EMPTY_TEXT;
-              // Set the value to empty string if the field is defined as empty
-              this.set('value', '');
+            if(this.get('value') === '' || Dom.hasClass(element, CLASSES.EMPTY)) {
+                element.innerHTML = this._yui_inline_editor_strings.EMPTY_TEXT;
+                // Set the value to empty string if the field is defined as empty
+                this.set('value', '');
             }
             this._addEditControl();
             this._setEditable();
@@ -1573,8 +1630,11 @@
 
         /**
          * Date.parse with progressive enhancement for ISO-8601
-         * Â© 2010 Colin Snover <http://zetafleet.com>
+         * © 2010 Colin Snover <http://zetafleet.com>
          * Released under MIT license.
+         * @method YAHOO.util.Date.parseDate
+         * @return timestamp
+         * @type Integer
          */
         parseDate = function(date) {
             var timestamp = Date.parse(date), struct, minutesOffset;
