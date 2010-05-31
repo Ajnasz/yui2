@@ -4,6 +4,9 @@ var editor1 = null,
     editor4 = null,
     editor5 = null,
     editor6 = null,
+    editor7 = null,
+    editor8 = null,
+    editor9= null,
     calendarEditor = null,
     autocompleteEditor = null;
 (function() {
@@ -52,8 +55,13 @@ try {
           'not selected':false
       }});
       editor6 = new YAHOO.widget.RatingEditor('span-for-rating-editor', {});
+      editor7 = new YAHOO.widget.InlineEditor('span-for-stop-editing');
+      editor7.subscribe('beforeEditEvent', function(){Dom.get('a-container').innerHTML = 'before edit event fired';return false;});
+      editor8 = new YAHOO.widget.InlineEditor('span-for-empty-editor', {strings: {EMPTY_TEXT: 'this is empty'}});
+      editor9 = new YAHOO.widget.RatingEditor('span-for-empty-rating-editor');
       calendarEditor = new YAHOO.widget.CalendarEditor('calendar-editor'),
-      dataSource = new YAHOO.util.LocalDataSource(["Alabama",
+      dataSource = new YAHOO.util.LocalDataSource([
+          "Alabama",
           "Alaska",
           "Arizona",
           "Arkansas",
@@ -79,6 +87,9 @@ try {
             Assert.areNotEqual(input.value, editor1.get('value'), 'changed field value is the same as the editor\'s value')
             editor1.save();
             Assert.areEqual(newValue, editor1.get('value'), 'saved value is not what is entered into the field');
+          },
+          test_button_types: function() {
+            Assert.areEqual('BUTTON', editor1.controls.edit.type.toUpperCase(), "edit button's type is not button");
           }
       }));
       Suite.add(new Tool.TestCase({
@@ -139,8 +150,6 @@ try {
             editor4.save();
             Assert.areEqual(2, editor4.get('value'), 'Bad saved value');
             Assert.areEqual('bingyom', editor4.get('htmlValue'), 'Bad saved htmlValue');
-
-            
         }
       }));
       Suite.add(new Tool.TestCase({
@@ -163,7 +172,7 @@ try {
         }
       }));
       Suite.add(new Tool.TestCase({
-        name: 'YAHOO.widget.InlineEditor rating',
+        name: 'YAHOO.widget.RatingEditor',
         test_render: function() {
             Assert.areEqual(Dom.get('span-for-rating-editor'), editor6.get('element'), 'Could not fiend Editors container');
             Assert.areEqual(3, editor6.get('value'), 'bad editor value');
@@ -192,6 +201,58 @@ try {
         }
       }));
       Suite.add(new Tool.TestCase({
+        name: 'stop editing',
+        test_stopping: function() {
+          editor7.edit();
+          Assert.areEqual(0, editor7.get('element').getElementsByTagName('form').length, 'element value changed');
+        },
+        test_fire:function() {
+          var aContainer = Dom.get('a-container');
+          Assert.areEqual(aContainer.innerHTML, 'before edit event fired', 'before edit event not fired');
+        }
+      }));
+      Suite.add(new Tool.TestCase({
+        name: 'empty editor',
+        test_render: function() {
+          Assert.isTrue(/^this is empty/.test(editor8.get('element').innerHTML), 'element value not changed');
+        },
+        test_value: function() {
+          Assert.areEqual(editor8.get('value'), '', 'value is not empty');
+        },
+        test_value_change: function() {
+          editor8.edit();
+          var form = editor8.get('element').getElementsByTagName('form')[0];
+          var element = form.elements[0];
+          element.value = 'FOOBAR';
+          editor8.save();
+          Assert.areEqual(editor8.get('value'), 'FOOBAR', 'value not changed');
+          Assert.isTrue(/^FOOBAR/.test(editor8.get('element').innerHTML), 'element innerhtml not changed');
+        }
+      }));
+      Suite.add(new Tool.TestCase({
+        name: 'empty rating editor',
+        test_render: function() {
+          Assert.isTrue(/^field is empty, click to edit it/.test(editor9.get('element').innerHTML), 'empty field value not changed');
+        },
+        test_value: function() {
+          Assert.areEqual(editor9.get('value'), '', 'field value is not empty')
+        },
+        test_cancelling: function() {
+          editor9.edit();
+          editor9.cancel();
+          Assert.isTrue(/^field is empty, click to edit it/.test(editor9.get('element').innerHTML), 'empty field value not changed');
+        },
+        test_set_value: function() {
+          editor9.edit();
+          var form = editor9.get('element').getElementsByTagName('form')[0];
+          var elements = form.field;
+          elements[2].checked = true;
+          editor9.save();
+          Assert.areEqual(3, editor9.get('value'), 'Bad saved value');
+          Assert.isTrue(Dom.hasClass(editor9.get('element').firstChild, 'yui-selected-rate' + editor9.get('value')), 'bad class for rating container');
+        }
+      }));
+      Suite.add(new Tool.TestCase({
           name: 'YAHOO.widget.CalendarEditor',
           test_render: function() {
             Assert.areEqual(Dom.get('calendar-editor'), calendarEditor.get('element'), 'Could not fiend Editors container');
@@ -212,10 +273,6 @@ try {
       } else {
           YAHOO.tool.TestRunner.run();
       }
-                ed10 = new YAHOO.widget.InlineEditor('span-for-empty-editor');
-                ed11 = new YAHOO.widget.RatingEditor('span-for-empty-rating-editor');
-                ed12 = new YAHOO.widget.RatingEditor('span-for-empty-textarea-editor', {type: 'textarea'});
-                ed12.subscribe('beforeEditEvent', function(){alert("O");return false;});
 }catch(e) {
   console.log(e)
 }
