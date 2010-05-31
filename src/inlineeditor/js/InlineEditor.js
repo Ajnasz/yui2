@@ -179,7 +179,7 @@
              * @static
              * @type String
              */
-            EMPTY_TEXT:         'field is emtpy, please edit it'
+            EMPTY_TEXT:         'field is empty, click to edit it'
         },
         /**
          * @event cancelEvent
