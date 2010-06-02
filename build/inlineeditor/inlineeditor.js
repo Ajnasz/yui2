@@ -705,6 +705,7 @@
          * @method createForm
          * @private
          * @param {String} id The form (generally the editor's) id
+         * @return HTMLFormElement Editor form
          */
         createForm = function(id) {
             var form = document.createElement('form');
@@ -724,6 +725,7 @@
          * @param {Object} cancelKeys The object literal representing the key(s) to detect.
          * Possible attributes are shift(boolean), alt(boolean), ctrl(boolean) and keys(either
          * an int oran array of ints representing keycodes).
+         * @return {Boolean} Returns true if listener attaching was success
          */
         _attachKeyListeners = function(field, scope, saveKeys, cancelKeys) {
             var _ret        = false,
@@ -743,7 +745,7 @@
          * @method _preprocessHTMLValue
          * @param {String} value
          * @private
-         * @return String The changed value
+         * @return {String} The changed value
          */
         _preprocessHTMLValue = function(value) {
           var preprocess = this.get(processBeforeReadConfig);
@@ -819,6 +821,7 @@
          * Stops the editing
          * @method _stopEdit
          * @private
+         * @return {Boolean} True if changes has been applied on elements
          */
         _stopEdit: function() {
             if(!this._editStarted) {return false;}
@@ -1547,6 +1550,11 @@
          */
         acItemSelectEvent   = 'acItemSelectEvent',
 
+        /**
+         * Generates editor
+         * @method fieldGenerator
+         * @return {HTMLDivElement} Div element which contains the editor
+         */
         fieldGenerator = function() {
             var doc = document,
                 container = doc.createElement('div'),
@@ -1561,14 +1569,32 @@
             container.appendChild(results);
             return container;
         },
+        /**
+         * Initialize the autocomplete widget on the editor field
+         * @method attachAutocomplete
+         * @private
+         */
         attachAutocomplete = function(field, container, dataSource) {
             return new Y.widget.AutoComplete(field, container, dataSource);
         },
+        /**
+         * Sets the last selected attribute's value which is readonly
+         * @method setLastSelected
+         * @private
+         * @param {Object} args Value of the last selected element
+         */
         setLastSelected = function(args) {
             this.setAttributeConfig('lastSelected', {readOnly: true, value: args});
         };
 
         YAHOO.extend(YAHOO.widget.AutocompleteEditor, YAHOO.widget.InlineEditor, {
+            /**
+             * Initialize the Autocomplete editor
+             * @method _autocompleteInit
+             * @protected
+             * @param {String | HTMLElement} el The editable element
+             * @param {Object} cfg (optional) Configurations as an object
+             */
             _autocompleteInit: function(el, cfg) {
                 this.set('fieldGenerator', fieldGenerator);
                 this.setAttributeConfig('dataSource', {value: cfg.dataSource});
@@ -1775,6 +1801,15 @@
  * @namespace YAHOO.widget
  */
 (function() {
+    /**
+     * Rating editor class
+     * @namespace YAHOO.widget
+     * @class RatingEditor
+     * @constructor
+     * @extends YAHOO.widget.InlineEditor
+     * @param {String} el Id of the editable element
+     * @param {Object} cfg Configuration properties
+     */
     YAHOO.widget.RatingEditor = function(el, cfg) {
           cfg = cfg || {};
           cfg = YAHOO.lang.merge(cfg, {type: 'rating'});
@@ -1788,6 +1823,15 @@
         Dom                 = YU.Dom,
         Selector            = YU.Selector,
 
+        /**
+         * Method which generates the edit field
+         * @method fieldGenerator
+         * @private
+         * @param {String} type Editor type
+         * @param {String} fieldName Name of the edit field
+         * @param {String} value Value of the field
+         * @return {HTMLParagraphElement} a paragraph element
+         */
         fieldGenerator = function(type, fieldName, value) {
           var fields = '',
               maxRate = this.get('maxRate'),
@@ -1808,6 +1852,13 @@
           return output;
 
         },
+        /**
+         * Generates HTML text which will display rating stars from the current value
+         * @method htmlFromValue
+         * @private
+         * @param {String | Integer} value Value
+         * @return {String} HTML fragment
+         */
         htmlFromValue = function(value) {
           var output = '';
           if(value !== '') {
@@ -1815,7 +1866,14 @@
           }
           return output;
         };
-        YAHOO.extend(YAHOO.widget.RatingEditor, YAHOO.widget.InlineEditor, {
+
+        Y.extend(YAHOO.widget.RatingEditor, Y.widget.InlineEditor, {
+          /**
+           * Initialize the editor
+           * @method _ratingInit
+           * @param {Object} cfg Configuratoion properties object
+           * @protected
+           */
           _ratingInit: function(cfg) {
             this.set('fieldGenerator', fieldGenerator);
             this.setAttributeConfig('maxRate', {
