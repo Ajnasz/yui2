@@ -179,7 +179,7 @@
              * @static
              * @type String
              */
-            EMPTY_TEXT:         'field is emtpy, please edit it'
+            EMPTY_TEXT:         'field is empty, click to edit it'
         },
         /**
          * @event cancelEvent
@@ -285,6 +285,27 @@
          * @type YAHOO.util.CustomEvent
          */
         beforeEditEvent = 'beforeEditEvent',
+
+        // variables for config names
+        idConfig = 'id',
+        elementConfig = 'element',
+        typeConfig = 'type',
+        fieldNameConfig = 'fieldName',
+        fieldGeneratorConfig = 'fieldGenerator',
+        htmlValueConfig = 'htmlValue',
+        valueConfig = 'value',
+        selectableValuesConfig = 'selectableValues',
+        allowEmptyConfig = 'allowEmpty',
+        processBeforeReadConfig = 'processBeforeRead',
+        processBeforeSaveConfig = 'processBeforeSave',
+        validatorConfig = 'validator',
+        saveKeysConfig = 'saveKeys',
+        cancelKeysConfig = 'cancelKeys',
+        animOnMouseoverConfig = 'animOnMouseover',
+        animToColorConfig = 'animToColor',
+        animFromColorConfig = 'animFromColor',
+        lockedConfig = 'locked',
+        setFieldSizeConfig = 'setFieldSize',
 
         /**
          * Represents the valid inline editor types
@@ -725,7 +746,7 @@
          * @return String The changed value
          */
         _preprocessHTMLValue = function(value) {
-          var preprocess = this.get('processBeforeRead');
+          var preprocess = this.get(processBeforeReadConfig);
           if(YL.isFunction(preprocess)) {
             value = preprocess.call(this, value);
           }
@@ -745,18 +766,18 @@
          */
         save: function() {
             this.fireEvent(beforeSaveEvent);
-            var fieldName   = this.get('fieldName'),
+            var fieldName   = this.get(fieldNameConfig),
                 values      = getFormValues(this._editor),
                 value       = YL.trim(values[fieldName]),
-                validator   = this.get('validator'),
+                validator   = this.get(validatorConfig),
                 _ret = false;
 
-            if(value === '' && !this.get('allowEmpty')) {
+            if(value === '' && !this.get(allowEmptyConfig)) {
                 Y.log("the field value is empty and it's not allowed", 'warn', widgetName);
                 this.fireEvent(emptyValueEvent);
             } else {
                 if(validator.call(this, value)) {
-                    this.set('value', value);
+                    this.set(valueConfig, value);
                     this._stopEdit();
                     this.fireEvent(saveEvent, {value: value, values: values});
                     _ret = true;
@@ -786,8 +807,8 @@
          * @return {Boolean} true if the edit successfully started
          */
         edit: function() {
-            if(this._editStarted || this.get('locked') || this.fireEvent(beforeEditEvent) === false) {return false;}
-            var element = this.get('element');
+            if(this._editStarted || this.get(lockedConfig) || this.fireEvent(beforeEditEvent) === false) {return false;}
+            var element = this.get(elementConfig);
             Dom.addClass(element, CLASSES.EDITING_ACTIVE);
             this._replaceElement();
             this._editStarted = true;
@@ -801,7 +822,7 @@
          */
         _stopEdit: function() {
             if(!this._editStarted) {return false;}
-            var element = this.get('element');
+            var element = this.get(elementConfig);
             Dom.removeClass(element, CLASSES.EDITING_ACTIVE);
             this._restoreElement();
             this._editStarted = false;
@@ -813,10 +834,10 @@
          * @protected
          */
         _setEditable: function() {
-            var element = this.get('element'), anim,
+            var element = this.get(elementConfig), anim,
                 finisAnimation;
             Dom.addClass(element, CLASSES.ELEM_EDITABLE);
-            if(this.get('locked')) {
+            if(this.get(lockedConfig)) {
               Dom.addClass(element, CLASSES.LOCKED);
             }
             Event.on(element, 'click', function(e) {
@@ -825,14 +846,14 @@
                     this.edit();
                 }
             }, this, true);
-            if(this.get('animOnMouseover') && YL.isFunction(YU.ColorAnim)) {
+            if(this.get(animOnMouseoverConfig) && YL.isFunction(YU.ColorAnim)) {
                 finisAnimation = function() {
                     Dom.setStyle(element, 'background-color', '');
                 };
                 Event.on(element, 'mouseover', function() {
-                    if(!this._editStarted && !this.get('locked')) {
-                        var fromColor = this.get('animFromColor'),
-                            toColor = this.get('animToColor');
+                    if(!this._editStarted && !this.get(lockedConfig)) {
+                        var fromColor = this.get(animFromColorConfig),
+                            toColor = this.get(animToColorConfig);
                         anim = new YU.ColorAnim(element, {
                           backgroundColor: {
                             to: toColor,
@@ -868,18 +889,18 @@
          * or false if the edit field is not created
          */
         _createEditor: function() {
-            var form = createForm(this.get('id')),
-                type = this.get('type'),
-                value = this.get('value'),
-                fieldName = this.get('fieldName'),
-                selectableValues = this.get('selectableValues'),
-                generator = this.get('fieldGenerator'),
+            var form = createForm(this.get(idConfig)),
+                type = this.get(typeConfig),
+                value = this.get(valueConfig),
+                fieldName = this.get(fieldNameConfig),
+                selectableValues = this.get(selectableValuesConfig),
+                generator = this.get(fieldGeneratorConfig),
                 _ret = false,
                 field;
 
                 field = generator.call(this, type, fieldName, value, selectableValues);
 
-                _attachKeyListeners(field, this, this.get('saveKeys'), this.get('cancelKeys'));
+                _attachKeyListeners(field, this, this.get(saveKeysConfig), this.get(cancelKeysConfig));
 
 
             if(field.nodeType === 1) {
@@ -897,8 +918,8 @@
          * @protected
          */
         _replaceElement: function() {
-            var element = this.get('element'),
-                fieldName = this.get('fieldName'),
+            var element = this.get(elementConfig),
+                fieldName = this.get(fieldNameConfig),
                 editor  = this._createEditor(),
                 field,
                 size;
@@ -919,7 +940,7 @@
                 field.focus();
               } catch(e){}
             }, 100);
-            if(this.get('setFieldSize')) {
+            if(this.get(setFieldSizeConfig)) {
               size = +Dom.getStyle(editor, 'width').replace('px', '');
               if(isNaN(size)) {
                 size = editor.offsetWidth;
@@ -937,10 +958,10 @@
          */
         _restoreElement: function() {
 
-            var element          = this.get('element'),
-                value            = this.get('value'),
-                htmlValue        = this.get('htmlValue'),
-                selectableValues = this.get('selectableValues'),
+            var element          = this.get(elementConfig),
+                value            = this.get(valueConfig),
+                htmlValue        = this.get(htmlValueConfig),
+                selectableValues = this.get(selectableValuesConfig),
                 html,
                 label,
                 i, sl, oValue, itemLabel, itemValue;
@@ -1108,7 +1129,7 @@
         _addEditControl: function() {
             this._createControls('edit');
 
-            var element  = this.get('element'),
+            var element  = this.get(elementConfig),
                 controls = this.controls;
 
             element.appendChild(controls.container);
@@ -1122,8 +1143,8 @@
          * @protected
          */
         _getValue: function() {
-            var htmlValue        = this.get('htmlValue'),
-                selectableValues = this.get('selectableValues'),
+            var htmlValue        = this.get(htmlValueConfig),
+                selectableValues = this.get(selectableValuesConfig),
                 key,
                 _ret,
                 i, sl, oValue, itemLabel, itemValue;
@@ -1158,7 +1179,7 @@
          * @protected
          */
         _setValue: function(value) {
-            var selectableValues = this.get('selectableValues'),
+            var selectableValues = this.get(selectableValuesConfig),
                 key,
                 i, sl, oValue, itemLabel, itemValue;
 
@@ -1168,19 +1189,19 @@
                     itemLabel = oValue.label;
                     itemValue = oValue.value;
                     if(itemValue == value) {
-                        this.set('htmlValue', itemLabel);
+                        this.set(htmlValueConfig, itemLabel);
                         break;
                     }
                 }
             } else if(YL.isObject(selectableValues)) {
                 for(key in selectableValues) {
                     if(selectableValues[key] == value) {
-                        this.set('htmlValue', key);
+                        this.set(htmlValueConfig, key);
                         break;
                     }
                 }
             } else {
-                this.set('htmlValue', value);
+                this.set(htmlValueConfig, value);
             }
         },
         /**
@@ -1195,7 +1216,7 @@
          */
         _getSaveKeys: function(name, value) {
             if(!YL.isObject(value)) {
-                if(this.get('type') === 'textarea') {
+                if(this.get(typeConfig) === 'textarea') {
                     value = {ctrl: true, keys:[13]};
                 } else {
                     value = {keys:[13]};
@@ -1255,7 +1276,7 @@
              * @type String
              * @final
              */
-            this.setAttributeConfig('id', {
+            this.setAttributeConfig(idConfig, {
                 value: Dom.generateId(),
                 readOnly: true
             });
@@ -1265,7 +1286,7 @@
              * @type HTMLElement
              * @final
              */
-            this.setAttributeConfig('element', {
+            this.setAttributeConfig(elementConfig, {
                 value: element,
                 readOnly: true
             });
@@ -1275,7 +1296,7 @@
              * @default 'text'
              * @type String
              */
-            this.setAttributeConfig('type', {
+            this.setAttributeConfig(typeConfig, {
                 validator: validateType,
                 value: cfg.type || DEFAULT_CONFIG.TYPE
             });
@@ -1285,7 +1306,7 @@
              * @default 'field'
              * @type String
              */
-            this.setAttributeConfig('fieldName', {
+            this.setAttributeConfig(fieldNameConfig, {
                 validator: YL.isString,
                 value: cfg.fieldName || DEFAULT_CONFIG.FIELD_NAME
             });
@@ -1302,7 +1323,7 @@
              * @attribute fieldGenerator
              * @type Function
              */
-            this.setAttributeConfig('fieldGenerator', {
+            this.setAttributeConfig(fieldGeneratorConfig, {
                 validator: YL.isFunction,
                 value: cfg.fieldGenerator || DEFAULT_CONFIG.FIELD_GENERATOR
             });
@@ -1313,7 +1334,7 @@
              * @attribute htmlValue
              * @type String
              */
-            this.setAttributeConfig('htmlValue', {
+            this.setAttributeConfig(htmlValueConfig, {
                 value: elementInnerHTML
             });
             /**
@@ -1321,11 +1342,11 @@
              * @attribute value
              * @type String
              */
-            this.setAttributeConfig('value', {
+            this.setAttributeConfig(valueConfig, {
                 getter: this._getValue,
                 method: this._setValue,
                 setter: function(value) {
-                  var preprocess = this.get('processBeforeSave');
+                  var preprocess = this.get(processBeforeSaveConfig);
                   if(YL.isFunction(preprocess)) {
                     value = preprocess.call(this, value);
                   }
@@ -1346,7 +1367,7 @@
              * @default NULL
              * @type Object
              */
-            this.setAttributeConfig('selectableValues', {
+            this.setAttributeConfig(selectableValuesConfig, {
                 validator: YL.isObject,
                 value: YL.isObject(cfg.selectableValues) ? cfg.selectableValues : DEFAULT_CONFIG.SELECTABLE_VALUES
             });
@@ -1356,7 +1377,7 @@
              * @default FALSE
              * @type Boolean
              */
-            this.setAttributeConfig('allowEmpty', {
+            this.setAttributeConfig(allowEmptyConfig, {
                 value: YL.isBoolean(cfg.allowEmpty) ? cfg.allowEmpty : DEFAULT_CONFIG.ALLOW_EMPTY
             });
 
@@ -1367,7 +1388,7 @@
              * @attribute processBeforeRead
              * @type Function
              */
-            this.setAttributeConfig('processBeforeRead', {
+            this.setAttributeConfig(processBeforeReadConfig, {
                 validator: YL.isFunction,
                 value: YL.isFunction(cfg.processBeforeRead) ? cfg.processBeforeRead : DEFAULT_CONFIG.PROCESS_BEFORE_READ_METHOD
             });
@@ -1377,7 +1398,7 @@
              * @attribute processBeforeSave
              * @type Function
              */
-            this.setAttributeConfig('processBeforeSave', {
+            this.setAttributeConfig(processBeforeSaveConfig, {
                 validator: YL.isFunction,
                 value: YL.isFunction(cfg.processBeforeSave) ? cfg.processBeforeSave : DEFAULT_CONFIG.PROCESS_BEFORE_SAVE_METHOD
             });
@@ -1388,7 +1409,7 @@
              * @attribute validator
              * @type Function
              */
-            this.setAttributeConfig('validator', {
+            this.setAttributeConfig(validatorConfig, {
                 validator: YL.isFunction,
                 value: YL.isFunction(cfg.validator) ? cfg.validator : DEFAULT_CONFIG.VALIDATION_METHOD
             });
@@ -1399,7 +1420,7 @@
              * @type Object
              * @see YAHOO.util.KeyListener
              */
-            this.setAttributeConfig('saveKeys', {
+            this.setAttributeConfig(saveKeysConfig, {
                 validator: YL.isObject,
                 getter: this._getSaveKeys,
                 value: YL.isObject(cfg.saveKeys) ? cfg.saveKeys : null
@@ -1411,7 +1432,7 @@
              * @type Object
              * @see YAHOO.util.KeyListener
              */
-            this.setAttributeConfig('cancelKeys', {
+            this.setAttributeConfig(cancelKeysConfig, {
                 validator: YL.isObject,
                 getter: this._getCancelKeys,
                 value: YL.isObject(cfg.cancelKeys) ? cfg.cancelKeys : null
@@ -1423,7 +1444,7 @@
              * @default TRUE
              * @type Boolean
              */
-            this.setAttributeConfig('animOnMouseover', {
+            this.setAttributeConfig(animOnMouseoverConfig, {
                 validator: YL.isBoolean,
                 value: YL.isBoolean(cfg.animOnMouseover) ? cfg.animOnMouseover : DEFAULT_CONFIG.ANIM_ON_MOUSEOVER
             });
@@ -1433,7 +1454,7 @@
              * @default #D7EEFF
              * @type String
              */
-            this.setAttributeConfig('animToColor', {
+            this.setAttributeConfig(animToColorConfig, {
                 validator: YL.isString,
                 value: YL.isString(cfg.animToColor) ? cfg.animToColor : DEFAULT_CONFIG.ANIM_TO_COLOR
             });
@@ -1444,7 +1465,7 @@
              * @default #FFFFFF
              * @type String
              */
-            this.setAttributeConfig('animFromColor', {
+            this.setAttributeConfig(animFromColorConfig, {
                 validator: YL.isString,
                 value: YL.isString(cfg.animFromColor) ? cfg.animFromColor : DEFAULT_CONFIG.ANIM_FROM_COLOR
             });
@@ -1455,15 +1476,15 @@
              * @default FALSE
              * @type Boolean
              */
-            this.setAttributeConfig('locked', {
+            this.setAttributeConfig(lockedConfig, {
                 validator: YL.isBoolean,
-                value: YL.isBoolean(cfg.locked) ? cfg.locked : Dom.hasClass(this.get('element'), CLASSES.LOCKED) ? true : DEFAULT_CONFIG.LOCKED,
+                value: YL.isBoolean(cfg.locked) ? cfg.locked : Dom.hasClass(this.get(elementConfig), CLASSES.LOCKED) ? true : DEFAULT_CONFIG.LOCKED,
                 method: function(value) {
                     if(value) {
                         this._stopEdit();
-                        Dom.addClass(this.get('element'), CLASSES.LOCKED);
+                        Dom.addClass(this.get(elementConfig), CLASSES.LOCKED);
                     } else {
-                        Dom.removeClass(this.get('element'), CLASSES.LOCKED);
+                        Dom.removeClass(this.get(elementConfig), CLASSES.LOCKED);
                     }
                 }
             });
@@ -1473,15 +1494,15 @@
              * @default TRUE
              * @type Boolean
              */
-            this.setAttributeConfig('setFieldSize', {
+            this.setAttributeConfig(setFieldSizeConfig, {
                 validator: YL.isBoolean,
                 value: YL.isBoolean(cfg.setFieldSize) ? cfg.setFieldSize : DEFAULT_CONFIG.SET_FIELD_SIZE
             });
 
-            if(this.get('value') === '' || Dom.hasClass(element, CLASSES.EMPTY)) {
+            if(this.get(valueConfig) === '' || Dom.hasClass(element, CLASSES.EMPTY)) {
                 element.innerHTML = this._yui_inline_editor_strings.EMPTY_TEXT;
                 // Set the value to empty string if the field is defined as empty
-                this.set('value', '');
+                this.set(valueConfig, '');
             }
             this._addEditControl();
             this._setEditable();
