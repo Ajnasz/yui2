@@ -4,6 +4,15 @@
  * @namespace YAHOO.widget
  */
 (function() {
+    /**
+     * Rating editor class
+     * @namespace YAHOO.widget
+     * @class RatingEditor
+     * @constructor
+     * @extends YAHOO.widget.InlineEditor
+     * @param {String} el Id of the editable element
+     * @param {Object} cfg Configuration properties
+     */
     YAHOO.widget.RatingEditor = function(el, cfg) {
           cfg = cfg || {};
           cfg = YAHOO.lang.merge(cfg, {type: 'rating'});
@@ -17,6 +26,15 @@
         Dom                 = YU.Dom,
         Selector            = YU.Selector,
 
+        /**
+         * Method which generates the edit field
+         * @method fieldGenerator
+         * @private
+         * @param {String} type Editor type
+         * @param {String} fieldName Name of the edit field
+         * @param {String} value Value of the field
+         * @return {HTMLParagraphElement} a paragraph element
+         */
         fieldGenerator = function(type, fieldName, value) {
           var fields = '',
               maxRate = this.get('maxRate'),
@@ -37,6 +55,13 @@
           return output;
 
         },
+        /**
+         * Generates HTML text which will display rating stars from the current value
+         * @method htmlFromValue
+         * @private
+         * @param {String | Integer} value Value
+         * @return {String} HTML fragment
+         */
         htmlFromValue = function(value) {
           var output = '';
           if(value !== '') {
@@ -44,7 +69,14 @@
           }
           return output;
         };
-        YAHOO.extend(YAHOO.widget.RatingEditor, YAHOO.widget.InlineEditor, {
+
+        Y.extend(YAHOO.widget.RatingEditor, Y.widget.InlineEditor, {
+          /**
+           * Initialize the editor
+           * @method _ratingInit
+           * @param {Object} cfg Configuratoion properties object
+           * @protected
+           */
           _ratingInit: function(cfg) {
             this.set('fieldGenerator', fieldGenerator);
             this.setAttributeConfig('maxRate', {

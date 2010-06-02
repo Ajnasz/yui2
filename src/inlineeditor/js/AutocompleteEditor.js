@@ -34,6 +34,11 @@
          */
         acItemSelectEvent   = 'acItemSelectEvent',
 
+        /**
+         * Generates editor
+         * @method fieldGenerator
+         * @return {HTMLDivElement} Div element which contains the editor
+         */
         fieldGenerator = function() {
             var doc = document,
                 container = doc.createElement('div'),
@@ -48,14 +53,32 @@
             container.appendChild(results);
             return container;
         },
+        /**
+         * Initialize the autocomplete widget on the editor field
+         * @method attachAutocomplete
+         * @private
+         */
         attachAutocomplete = function(field, container, dataSource) {
             return new Y.widget.AutoComplete(field, container, dataSource);
         },
+        /**
+         * Sets the last selected attribute's value which is readonly
+         * @method setLastSelected
+         * @private
+         * @param {Object} args Value of the last selected element
+         */
         setLastSelected = function(args) {
             this.setAttributeConfig('lastSelected', {readOnly: true, value: args});
         };
 
         YAHOO.extend(YAHOO.widget.AutocompleteEditor, YAHOO.widget.InlineEditor, {
+            /**
+             * Initialize the Autocomplete editor
+             * @method _autocompleteInit
+             * @protected
+             * @param {String | HTMLElement} el The editable element
+             * @param {Object} cfg (optional) Configurations as an object
+             */
             _autocompleteInit: function(el, cfg) {
                 this.set('fieldGenerator', fieldGenerator);
                 this.setAttributeConfig('dataSource', {value: cfg.dataSource});

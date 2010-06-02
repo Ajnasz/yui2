@@ -705,6 +705,7 @@
          * @method createForm
          * @private
          * @param {String} id The form (generally the editor's) id
+         * @return HTMLFormElement Editor form
          */
         createForm = function(id) {
             var form = document.createElement('form');
@@ -724,6 +725,7 @@
          * @param {Object} cancelKeys The object literal representing the key(s) to detect.
          * Possible attributes are shift(boolean), alt(boolean), ctrl(boolean) and keys(either
          * an int oran array of ints representing keycodes).
+         * @return {Boolean} Returns true if listener attaching was success
          */
         _attachKeyListeners = function(field, scope, saveKeys, cancelKeys) {
             var _ret        = false,
@@ -743,7 +745,7 @@
          * @method _preprocessHTMLValue
          * @param {String} value
          * @private
-         * @return String The changed value
+         * @return {String} The changed value
          */
         _preprocessHTMLValue = function(value) {
           var preprocess = this.get(processBeforeReadConfig);
@@ -819,6 +821,7 @@
          * Stops the editing
          * @method _stopEdit
          * @private
+         * @return {Boolean} True if changes has been applied on elements
          */
         _stopEdit: function() {
             if(!this._editStarted) {return false;}
