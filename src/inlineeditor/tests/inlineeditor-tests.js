@@ -18,7 +18,6 @@ var editor1 = null,
     YAHOO.widget.InlineEditor.DEFAULT_CONFIG.SET_FIELD_SIZE = false;
 
     Event.onDOMReady(function() {
-try {
       var logger = new Tool.TestLogger(null, { height: '80%' });
         YAHOO.widget.InlineEditor.STRINGS.EDIT_BUTTON_TEXT = 'start editing';
       editor1 = new YAHOO.widget.InlineEditor('element', {strings: {
@@ -50,10 +49,10 @@ try {
           libe: 5,
           talibe: 6
       }});
-      var editor5 = new YAHOO.widget.InlineEditor('span-for-checkbox', {type: 'checkbox', selectableValues:{
-          'selected': true,
-          'not selected':false
-      }});
+      var editor5 = new YAHOO.widget.InlineEditor('span-for-checkbox', {type: 'checkbox', selectableValues:[
+        {label: 'selected', value: true},
+        {label: 'not selected', value:false}
+      ]});
       editor6 = new YAHOO.widget.RatingEditor('span-for-rating-editor', {});
       editor7 = new YAHOO.widget.InlineEditor('span-for-stop-editing');
       editor7.subscribe('beforeEditEvent', function(){Dom.get('a-container').innerHTML = 'before edit event fired';return false;});
@@ -267,14 +266,25 @@ try {
             Assert.areEqual(calendarEditor.get('htmlValue'), calendarEditor.get('element').innerHTML.substring(0, 10), 'Editor htmlValue and element text value are not the same');
           }
       }));
+      Suite.add(new Tool.TestCase({
+          name: 'YAHOO.widget.AutocompleteEditor',
+          test_render: function() {
+            Assert.areEqual(Dom.get('autocomplete-editor'), autocompleteEditor.get('element'), 'Could not fiend Editors container');
+            Assert.areEqual(true, autocompleteEditor.edit(), 'editor not started');
+          },
+          test_select: function() {
+            Assert.isInstanceOf(YAHOO.widget.AutoComplete, autocompleteEditor.autocomplete, 'Could not find Autocomplete instance');
+            autocompleteEditor.autocomplete.sendQuery('ala');
+            autocompleteEditor.autocomplete._selectItem(autocompleteEditor.autocomplete.getListItems()[0])
+            Assert.areEqual(autocompleteEditor.get('lastSelected')[2][0], 'Alabama', 'selected item value is wrong');
+            Assert.isTrue(/^Alabama/.test(autocompleteEditor.get('element').innerHTML), 'field value is not selected value');
+          }
+      }));
       Tool.TestRunner.add(Suite);
       if (parent && parent != window) {
           YAHOO.tool.TestManager.load();
       } else {
           YAHOO.tool.TestRunner.run();
       }
-}catch(e) {
-  console.log(e)
-}
     });
 })();
