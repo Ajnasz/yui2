@@ -496,7 +496,7 @@
                     oValue = selectableValues[i];
                     itemLabel = oValue.label;
                     itemValue = oValue.value;
-                    radio = _genRadioField(name, label, itemValue, (itemLabel == value || itemValue == value));
+                    radio = _genRadioField(name, itemLabel, itemValue, (itemLabel == value || itemValue == value));
                     field.appendChild(radio);
                 }
             } else {
