@@ -102,12 +102,13 @@
                 });
                 this.subscribe('editStartedEvent', function() {
                     setLastSelected.call(this, null);
-                    this.set('value', '');
+                    // this.set('value', '');
                 });
                 this.subscribe('elementReplacedEvent', function() {
                     var id = this.get('id'),
-                    autocomplete = attachAutocomplete(id + '-field', id + '-results', this.get('dataSource')),
-                    _editor = this;
+                        autocomplete = attachAutocomplete(id + '-field', id + '-results', this.get('dataSource')),
+                        _editor = this;
+
                     autocomplete.itemSelectEvent.subscribe(function(eventName, args){
                         _editor.fireEvent(acItemSelectEvent, args);
                         setLastSelected.call(_editor, args);
