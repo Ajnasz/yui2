@@ -496,7 +496,7 @@
                     oValue = selectableValues[i];
                     itemLabel = oValue.label;
                     itemValue = oValue.value;
-                    radio = _genRadioField(name, label, itemValue, (itemLabel == value || itemValue == value));
+                    radio = _genRadioField(name, itemLabel, itemValue, (itemLabel == value || itemValue == value));
                     field.appendChild(radio);
                 }
             } else {
@@ -960,7 +960,7 @@
          * @protected
          */
         _restoreElement: function() {
-
+            this.fireEvent(beforeElementRestoredEvent);
             var element          = this.get(elementConfig),
                 value            = this.get(valueConfig),
                 htmlValue        = this.get(htmlValueConfig),
@@ -969,7 +969,6 @@
                 label,
                 i, sl, oValue, itemLabel, itemValue;
 
-            this.fireEvent(beforeElementRestoredEvent);
             if(YL.isArray(selectableValues)) {
                 for (i = 0, sl = selectableValues.length; i < sl; i++) {
                     oValue = selectableValues[i];
@@ -1618,12 +1617,13 @@
                 });
                 this.subscribe('editStartedEvent', function() {
                     setLastSelected.call(this, null);
-                    this.set('value', '');
+                    // this.set('value', '');
                 });
                 this.subscribe('elementReplacedEvent', function() {
                     var id = this.get('id'),
-                    autocomplete = attachAutocomplete(id + '-field', id + '-results', this.get('dataSource')),
-                    _editor = this;
+                        autocomplete = attachAutocomplete(id + '-field', id + '-results', this.get('dataSource')),
+                        _editor = this;
+
                     autocomplete.itemSelectEvent.subscribe(function(eventName, args){
                         _editor.fireEvent(acItemSelectEvent, args);
                         setLastSelected.call(_editor, args);
@@ -1704,7 +1704,7 @@
                 field = doc.createElement('input'),
                 calendar = doc.createElement('div');
 
-            Dom.setAttribute(field, 'type', 'hidden');
+            Dom.setAttribute(field, 'type', this.get('hiddenField') ? 'hidden' : 'text');
             Dom.setAttribute(field, 'name', this.get('fieldName'));
             Dom.setAttribute(field, 'id', this.get('id') + '-field');
             Dom.setAttribute(calendar, 'id', this.get('id') + '-calendar');
@@ -1748,6 +1748,17 @@
                 this.setAttributeConfig('saveOnSelect', {
                     validator: YL.isBoolean,
                     value: YL.isBoolean(cfg.saveOnSelect) ? cfg.saveOnSelect : true
+                });
+                /**
+                 * The editor generates a input field for the calendar, where the selected date
+                 * will be stored, but it can be hidden
+                 * @config hiddenField
+                 * @default true
+                 * @type Boolean
+                 */
+                this.setAttributeConfig('hiddenField', {
+                    validator: YL.isBoolean,
+                    value: YL.isBoolean(cfg.hiddenfield) ? cfg.hiddenfield : true
                 });
 
                 /**
