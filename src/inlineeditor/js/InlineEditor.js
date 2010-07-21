@@ -960,7 +960,7 @@
          * @protected
          */
         _restoreElement: function() {
-
+            this.fireEvent(beforeElementRestoredEvent);
             var element          = this.get(elementConfig),
                 value            = this.get(valueConfig),
                 htmlValue        = this.get(htmlValueConfig),
@@ -969,7 +969,6 @@
                 label,
                 i, sl, oValue, itemLabel, itemValue;
 
-            this.fireEvent(beforeElementRestoredEvent);
             if(YL.isArray(selectableValues)) {
                 for (i = 0, sl = selectableValues.length; i < sl; i++) {
                     oValue = selectableValues[i];
