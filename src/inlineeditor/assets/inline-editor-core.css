@@ -1,29 +1,30 @@
 .yui-inline-editor-form {
-  padding: 5px;
+    padding: 5px;
 }
 .yui-inline-editor-button {
     background:transparent;
     border: 0;
     color: #0039FF;
     cursor: pointer;
+    font:inherit;
 }
 .yui-inline-editor-button:hover {
     color:#102D94;
 }
 button.yui-inline-editor-locked {
-  color:#B90F0F;
+    color:#B90F0F;
 }
 .yui-inline-editor-lock-marker,
 .yui-inline-editor-locked .yui-inline-editor-edit {
-  display:none;
+    display:none;
 }
 .yui-inline-editor-locked .yui-inline-editor-lock-marker {
-  display:inline;
+    display:inline;
 }
 .yui-inline-editor-editing .yui-inline-editor-controls {
     display:block;
 }
 .yui-inline-editor-editing .yui-ac-input {
-  position:static;
+    position:static;
 }
 
