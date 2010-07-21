@@ -60,7 +60,7 @@
                 field = doc.createElement('input'),
                 calendar = doc.createElement('div');
 
-            Dom.setAttribute(field, 'type', 'hidden');
+            Dom.setAttribute(field, 'type', this.get('hiddenField') ? 'hidden' : 'text');
             Dom.setAttribute(field, 'name', this.get('fieldName'));
             Dom.setAttribute(field, 'id', this.get('id') + '-field');
             Dom.setAttribute(calendar, 'id', this.get('id') + '-calendar');
@@ -104,6 +104,17 @@
                 this.setAttributeConfig('saveOnSelect', {
                     validator: YL.isBoolean,
                     value: YL.isBoolean(cfg.saveOnSelect) ? cfg.saveOnSelect : true
+                });
+                /**
+                 * The editor generates a input field for the calendar, where the selected date
+                 * will be stored, but it can be hidden
+                 * @config hiddenField
+                 * @default true
+                 * @type Boolean
+                 */
+                this.setAttributeConfig('hiddenField', {
+                    validator: YL.isBoolean,
+                    value: YL.isBoolean(cfg.hiddenfield) ? cfg.hiddenfield : true
                 });
 
                 /**
